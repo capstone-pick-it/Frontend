@@ -1,0 +1,58 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
+:root {
+    --mainfont: "Pretendard";
+
+    //primary
+    --primary-50:  #F0F5FF;
+    --primary-100: #E3ECFF;
+    --primary-200: #C9DCFF;
+    --primary-300: #B0CBFF;
+    --primary-400: #96BAFF;
+    --primary-500: #7DA9FF; 
+    --primary-600: #6690E1;
+    --primary-700: #4F76C4;
+    --primary-800: #3B61AB;
+    --primary-900: #264585;
+    
+    /* secondary */
+    --secondary-50:  #F4F4EB;
+    --secondary-100: #E5F2D1;
+    --secondary-300: #E5E593;
+    --secondary-500: #B5B674;
+    --secondary-800: #818251;
+
+    //grayscale
+    --white:  #FCFDFF;
+    --gray-100: #EDEFF3;
+    --gray-200: #DBDFE9;
+    --gray-300: #C7CBDB;
+    --gray-400: #A7ACBC;
+    --gray-500: #888C9D;
+    --gray-600: #6C6F7D;
+    --gray-700: #51535E;
+    --gray-800: #2E303A;
+    --black: #14161B;
+    
+    // error
+    --error-light: #FFF1F2;
+    --error-main:  #FF4B4B;
+    --error-dark:  #D72C2C;
+
+
+    // font
+    color: var(--black);
+    font-family: var(--mainfont);
+    font-size: 16px;
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: 0px;
+    
+
+    // 폰트 최적화
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+}
