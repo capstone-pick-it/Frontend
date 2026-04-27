@@ -16,7 +16,7 @@ body {
 
 .container {
   position: relative;
-  font-family: 'Overpass', sans-serif;
+  font-family: var(--mainfont);
   width: 393px;
   min-height: 852px;
   height: 100%;
