@@ -1,6 +1,7 @@
 import React from 'react'
 import logo from './assets/images/logo.png'
 import Nav from './components/Nav'
+import TopBar from './components/TopBar'
 
 const App = () => {
   return (
