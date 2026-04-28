@@ -17,3 +17,10 @@ export const CHAT_MESSAGES = {
         { id: 2, text: "네 안녕하세요~", isMe: true },
     ]
 };
+
+//채팅방 팀요청 상태 데이터
+export const TEAM_STATUS = {
+    "김성연": "WAITING",   // 팀 요청 전송 후 대기 상태
+    "이은우": "REQUEST", // 팀 요청이 온 상태
+    "냠": "ACCEPTED"   // 팀원 요청 수락 상태
+}

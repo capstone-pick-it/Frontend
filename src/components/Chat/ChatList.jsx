@@ -6,13 +6,14 @@ import { USERS } from '../../data/mockData'
 
 const ChatList = () => {
     const navigate = useNavigate();
+    const users = USERS;
 
   return (
-    <div id="ChatContainer_Wrap">
-        {USERS.map((user) => (
+    <div className="ChatContainer_Wrap">
+        {users?.map((user) => (
             <div
                 key={user.id}
-                id='ChatList_Wrap'
+                className='ChatList_Wrap'
                 onClick={() => navigate(`/chatroom/${user.name}`)}
             >
                 <img src={profile} alt="" />

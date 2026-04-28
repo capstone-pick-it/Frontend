@@ -6,6 +6,9 @@ import { useParams } from 'react-router-dom'
 import { CHAT_MESSAGES } from '../data/mockData'
 import Nav from '../components/Nav'
 import send from '../assets/images/Chat/send.svg'
+import back from '../assets/images/Chat/back.svg'
+import ChatToast from '../components/Chat/ChatToast' 
+import { Link } from 'react-router-dom'
 
 const ChatRoom = () => {
     const { roomId } = useParams();
@@ -14,12 +17,17 @@ const ChatRoom = () => {
   return (
     <div id="ChatRoom_Wrap" className="container">
         <header>
-            <h1>{roomId}</h1>
+            <div>
+                <Link to="/chat">
+                    <img src={back} alt="" />
+                </Link>
+                <h1>{roomId}</h1>
+            </div>
             <img src={team_request} alt="" />
         </header>
 
         <div id="ChatContent_Wrap">
-            {message.map((msg) => (
+            {message?.map((msg) => (
                 <ChatMessage
                     key={msg.id}
                     text={msg.text}
@@ -35,7 +43,9 @@ const ChatRoom = () => {
                 <img src={send} alt="" />
             </button>
         </footer>
-        
+
+        <ChatToast/>
+
         <Nav/>
     </div>
   )
