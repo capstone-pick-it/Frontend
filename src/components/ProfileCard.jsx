@@ -1,5 +1,4 @@
 import React from 'react';
-import '../assets/sass/components/_profileCard.scss';
 
 // 이름, 전공, 학년, 레벨, 포인트 데이터속성 받아오기
 const ProfileCard = ({ name, major, year, level, points }) => {
