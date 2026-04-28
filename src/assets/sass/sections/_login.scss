@@ -1,0 +1,97 @@
+.login {
+  min-height: calc(852px - 105px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: 60px;
+}
+
+.login__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 56px;
+  text-align: center;
+}
+
+.login__logo {
+  width: 96px;
+  margin-bottom: 24px;
+}
+
+.login__copy {
+  h1 {
+    @include heading1;
+    color: var(--black);
+    margin-bottom: 8px;
+  }
+
+  p {
+    @include body5;
+    color: var(--gray-600);
+  }
+}
+
+.login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.login__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  span {
+    @include body4;
+    color: var(--gray-800);
+  }
+
+  input {
+    width: 100%;
+    height: 52px;
+    padding: 0 16px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    background-color: var(--white);
+    color: var(--black);
+    @include body3;
+
+    &::placeholder {
+      color: var(--gray-400);
+    }
+
+    &:focus {
+      border-color: var(--primary-500);
+    }
+  }
+}
+
+.login__submit {
+  width: 100%;
+  height: 54px;
+  margin-top: 12px;
+  border-radius: 8px;
+  background-color: var(--primary-500);
+  color: var(--white);
+  @include body2;
+}
+
+.login__links {
+  @include flex-center;
+  gap: 12px;
+  margin-top: 22px;
+
+  button {
+    background-color: transparent;
+    color: var(--gray-600);
+    @include body5;
+  }
+
+  span {
+    width: 1px;
+    height: 12px;
+    background-color: var(--gray-300);
+  }
+}
