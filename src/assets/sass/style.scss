@@ -6,6 +6,9 @@
 @import "setting/var";
 @import "setting/mixin";
 
+// pages
+@import 'sections/mypage';
+
 // components
 @import 'sections/_nav';
 @import 'components/topbar';

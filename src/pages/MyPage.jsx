@@ -27,21 +27,21 @@ const MyPage = () => {
             <div className="mypage-content">
 
                 {/* ProfileCard */}
-                <ProfileCard 
-                name={userInfo.name}
-                major={userInfo.major}
-                year={userInfo.year}
-                level={userInfo.level}
-                points={userInfo.points}
-                />
+                <div className="section-profile">
+                    <ProfileCard 
+                        name={userInfo.name}
+                        major={userInfo.major}
+                        year={userInfo.year}
+                        level={userInfo.level}
+                        points={userInfo.points}
+                    />
+                </div>
 
                 {/* 추후 컴포넌트 추가 */}
-                {/* <TeamTendency ... /> */}
-                {/* <ProjectHistory ... /> */}
                 
             </div>
 
-            {/* 하단 네비게이터 바 */}
+            {/* 하단 네비게이션 바 */}
             <Nav />
 
         </div>
