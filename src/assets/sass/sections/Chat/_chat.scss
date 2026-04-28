@@ -1,9 +1,10 @@
+//기본 채팅 페이지
 #Chat_Wrap{
 
 }
 
 
-//채팅방 리스트
+//채팅 리스트
 #ChatList_Wrap{
     position: relative;
     width: 100%;
@@ -15,6 +16,7 @@
     align-items: center;
     gap: 8px;
     padding: 0 16px;
+    margin-bottom: 8px;
 
     img{
         width: 40px;
@@ -55,5 +57,24 @@
     p{
         color: var(--white);
         @include caption
+    }
+}
+
+//채팅방 페이지
+#ChatRoom_Wrap{
+    padding-top: 47px;
+    
+    header{
+        display: flex;
+        justify-content: space-between;
+
+        h1{
+            @include heading1
+        }
+
+        img{
+            width: 32px;
+            height: 32px;
+        }
     }
 }
