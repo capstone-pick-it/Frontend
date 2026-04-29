@@ -3,10 +3,10 @@ import home from '../assets/images/Nav/home.svg'
 import group from '../assets/images/Nav/group.svg'
 import chat from '../assets/images/Nav/chat.svg'
 import mypage from '../assets/images/Nav/mypage.svg'
-import home_b from '../assets/images/Nav/home_b.svg'
-import group_b from '../assets/images/Nav/group_b.svg'
-import chat_b from '../assets/images/Nav/chat_b.svg'
-import mypage_b from '../assets/images/Nav/mypage_b.svg'
+// import home_b from '../assets/images/Nav/home_b.svg'
+// import group_b from '../assets/images/Nav/group_b.svg'
+// import chat_b from '../assets/images/Nav/chat_b.svg'
+// import mypage_b from '../assets/images/Nav/mypage_b.svg'
 
 const Nav = () => {
   return (
