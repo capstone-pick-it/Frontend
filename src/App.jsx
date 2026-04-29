@@ -1,5 +1,6 @@
 import React from 'react'
 import Login from './pages/Login'
+import PasswordReset from './pages/PasswordReset'
 import Signup from './pages/Signup'
 
 const App = () => {
@@ -13,6 +14,7 @@ const App = () => {
       />
     ),
     signup: <Signup onLoginClick={() => setPage('login')} />,
+    reset: <PasswordReset onLoginClick={() => setPage('login')} />,
   }
 
   return (
