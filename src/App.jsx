@@ -3,7 +3,7 @@ import Login from './pages/Login'
 
 const App = () => {
   return (
-    <div className='container'>
+    <div className='container auth-container'>
       <Login />
     </div>
   )

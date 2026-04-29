@@ -1,38 +1,27 @@
 import React from 'react'
 import logo from '../assets/images/logo.png'
+import AuthButton from '../components/auth/AuthButton'
+import AuthField from '../components/auth/AuthField'
 
-const Login = () => {
+const Login = ({ onSignupClick, onResetPasswordClick }) => {
   return (
     <main className="login">
-      <section className="login__intro">
+      <section className="login__logo-area">
         <img className="login__logo" src={logo} alt="Pick-It" />
-        <div className="login__copy">
-          <h1>Pick-It</h1>
-          <p>함께할 팀원을 찾고, 프로젝트를 시작해보세요.</p>
-        </div>
       </section>
 
       <form className="login__form">
-        <label className="login__field">
-          <span>이메일</span>
-          <input type="email" placeholder="이메일을 입력하세요" />
-        </label>
-
-        <label className="login__field">
-          <span>비밀번호</span>
-          <input type="password" placeholder="비밀번호를 입력하세요" />
-        </label>
-
-        <button className="login__submit" type="submit">
-          로그인
+        <AuthField type="email" placeholder="학교 이메일주소" />
+        <AuthField type="password" placeholder="비밀번호" />
+        <button className="login__reset" type="button" onClick={onResetPasswordClick}>
+          비밀번호가 기억나지 않으시나요?
         </button>
+        <AuthButton type="submit">로그인</AuthButton>
       </form>
 
-      <div className="login__links">
-        <button type="button">비밀번호 찾기</button>
-        <span />
-        <button type="button">회원가입</button>
-      </div>
+      <button className="login__signup" type="button" onClick={onSignupClick}>
+        회원가입
+      </button>
     </main>
   )
 }
