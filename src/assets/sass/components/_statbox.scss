@@ -1,0 +1,26 @@
+@import "../setting/mixin.scss";
+
+.stat-box {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        width: 104px;
+        height: 60px;
+        padding: 8px 12px;
+        
+        border-radius: var(--radius-md);
+        background: var(--white);
+
+        .stat-label {
+            @include body5;
+            color: var(--black);
+        }
+
+        .stat-value {
+            align-self: flex-end;
+            
+            @include body2;
+            color: var(--primary-800);
+        }
+    }

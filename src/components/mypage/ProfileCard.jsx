@@ -1,4 +1,5 @@
 import React from 'react';
+import StatBox from '../StatBox';
 
 // 이름, 전공, 학년, 레벨, 포인트 데이터속성 받아오기
 const ProfileCard = ({ name, major, year, level, points }) => {
@@ -20,16 +21,16 @@ const ProfileCard = ({ name, major, year, level, points }) => {
         <div className="profile-stats">
 
             {/* 팀플레벨 */}
-            <div className="stat-box">
-                <span className="stat-label">팀플레벨</span>
-                <span className="stat-value">LV.{level}</span>
-            </div>
+            <StatBox 
+                label="팀플레벨" 
+                value={`LV.${level}`} 
+            />
 
-            {/* 포인트 (팀플레벨과 같은 디자인이므로 클래스명 재사용) */}
-            <div className="stat-box">
-                <span className="stat-label">포인트</span>
-                <span className="stat-value">{points}p</span>
-            </div> 
+            {/* 포인트 */}
+            <StatBox 
+                label="포인트" 
+                value={`${points}p`} 
+            />
 
         </div>
 

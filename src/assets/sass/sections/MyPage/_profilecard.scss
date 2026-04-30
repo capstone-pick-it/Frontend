@@ -44,31 +44,5 @@
         display: flex;
         gap: 8px; // 박스 사이 간격
         width: 100%;
-
-        // 팀플레벨, 포인트 공통 디자인 stat-box
-        .stat-box {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between; // label 맨 위, value 맨 아래 배치
-
-            width: 104px;
-            height: 60px;
-            padding: 8px 12px;
-            
-            border-radius: var(--radius-md);
-            background: var(--white);
-
-            .stat-label {
-                @include body5;
-                color: var(--black);
-            }
-
-            .stat-value {
-                align-self: flex-end; // value 우측 하단 위치
-                
-                @include body2;
-                color: var(--primary-800);
-            }
-        }
     }
 }
