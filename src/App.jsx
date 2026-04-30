@@ -1,13 +1,18 @@
 import React from 'react'
-import logo from './assets/images/logo.png'
-import Nav from './components/Nav'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+
+//Chat 페이지 관련 경로 import
+import Chat from './pages/Chat'
+import ChatRoom from './pages/ChatRoom'
 
 const App = () => {
   return (
-    <div className='container'>
-      {/* <img src={logo} alt="" /> */}
-      <Nav />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path='/chat' element={<Chat />} />
+        <Route path='/chatroom/:roomId' element={<ChatRoom/>} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
