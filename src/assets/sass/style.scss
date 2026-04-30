@@ -8,6 +8,10 @@
 
 // pages
 @import 'sections/mypage';
+@import 'sections/_auth';
+@import 'sections/_login';
+@import 'sections/_signup';
+@import 'sections/_password-reset';
 
 // components
 @import 'sections/_nav';

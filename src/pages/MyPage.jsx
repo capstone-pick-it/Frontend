@@ -6,7 +6,7 @@ import ProfileCard from '../components/ProfileCard'
 
 const MyPage = () => {
     // 상태(State) 관리 (현재 더미 데이터)
-    const [userInfo, setUserInfo] = useState({
+    const [userInfo] = useState({
         name: '이승희',
         major: '컴퓨터공학과',
         year: 4,
