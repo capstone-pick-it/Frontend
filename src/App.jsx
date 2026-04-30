@@ -6,8 +6,8 @@ import Login from './pages/Login'
 import PasswordReset from './pages/PasswordReset'
 import Signup from './pages/Signup'
 import Splash from './pages/Splash'
-import Chat from './pages/Chat'
-import ChatRoom from './pages/ChatRoom'
+import Chat from './pages/Chat/Chat'
+import ChatRoom from './pages/Chat/ChatRoom'
 import MyPage from './pages/MyPage'
 
 const AuthLayout = ({ children }) => {
