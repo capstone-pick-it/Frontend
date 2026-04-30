@@ -4,12 +4,21 @@
     align-items: center;
 
     h1{
-        @include heading1
+        @include heading1;
     }
 
     img{
         margin-top: 90px;
         margin-bottom: 253px;
         width: 160px;
+    }
+}
+
+#OnboardingInfo_Wrap{
+    padding-top: 71px;
+    
+    h1{
+        @include heading1;
+        margin-bottom: 16px;
     }
 }

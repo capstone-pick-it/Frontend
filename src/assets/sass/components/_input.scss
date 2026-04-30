@@ -1,4 +1,13 @@
 .Input_Wrap{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    
+    .title{
+        @include heading2;
+    }
+
     input{
         width: 100%;
         height: 56px;
