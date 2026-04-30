@@ -1,6 +1,5 @@
 import React from 'react'
 import team_request from '../../assets/images/Chat/user-add.svg'
-import team_accept from '../../assets/images/Chat/user-tick.svg'
 import ChatMessage from '../../components/Chat/ChatMessage'
 import { useParams } from 'react-router-dom'
 import { CHAT_MESSAGES } from '../../data/mockData'
