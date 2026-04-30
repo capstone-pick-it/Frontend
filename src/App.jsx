@@ -6,7 +6,7 @@ import Nav from './components/Nav'
 import './assets/sass/style.scss';
 
 // 마이페이지 관련 경로 import
-import MyPage from './pages/MyPage';
+import MyPage from './pages/MyPage/MyPage';
 
 // Chat 페이지 관련 경로 import
 import Chat from './pages/Chat'

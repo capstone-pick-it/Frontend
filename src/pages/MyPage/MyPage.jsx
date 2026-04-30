@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
-import Nav from '../components/Nav'
-import TopBar from '../components/TopBar'
-import ProfileCard from '../components/MyPage/ProfileCard'
-import DefaultTraits from '../components/MyPage/DefaultTraits';
+import Nav from '../../components/Nav'
+import TopBar from '../../components/TopBar'
+import ProfileCard from '../../components/MyPage/ProfileCard'
+import DefaultTraits from '../../components/MyPage/DefaultTraits';
 
-import { USER_INFO, USER_DEFAULT_TRAITS } from '../data/mockData';
+import { USER_INFO, USER_DEFAULT_TRAITS } from '../../data/mockData';
 
 const MyPage = () => {
     // 초기값 mockData로 설정
