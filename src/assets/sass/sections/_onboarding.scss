@@ -1,0 +1,15 @@
+#Onboarding_Wrap{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    h1{
+        @include heading1
+    }
+
+    img{
+        margin-top: 90px;
+        margin-bottom: 253px;
+        width: 160px;
+    }
+}
