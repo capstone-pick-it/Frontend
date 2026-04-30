@@ -1,0 +1,19 @@
+.mypage-container {
+    width: 100%;
+    min-height: 100vh;
+    padding-top: 47px;  // 상태표시줄 영역
+    padding-bottom: 90px; // 하단 내비게이션 바 & 홈 인디케이터 영역
+    background-color: var(--white); 
+
+    .mypage-content {
+        display: flex;
+        flex-direction: column;
+
+        .section-profile {
+            margin-bottom: 16px; // '프로필 카드 - 기본 팀플 성향' 간격
+        }
+
+        // 점차 추가...
+
+    }
+  }
