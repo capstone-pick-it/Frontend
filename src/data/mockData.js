@@ -24,3 +24,16 @@ export const TEAM_STATUS = {
     "이은우": "REQUEST", // 팀 요청이 온 상태
     "냠": "ACCEPTED"   // 팀원 요청 수락 상태
 }
+
+// 회원 정보 데이터
+export const USER_INFO = {
+    id: "user_123",
+    name: '이승희',
+    major: '컴퓨터공학과',
+    year: 4,
+    level: 1,
+    points: 100,
+};
+
+// 기본 팀플 성향 데이터
+export const USER_DEFAULT_TRAITS = ['미리미리', '효율주의', '대면선호', '협업선호', '새벽형인간'];

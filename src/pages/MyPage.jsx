@@ -4,18 +4,15 @@ import Nav from '../components/Nav'
 import TopBar from '../components/TopBar'
 import ProfileCard from '../components/MyPage/ProfileCard'
 
+import { MYPAGE_USER_INFO } from '../data/mockData';
+
 const MyPage = () => {
-    // 상태(State) 관리 (현재 더미 데이터)
-    const [userInfo, setUserInfo] = useState({
-        name: '이승희',
-        major: '컴퓨터공학과',
-        year: 4,
-        level: 1,
-        points: 100,
-    });
+    // 초기값 mockData로 설정
+    const [userInfo, setUserInfo] = useState(MYPAGE_USER_INFO);
 
     // API 연동 (백엔드에서 데이터 연동)
     useEffect(() => {
+        // 추후 실제 로직 구현
     }, []);
 
     return (
