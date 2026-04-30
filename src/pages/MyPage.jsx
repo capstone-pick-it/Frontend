@@ -3,12 +3,14 @@ import React, { useState, useEffect } from 'react';
 import Nav from '../components/Nav'
 import TopBar from '../components/TopBar'
 import ProfileCard from '../components/MyPage/ProfileCard'
+import DefaultTraits from '../components/MyPage/DefaultTraits';
 
-import { MYPAGE_USER_INFO } from '../data/mockData';
+import { USER_INFO, USER_DEFAULT_TRAITS } from '../data/mockData';
 
 const MyPage = () => {
     // 초기값 mockData로 설정
-    const [userInfo, setUserInfo] = useState(MYPAGE_USER_INFO);
+    const [userInfo, setUserInfo] = useState(USER_INFO);
+    const [traits, setTraits] = useState(USER_DEFAULT_TRAITS);
 
     // API 연동 (백엔드에서 데이터 연동)
     useEffect(() => {
@@ -31,6 +33,16 @@ const MyPage = () => {
                         year={userInfo.year}
                         level={userInfo.level}
                         points={userInfo.points}
+                    />
+                </div>
+
+                {/* DefaultTraits */}
+                <div className="section-default-traits">
+                    <DefaultTraits 
+                        traits={traits}
+                        onEdit={() => {
+                            console.log('성향 수정 클릭');
+                        }}
                     />
                 </div>
 
