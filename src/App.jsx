@@ -77,7 +77,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<SplashRoute />} />
+        <Route path="/" element={<Splash />} />
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/signup" element={<SignupRoute />} />
         <Route path="/reset-password" element={<PasswordResetRoute />} />
