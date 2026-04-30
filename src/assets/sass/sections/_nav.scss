@@ -1,0 +1,35 @@
+#Nav_Wrap{
+    width: 393px;
+    height: 90px;
+    background-color: var(--white);
+
+    display: flex;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+
+    a{
+        width: 98px;
+        height: 75px;
+
+        padding-top: 13px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 7px;
+
+        img{
+            width: 20px;
+        }
+
+        .img_group{
+            width: 26px;
+        }
+ 
+        p{
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--gray-500);
+        }
+    }
+}

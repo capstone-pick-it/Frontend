@@ -1,0 +1,46 @@
+
+
+button,
+a {
+  cursor: pointer;
+  background-color: var(--none);
+}
+
+body {
+  background-color: var(--black);
+  margin: 0;
+
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  position: relative;
+  font-family: var(--mainfont);
+  width: 393px;
+  min-height: 852px;
+  height: 100%;
+  background-color: var(--white);
+  margin: 0 auto;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: 105px;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
+}
+
+
+.container::-webkit-scrollbar {
+  display: none;
+}
+
+
+.none {
+  display: none !important;
+}
+
+input {
+  outline: none;
+}
