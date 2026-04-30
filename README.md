@@ -20,7 +20,6 @@ src
 ├── assets
 │   ├── images          # 로고 및 정적 이미지 파일
 │   └── sass            # 스타일 관리
-│       ├── components  # 컴포넌트 스타일 파일
 │       ├── sections    # 페이지별 스타일
 │       │   ├── _splash.scss
 │       │   ├── _onboarding.scss
@@ -28,8 +27,7 @@ src
 │       │   ├── _group.scss
 │       │   ├── _chat.scss
 │       │   └── _mypage.scss
-│       ├── setting     # 전역 설정 (common, reset, var, mixin.scss)
-│       └── style.scss  # 전체 스타일 통합 파일
+│       └── setting     # 전역 설정 (common, reset, var, style.scss)
 ├── components          # 재사용 가능한 공통 컴포넌트 (Button, Input 등) 및 해당 페이지에서만 사용되는 컴포넌트는 페이지별 폴더 생성 후 관리
 ├── pages               # 메인 페이지 컴포넌트
 │   ├── Splash.jsx      # 스플래시 화면
@@ -71,18 +69,19 @@ main ← develop ← feat/*
 ## ✍️ 커밋 컨벤션
 
 ```
-Type: 제목
+Type: 제목 (#이슈번호)
 
 본문 (선택) - 무엇을, 왜 변경했는지 설명
 
+Resolves: #이슈번호
 ```
 
 ### 커밋 타입
 
 | Type | 설명 | 예시 |
 |------|------|------|
-| `Feat` | 새로운 기능 추가 | `Feat: 로그인 API 추가 ` |
-| `Fix` | 버그 수정 | `Fix: 토큰 갱신 오류 수정 ` |
+| `Feat` | 새로운 기능 추가 | `Feat: 로그인 API 추가 (#3)` |
+| `Fix` | 버그 수정 | `Fix: 토큰 갱신 오류 수정 (#7)` |
 | `Refactor` | 코드 리팩토링 (기능 변경 없음) | `Refactor: 유저 서비스 로직 분리` |
 | `Docs` | 문서 수정 | `Docs: README 업데이트` |
 | `Style` | 코드 스타일 변경 (로직 영향 없음) | `Style: import 정리` |
@@ -97,11 +96,12 @@ Type: 제목
 ### 예시
 
 ```
-Feat: 아이템 찜하기 API 추가
+Feat: 아이템 찜하기 API 추가 (#12)
 
 사용자가 아이템을 찜 목록에 추가/제거할 수 있는 API를
 구현했습니다.
 
+Resolves: #12
 ```
 
 ---
