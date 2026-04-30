@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import Nav from '../components/Nav'
 import TopBar from '../components/TopBar'
-import ProfileCard from '../components/ProfileCard'
+import ProfileCard from '../components/MyPage/ProfileCard'
 
 const MyPage = () => {
     // 상태(State) 관리 (현재 더미 데이터)

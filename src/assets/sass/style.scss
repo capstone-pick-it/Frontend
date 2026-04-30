@@ -7,10 +7,10 @@
 @import "setting/mixin";
 
 // pages
-@import 'sections/mypage';
-
-// components
 @import 'sections/_nav';
 @import 'sections/Chat/chat';
+@import 'sections/MyPage/mypage';
+
+// components
 @import 'components/topbar';
-@import 'components/mypage/profilecard';
+@import 'sections/MyPage/profilecard';

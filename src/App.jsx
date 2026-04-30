@@ -18,6 +18,8 @@ const App = () => {
       <Routes>
         <Route path='/chat' element={<Chat />} />
         <Route path='/chatroom/:roomId' element={<ChatRoom />} />
+
+        <Route path='/mypage' element={<MyPage />} />
       </Routes>
     </BrowserRouter>
   )
