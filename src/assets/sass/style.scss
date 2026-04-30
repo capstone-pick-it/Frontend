@@ -6,13 +6,17 @@
 @import "setting/var";
 @import "setting/mixin";
 
-// pages
+// pages (sections)
 @import 'sections/nav';
+@import 'sections/_auth';
+@import 'sections/_login';
+@import 'sections/_signup';
+@import 'sections/_password-reset';
 @import 'sections/Chat/chat';
 @import 'sections/MyPage/mypage';
 
 // components
 @import 'components/topbar';
+@import 'components/tag'; 
 @import 'sections/MyPage/profilecard';
-@import 'components/tag';
-@import 'sections/MyPage/defaulttraits'
+@import 'sections/MyPage/defaulttraits';

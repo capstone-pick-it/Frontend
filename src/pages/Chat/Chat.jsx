@@ -1,7 +1,7 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
-import Nav from '../components/Nav'
-import ChatList from '../components/Chat/ChatList'
+import Nav from '../../components/Nav'
+import ChatList from '../../components/Chat/ChatList'
 import ChatRoom from './ChatRoom'
 
 const Chat = () => {

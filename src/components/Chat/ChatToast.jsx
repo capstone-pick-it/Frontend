@@ -11,19 +11,19 @@ const ChatToast = () => {
     const status = TEAM_STATUS[roomId];
 
     //status별로 상태값 변경 로직 (ACCEPTED 일떄, 토스트 사라짐)
-    const [visible, setVisible] = useState(true);
+    const [hiddenAcceptedRoomId, setHiddenAcceptedRoomId] = useState(null);
 
     useEffect(() => {
         if(status === "ACCEPTED"){
             const timer = setTimeout(() => {
-                setVisible(false);
+                setHiddenAcceptedRoomId(roomId);
             }, 2000)
         return () => clearTimeout(timer);
-        }else{
-            setVisible(true)
         }
-    }, [status])
+    }, [roomId, status])
 
+    const visible = status !== "ACCEPTED" || hiddenAcceptedRoomId !== roomId;
+    
     if(!status || !visible)
         return null;
 
