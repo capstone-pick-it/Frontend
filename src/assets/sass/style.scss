@@ -12,9 +12,9 @@
 @import 'sections/_login';
 @import 'sections/_signup';
 @import 'sections/_password-reset';
+@import 'sections/chat';
 
 // components
 @import 'sections/_nav';
-@import 'sections/Chat/chat';
 @import 'components/topbar';
 @import 'components/profilecard';
