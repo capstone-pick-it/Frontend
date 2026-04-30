@@ -4,6 +4,7 @@ import Nav from '../../components/Nav'
 import TopBar from '../../components/TopBar'
 import ProfileCard from '../../components/MyPage/ProfileCard'
 import DefaultTraits from '../../components/MyPage/DefaultTraits';
+import TripleStatBox from '../../components/MyPage/TripleStatBox';
 
 import { USER_INFO, USER_DEFAULT_TRAITS } from '../../data/mockData';
 
@@ -20,12 +21,12 @@ const MyPage = () => {
     return (
         <div className="mypage-container">
         
-            {/* TopBar */}
+            {/* 페이지 타이틀 (TopBar) */}
             <TopBar title="마이페이지" />
 
             <div className="mypage-content">
 
-                {/* ProfileCard */}
+                {/* 회원 정보 카드 (ProfileCard) */}
                 <div className="section-profile">
                     <ProfileCard 
                         name={userInfo.name}
@@ -36,7 +37,7 @@ const MyPage = () => {
                     />
                 </div>
 
-                {/* DefaultTraits */}
+                {/* 기본 팀플 성향 (DefaultTraits) */}
                 <div className="section-default-traits">
                     <DefaultTraits 
                         traits={traits}
