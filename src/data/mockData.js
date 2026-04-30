@@ -37,3 +37,13 @@ export const USER_INFO = {
 
 // 기본 팀플 성향 데이터
 export const USER_DEFAULT_TRAITS = ['미리미리', '효율주의', '대면선호', '협업선호', '새벽형인간'];
+
+// 강의별 팀플 성향 데이터
+// 드롭다운 받고 이어서 작업
+
+// 프로젝트 이력 요약 데이터
+export const PROJECT_HISTORY_SUMMARY = [
+    { label: '참여수', value: 3, },
+    { label: '완수율', value: '100%', },
+    { label: '상호평가', value: '4/5', },
+];

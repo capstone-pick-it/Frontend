@@ -4,14 +4,15 @@ import Nav from '../../components/Nav'
 import TopBar from '../../components/TopBar'
 import ProfileCard from '../../components/MyPage/ProfileCard'
 import DefaultTraits from '../../components/MyPage/DefaultTraits';
-import TripleStatBox from '../../components/MyPage/TripleStatBox';
+import ProjectHistorySummary from '../../components/MyPage/ProjectHistorySummary';
 
-import { USER_INFO, USER_DEFAULT_TRAITS } from '../../data/mockData';
+import { USER_INFO, USER_DEFAULT_TRAITS, PROJECT_HISTORY_SUMMARY } from '../../data/mockData';
 
 const MyPage = () => {
     // 초기값 mockData로 설정
     const [userInfo, setUserInfo] = useState(USER_INFO);
     const [traits, setTraits] = useState(USER_DEFAULT_TRAITS);
+    const [projectStats, setProjectStats] = useState(PROJECT_HISTORY_SUMMARY);
 
     // API 연동 (백엔드에서 데이터 연동)
     useEffect(() => {
@@ -47,7 +48,13 @@ const MyPage = () => {
                     />
                 </div>
 
-                {/* 추후 컴포넌트 추가 */}
+                {/* 강의 정보 카드 (CourseCard) */}
+                {/* 추후 추가 */}
+
+                {/* 프로젝트 이력 (ProjectHistorySummary) */}
+                <div className="section-project-history-summary">
+                    <ProjectHistorySummary stats={projectStats} />
+                </div>
                 
             </div>
 
