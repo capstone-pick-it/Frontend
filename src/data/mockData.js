@@ -25,6 +25,14 @@ export const TEAM_STATUS = {
     "냠": "ACCEPTED"   // 팀원 요청 수락 상태
 }
 
+//OnboardingInfo 데이터
+export const ONBOARDING_INFO_OPTIONS = {
+  MAJORS: ["컴퓨터공학과", "서비스디자인공학과"],
+  GRADES: [1, 2, 3, 4],
+  SEMESTERS: ["2026년 1학기", "2025년 2학기", "2025년 1학기", "2024년 2학기", "2024년 1학기"]
+};
+
+
 //팀플 성향 카드 데이터
 export const PREFERENCE =[
     { id: 1, title: "미리미리", content: "미리 준비해서 계획적으로 진행하는 편이에요, 마감 전에 끝내는걸 선호해요"},
