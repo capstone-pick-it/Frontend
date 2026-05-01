@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import Nav from '../../components/Nav'
 import TopBar from '../../components/TopBar'
-import ProfileCard from '../../components/MyPage/ProfileCard'
+import ProfileCard from '../../components/ProfileCard'
 import DefaultTraits from '../../components/MyPage/DefaultTraits';
 import ProjectHistorySummary from '../../components/MyPage/ProjectHistorySummary';
 
@@ -20,7 +20,7 @@ const MyPage = () => {
     }, []);
 
     return (
-        <div className="mypage-container">
+        <div className="container mypage-container">
         
             {/* 페이지 타이틀 (TopBar) */}
             <TopBar title="마이페이지" />
