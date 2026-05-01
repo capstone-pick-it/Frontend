@@ -27,11 +27,9 @@ const OnboardingStep = () => {
 
   const [selected, setSelected] = useState([])
     const handleClick = (id) => {
-      if(selected.includes(id)) {
-        setSelected(selected.filter((item) => item !== id))
-      } else{
-        setSelected([...selected, id])
-      }
+      const currentPairIds = currentItem.map(item => item.id);
+      const filteredSelected = selected.filter((selectedId) => !currentPairIds.includes(selectedId));
+      setSelected([...filteredSelected, id]);
     }
   
   return (
