@@ -93,3 +93,36 @@
         }
     }
 }
+
+#OnboardingStep_Wrap{
+    padding-top: 47px;
+
+    header{
+
+        img{
+            width: 32px;
+        }
+    }
+
+    .text_container{
+        margin-top: 28px;
+
+        h1{
+            @include heading1;
+
+        }
+
+        p{
+            @include body5;
+            color: var(--gray-500);
+        }
+    }
+
+    main{
+        margin-top: 134px;
+        margin-bottom: 207px;
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+    }
+}

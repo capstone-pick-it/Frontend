@@ -3,7 +3,7 @@ import more1 from '../assets/images/more1.svg'
 import more2 from '../assets/images/more2.svg'
 import { useState } from 'react'
 
-const Dropdown = ({ title, option, list = [] }) => {
+const Dropdown = ({ title, list = [] }) => {
   const [more, setMore] = useState(false)
   const moreClick = () => {
     setMore(!more)
