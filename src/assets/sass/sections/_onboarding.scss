@@ -143,3 +143,24 @@
         background-color: var(--primary-700);
     }
 }
+
+#OnboardingResult_Wrap{
+    padding-top: 71px;
+
+    .text_container{
+
+        h1{
+            @include heading1;
+        }
+
+        p{
+            @include body5;
+            color: var(--gray-500);
+        }
+    }
+
+    main{
+        margin-top: 153px;
+        margin-bottom: 201px;
+    }
+}
