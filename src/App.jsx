@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom'
 
-import logo from './assets/images/logo.png' 
-import Nav from './components/Nav'
 import './assets/sass/style.scss'
 
 // 로그인/회원가입 관련 경로 import
@@ -10,6 +8,12 @@ import Login from './pages/Login'
 import PasswordReset from './pages/PasswordReset'
 import Signup from './pages/Signup'
 import Splash from './pages/Splash'
+
+// 온보딩 관련 경로 import
+import Onboarding from './pages/Onboarding/Onboarding'
+import OnboardingInfo from './pages/Onboarding/OnboardingInfo'
+import OnboardingStep from './pages/Onboarding/OnboardingStep'
+import OnboardingResult from './pages/Onboarding/OnboardingResult'
 
 // Chat 페이지 관련 경로 import
 import Chat from './pages/Chat/Chat'
@@ -77,10 +81,15 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Splash />} />
+        <Route path="/" element={<SplashRoute />} />
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/signup" element={<SignupRoute />} />
         <Route path="/reset-password" element={<PasswordResetRoute />} />
+
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/onboardinginfo" element={<OnboardingInfo />} />
+        <Route path="/onboardingstep" element={<OnboardingStep />} />
+        <Route path="/onboardingresult" element={<OnboardingResult />} />
 
         <Route path="/chat" element={<Chat />} />
         <Route path="/chatroom/:roomId" element={<ChatRoom />} />

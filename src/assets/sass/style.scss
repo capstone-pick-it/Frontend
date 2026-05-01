@@ -7,20 +7,26 @@
 @import "setting/mixin";
 
 // pages (sections)
-@import 'sections/nav';
 @import 'sections/_auth';
 @import 'sections/_login';
 @import 'sections/_signup';
 @import 'sections/_password-reset';
-@import 'sections/Chat/chat';
+@import 'sections/onboarding';
+@import 'sections/chat';
 @import 'sections/MyPage/mypage';
 
 // components
+@import 'sections/_nav';
 @import 'components/topbar';
-@import 'components/tag'; 
+@import 'components/tag';
 @import 'components/statbox';
 @import 'components/triplestatbox';
+@import 'components/button';
+@import 'components/input';
+@import 'components/dropdown';
+
+@import 'components/preferencecard';
+
 @import 'sections/MyPage/profilecard';
 @import 'sections/MyPage/defaulttraits';
-// 강의 카드 추가
 @import 'sections/MyPage/projecthistorysummary';
