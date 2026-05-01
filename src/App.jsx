@@ -6,8 +6,12 @@ import Login from './pages/Login'
 import PasswordReset from './pages/PasswordReset'
 import Signup from './pages/Signup'
 import Splash from './pages/Splash'
-import Chat from './pages/Chat'
-import ChatRoom from './pages/ChatRoom'
+import Onboarding from './pages/Onboarding/Onboarding'
+import OnboardingInfo from './pages/Onboarding/OnboardingInfo'
+import OnboardingStep from './pages/Onboarding/OnboardingStep'
+import OnboardingResult from './pages/Onboarding/OnboardingResult'
+import Chat from './pages/Chat/Chat'
+import ChatRoom from './pages/Chat/ChatRoom'
 import MyPage from './pages/MyPage'
 
 const AuthLayout = ({ children }) => {
@@ -73,6 +77,10 @@ const App = () => {
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/signup" element={<SignupRoute />} />
         <Route path="/reset-password" element={<PasswordResetRoute />} />
+        <Route path='/onboarding' element={<Onboarding/>}/>
+        <Route path='/onboardinginfo' element={<OnboardingInfo/>}/>
+        <Route path='/onboardingstep' element={<OnboardingStep/>}/>
+        <Route path='/onboardingresult' element={<OnboardingResult/>}/>
         <Route path="/chat" element={<Chat />} />
         <Route path="/chatroom/:roomId" element={<ChatRoom />} />
         <Route path="/mypage" element={<MyPage />} />

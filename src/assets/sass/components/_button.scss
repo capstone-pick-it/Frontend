@@ -1,0 +1,12 @@
+#Button_Wrap{
+    width: 100%;
+    height: 56px;
+    color: var(--white);
+    background-color: var(--primary-700);
+    border-radius: 8px;
+    @include body2;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
