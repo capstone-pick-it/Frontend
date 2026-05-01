@@ -5,11 +5,16 @@ import Button from '../../components/Button'
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { PREFERENCE } from '../../data/mockData'
+import StepBar from '../../components/Onboarding/StepBar'
 
 const OnboardingStep = () => {
   const navigate= useNavigate();
+  const handleBack = () => {
+    setCurrentStep(currentStep-1)
+  }
 
   const [currentStep, setCurrentStep] = useState(0)
+  const totalSteps =5;
   const currentItem = PREFERENCE.slice(currentStep*2, currentStep*2+2)
 
   const handleNext = () => {
@@ -32,10 +37,8 @@ const OnboardingStep = () => {
   return (
     <div id="OnboardingStep_Wrap" className="container">
         <header>
-          <Link to='/onboardinginfo'>
-            <img src={back} alt="" />
-          </Link>
-          
+          <img src={back} alt="" onClick={() => handleBack()} />
+          <StepBar totalSteps={totalSteps} currentStep={currentStep}/>
         </header>
         <div className="text_container">
           <h1>이승희 님의
