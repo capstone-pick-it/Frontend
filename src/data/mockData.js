@@ -39,7 +39,29 @@ export const USER_INFO = {
 export const USER_DEFAULT_TRAITS = ['미리미리', '효율주의', '대면선호', '협업선호', '새벽형인간'];
 
 // 강의별 팀플 성향 데이터
-// 드롭다운 받고 이어서 작업
+export const COURSE_TRAITS = [
+    {
+        id: "course_001",
+        name: "캡스톤디자인",
+        semester: "2026년도 1학기",
+        importance: "높음",
+        traits: ['미리미리', '완벽주의', '대면선호', '협업선호', '새벽형인간'],
+    },
+    {
+        id: "course_002",
+        name: "클라우드컴퓨팅",
+        semester: "2026년도 1학기",
+        importance: "보통",
+        traits: ['미리미리', '완벽주의', '비대면선호', '협업선호', '아침형인간'],
+    },
+    {
+        id: "course_003",
+        name: "소프트웨어디자인패턴",
+        semester: "2026년도 1학기",
+        importance: "낮음",
+        traits: ['벼락치기', '효율주의', '비대면선호', '분담선호', '새벽형인간'],
+    }
+];
 
 // 프로젝트 이력 요약 데이터
 export const PROJECT_HISTORY_SUMMARY = [

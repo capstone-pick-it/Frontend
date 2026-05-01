@@ -14,6 +14,7 @@
 @import 'sections/onboarding';
 @import 'sections/chat';
 @import 'sections/MyPage/mypage';
+@import 'sections/MyPage/courselist';
 
 // components
 @import 'sections/_nav';
@@ -30,3 +31,5 @@
 @import 'components/profilecard';
 @import 'sections/MyPage/defaulttraits';
 @import 'sections/MyPage/projecthistorysummary';
+@import 'sections/MyPage/courselistheader';
+@import 'sections/MyPage/courselistitem';

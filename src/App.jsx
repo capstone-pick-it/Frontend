@@ -21,6 +21,7 @@ import ChatRoom from './pages/Chat/ChatRoom'
 
 // 마이페이지 관련 경로 import
 import MyPage from './pages/MyPage/MyPage'
+import CourseList from './pages/MyPage/CourseList'
 
 const AuthLayout = ({ children }) => {
   return <div className="container auth-container">{children}</div>
@@ -95,6 +96,7 @@ const App = () => {
         <Route path="/chatroom/:roomId" element={<ChatRoom />} />
 
         <Route path="/mypage" element={<MyPage />} />
+        <Route path="/mypage/courses" element={<CourseList />} />
       </Routes>
     </BrowserRouter>
   )
