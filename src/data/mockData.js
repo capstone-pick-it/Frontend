@@ -35,6 +35,13 @@ export const USER_INFO = {
     points: 100,
 };
 
+// 포인트 내역 데이터
+export const POINT_HISTORY = [
+    {
+        label: '신규가입 포인트',
+        value: '+100p' },
+  ];
+
 // 기본 팀플 성향 데이터
 export const USER_DEFAULT_TRAITS = ['미리미리', '효율주의', '대면선호', '협업선호', '새벽형인간'];
 
