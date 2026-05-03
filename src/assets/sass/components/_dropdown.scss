@@ -17,7 +17,7 @@
             align-items: center;
             padding: 16px 16px;
             border: solid 1px var(--gray-500); 
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             cursor: pointer; // 커서 올렸을 때 손모양
 
             .option{
@@ -45,7 +45,7 @@
            min-height: 56px;
            background-color: var(--white);
            border: solid 1px var(--gray-500);
-           border-radius: 8px;
+           border-radius: var(--radius-md);
 
            li{
             cursor: pointer;

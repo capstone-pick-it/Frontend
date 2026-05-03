@@ -3,7 +3,7 @@
     height: 56px;
     color: var(--white);
     background-color: var(--primary-700);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     @include body2;
 
     display: flex;
