@@ -4,14 +4,16 @@ import Nav from '../../components/Nav'
 import TopBar from '../../components/TopBar'
 import ProfileCard from '../../components/ProfileCard'
 import DefaultTraits from '../../components/MyPage/DefaultTraits';
+import CourseCard from '../../components/MyPage/CourseCard';
 import ProjectHistorySummary from '../../components/MyPage/ProjectHistorySummary';
 
-import { USER_INFO, USER_DEFAULT_TRAITS, PROJECT_HISTORY_SUMMARY } from '../../data/mockData';
+import { USER_INFO, USER_DEFAULT_TRAITS, COURSE_TRAITS, PROJECT_HISTORY_SUMMARY } from '../../data/mockData';
 
 const MyPage = () => {
     // 초기값 mockData로 설정
     const [userInfo, setUserInfo] = useState(USER_INFO);
     const [traits, setTraits] = useState(USER_DEFAULT_TRAITS);
+    const [courses, setCourses] = useState(COURSE_TRAITS);
     const [projectStats, setProjectStats] = useState(PROJECT_HISTORY_SUMMARY);
 
     // API 연동 (백엔드에서 데이터 연동)
@@ -49,7 +51,9 @@ const MyPage = () => {
                 </div>
 
                 {/* 강의 정보 카드 (CourseCard) */}
-                {/* 추후 추가 */}
+                <div className="section-course-card">
+                    <CourseCard courses={courses} />
+                </div>
 
                 {/* 프로젝트 이력 (ProjectHistorySummary) */}
                 <div className="section-project-history-summary">
