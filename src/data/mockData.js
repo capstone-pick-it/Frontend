@@ -38,7 +38,7 @@ export const USER_INFO = {
 // 기본 팀플 성향 데이터
 export const USER_DEFAULT_TRAITS = ['미리미리', '효율주의', '대면선호', '협업선호', '새벽형인간'];
 
-// 강의별 팀플 성향 데이터
+// 강의 정보 데이터
 export const COURSE_TRAITS = [
     {
         id: "course_001",
