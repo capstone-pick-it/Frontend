@@ -3,11 +3,12 @@
     height: 90px;
     background-color: var(--white);
 
-    display: flex;
-    // position: fixed;
-    position: absolute;
-    left: 0;
+     display: flex;
+    // position: absolute;
+    position: fixed;
+    left: 50%;
     bottom: 0;
+    transform: translateX(-50%);
 
     a{
         width: 98px;
