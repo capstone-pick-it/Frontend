@@ -1,5 +1,6 @@
 import React from 'react';
 import closeIcon from '../assets/images/icon-cancel.svg';
+import Button from './Button';
 
 const Modal = ({
   type = 'info',
@@ -33,26 +34,22 @@ const Modal = ({
         </div>
 
         {/* 버튼 영역 */}
-        <div className={`modal__actions ${hasCancel ? 'modal__actions--double' : ''}`}>
+        <div className="modal__actions">
           {hasCancel && (
-            <button
-              type="button"
-              className="modal__button modal__button--cancel"
+            <Button
+              title={cancelText}
+              variant="gray"
               onClick={onCancel}
-            >
-              {cancelText}
-            </button>
+              className="modal__action-button"
+            />
           )}
 
-          <button
-            type="button"
-            className={`modal__button ${
-              isError ? 'modal__button--error' : 'modal__button--confirm'
-            }`}
+          <Button
+            title={confirmText}
+            variant={isError ? 'error' : 'primary'}
             onClick={onConfirm}
-          >
-            {confirmText}
-          </button>
+            className="modal__action-button"
+          />
         </div>
       </div>
     </div>

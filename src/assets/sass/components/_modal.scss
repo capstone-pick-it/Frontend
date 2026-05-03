@@ -167,41 +167,4 @@
         margin-top: 16px;
         gap: 12px;
     }
-
-    &__button {
-        display: flex;
-        padding: 12px;
-        justify-content: center;
-        align-items: center;
-        gap: 6px;
-
-        border: none;
-        border-radius: var(--radius-md);
-        cursor: pointer;
-
-        color: var(--white);
-        @include body2;
-    }
-
-    &__button--confirm {
-        flex: 1;
-        background: var(--primary-700);
-    }
-
-    &__button--cancel {
-        flex: 1 0 0;
-        color: var(--gray-500);
-        background: var(--gray-100);
-    }
-
-    &__button--error {
-        flex: 1;
-        background: var(--error-dark);
-    }
-
-    &--error {
-        .modal__title {
-            color: var(--error-dark);
-        }
-    }
 }
