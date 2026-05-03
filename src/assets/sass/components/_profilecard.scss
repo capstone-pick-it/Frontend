@@ -44,5 +44,7 @@
         display: flex;
         gap: 8px; // 박스 사이 간격
         width: 100%;
+        
+        > div { cursor: pointer; }
     }
 }
