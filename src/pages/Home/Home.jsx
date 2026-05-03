@@ -1,6 +1,12 @@
 import React, { useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Nav from '../../components/Nav'
+import ChecklistEditModal from '../../components/Home/ChecklistEditModal'
+import ConfirmModal from '../../components/Home/ConfirmModal'
+import DoorIcon from '../../components/Home/DoorIcon'
+import HomeProjectCard from '../../components/Home/HomeProjectCard'
+import MemberCard from '../../components/Home/MemberCard'
+import ReviewModal from '../../components/Home/ReviewModal'
 
 const tabs = [
   { key: 'recruiting', label: '모집 중' },
@@ -112,12 +118,6 @@ const completedProjects = [
   },
 ]
 
-const scores = [
-  { label: '완수율', value: 3 },
-  { label: '적극성', value: 4 },
-  { label: '팀원만족도', value: 2 },
-]
-
 const sortChecklist = (items) => {
   return [...items].sort((a, b) => {
     if (a.done !== b.done) {
@@ -126,190 +126,6 @@ const sortChecklist = (items) => {
 
     return new Date(a.dueAt) - new Date(b.dueAt)
   })
-}
-
-const getDueAtFromDateText = (dateText) => {
-  const [, year, month, day] = dateText.match(/(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일/) || []
-
-  if (!year || !month || !day) {
-    return '9999-12-31'
-  }
-
-  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-}
-
-const DoorIcon = () => (
-  <svg viewBox="0 0 18 18" aria-hidden="true">
-    <path d="M6 3.2h5.4v11.6H6z" />
-    <path d="M11.4 5.1 15 6.6v6.7l-3.6 1.5z" />
-    <path d="M13.1 10h.1" />
-  </svg>
-)
-
-const HomeProjectCard = ({ project, tab, onConfirm, onExit, onOpen }) => {
-  const showConfirm = tab === 'recruiting' && project.action === '팀 확정'
-
-  return (
-    <article className={tab !== 'recruiting' ? 'home-project-card is-clickable' : 'home-project-card'} onClick={onOpen}>
-      <div className="home-project-card__main">
-        <div className="home-project-card__content">
-          <div className="home-project-card__title-row">
-            <h2>{project.title}</h2>
-            <span className="home-project-card__status">{project.status}</span>
-            {tab === 'recruiting' && (
-              <button
-                className="home-project-card__invite"
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation()
-                  onExit()
-                }}
-              >
-                <DoorIcon />
-              </button>
-            )}
-          </div>
-          <p>{project.members}</p>
-        </div>
-
-        {tab === 'recruiting' && (
-          <button
-            className={`home-project-card__action ${showConfirm ? 'is-primary' : ''}`}
-            type="button"
-            onClick={showConfirm ? onConfirm : undefined}
-          >
-            {project.action}
-          </button>
-        )}
-      </div>
-
-      {tab !== 'recruiting' && (
-        <div className="home-project-card__progress">
-          <span style={{ width: `${project.progress}%` }} />
-        </div>
-      )}
-    </article>
-  )
-}
-
-const MemberCard = ({ member, onChatClick }) => {
-  return (
-    <section className="home-member-card">
-      <div className="home-member-card__top">
-        <div>
-          <h2>{member.name}</h2>
-          <p>{member.school}</p>
-        </div>
-        <span>1/7</span>
-      </div>
-
-      <div className="home-member-card__tags">
-        {member.tags.map((tag) => (
-          <span key={tag}>{tag}</span>
-        ))}
-      </div>
-
-      <div className="home-member-card__stats">
-        <div>
-          <p>팀플레벨</p>
-          <strong>{member.level}</strong>
-        </div>
-        <div>
-          <p>포인트</p>
-          <strong>{member.point}</strong>
-        </div>
-        <div>
-          <p>중요도</p>
-          <strong>{member.priority}</strong>
-        </div>
-      </div>
-
-      <div className="home-member-card__buttons">
-        <button type="button" onClick={onChatClick}>채팅하기</button>
-        <button type="button">신고하기</button>
-      </div>
-    </section>
-  )
-}
-
-const ConfirmModal = ({ title, description, cancelText, confirmText, onClose, onCancel, onConfirm }) => {
-  return (
-    <div className="home-modal-backdrop">
-      <section className="home-confirm-modal">
-        <h2>{title}</h2>
-        {description && <p>{description}</p>}
-        <div>
-          <button type="button" onClick={onCancel || onClose}>{cancelText}</button>
-          <button type="button" onClick={onConfirm || onClose}>{confirmText}</button>
-        </div>
-      </section>
-    </div>
-  )
-}
-
-const ReviewModal = ({ onClose }) => {
-  return (
-    <div className="home-modal-backdrop">
-      <section className="home-review-modal">
-        <h2>이승희과의 캡스톤 디자인</h2>
-        <p>팀 프로젝트 어떠셨나요?</p>
-
-        <div className="home-review-modal__scores">
-          {scores.map((score) => (
-            <div className="home-review-row" key={score.label}>
-              <strong>{score.label}</strong>
-              <div>
-                {[1, 2, 3, 4, 5].map((item) => (
-                  <span className={item <= score.value ? 'is-active' : ''} key={item}>✓</span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="home-review-modal__buttons">
-          <button type="button" onClick={onClose}>이전</button>
-          <span>1/7</span>
-          <button type="button" onClick={onClose}>완료</button>
-        </div>
-      </section>
-    </div>
-  )
-}
-
-const ChecklistEditModal = ({ item, onClose, onSave }) => {
-  const [title, setTitle] = useState(item.title)
-  const [date, setDate] = useState(item.date)
-
-  return (
-    <div className="home-modal-backdrop">
-      <section className="home-checklist-modal">
-        <h2>할 일 수정</h2>
-        <label>
-          <span>할 일</span>
-          <input value={title} onChange={(event) => setTitle(event.target.value)} />
-        </label>
-        <label>
-          <span>기한</span>
-          <input value={date} onChange={(event) => setDate(event.target.value)} />
-        </label>
-        <div>
-          <button type="button" onClick={onClose}>취소</button>
-          <button
-            type="button"
-            onClick={() => onSave({
-              ...item,
-              title: title.trim() || '새로운 할 일',
-              date: date.trim() || '0000년 0월 00일 0요일',
-              dueAt: getDueAtFromDateText(date.trim()),
-            })}
-          >
-            저장
-          </button>
-        </div>
-      </section>
-    </div>
-  )
 }
 
 const Home = () => {
