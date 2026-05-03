@@ -5,7 +5,7 @@
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-
+    
     // viweport는 부모 기준X 화면 기준O
     // .container 영향으로 모달 아래로 치우치는 문제 해결
     width: 100vw; // viewport width
