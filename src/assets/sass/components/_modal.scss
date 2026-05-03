@@ -6,8 +6,8 @@
     left: 50%;
     transform: translateX(-50%);
 
-    width: 100vw;
-    height: 100vh;
+    width: 100vw; // viewport width 사용 (부모 기준X 화면 기준O)
+    height: 100vh; // viewport height 사용 (부모 기준X 화면 기준O)
     z-index: 9999;
 
     display: flex;
