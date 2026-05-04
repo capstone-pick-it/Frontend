@@ -100,7 +100,8 @@ const App = () => {
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/mypage/courses" element={<CourseList />} />
         <Route path="/mypage/courses/new" element={<CourseAdd />} />
-        
+        <Route path="/mypage/courses/:courseId/edit" element={<CourseEdit />} />
+
       </Routes>
     </BrowserRouter>
   )
