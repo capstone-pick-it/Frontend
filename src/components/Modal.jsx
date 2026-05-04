@@ -6,6 +6,7 @@ const Modal = ({
   type = 'info',
   variant = 'default',
   title,
+  titleColor,
   description,
   children,
   confirmText = '확인',
@@ -16,6 +17,7 @@ const Modal = ({
 }) => {
   const isError = type === 'error';
   const hasCancel = variant === 'confirm';
+  const titleColorClass = titleColor || (isError ? 'error' : 'primary');
 
   return (
     <div className="modal-overlay">
@@ -26,8 +28,9 @@ const Modal = ({
         </button>
 
         {/* 제목 */}
-        <h2 className="modal__title">{title}</h2>
-
+        <h2 className={`modal__title modal__title--${titleColorClass}`}>
+          {title}
+        </h2>
         {/* 본문: children이 있으면 children을 우선 표시 */}
         <div className="modal__content">
           {children || <p className="modal__description">{description}</p>}

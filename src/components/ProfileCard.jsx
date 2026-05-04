@@ -49,6 +49,7 @@ const ProfileCard = ({ name, major, year, level, points }) => {
     {isLevelModalOpen && (
         <Modal
             title="팀플레벨"
+            titleColor="black"
             onClose={() => setIsLevelModalOpen(false)}
             onConfirm={() => setIsLevelModalOpen(false)}
         >
@@ -63,6 +64,7 @@ const ProfileCard = ({ name, major, year, level, points }) => {
     {isPointModalOpen && (
         <Modal
             title="포인트"
+            titleColor="black"
             onClose={() => setIsPointModalOpen(false)}
             onConfirm={() => setIsPointModalOpen(false)}
         >

@@ -54,11 +54,21 @@
     &__title {
         align-self: stretch;
         margin: 0;
-
-        color: var(--primary-700);
         @include heading2;
     }
 
+    &__title--primary {
+        color: var(--primary-700);
+    }
+
+    &__title--error {
+        color: var(--error-dark);
+    }
+
+    &__title--black {
+        color: var(--black);
+    }
+    
     &__content {
         align-self: stretch;
         width: 100%;

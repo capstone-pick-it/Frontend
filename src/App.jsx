@@ -84,7 +84,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MyPage />} />
+        <Route path="/" element={<SplashRoute />} />
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/signup" element={<SignupRoute />} />
         <Route path="/reset-password" element={<PasswordResetRoute />} />
@@ -100,7 +100,7 @@ const App = () => {
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/mypage/courses" element={<CourseList />} />
         <Route path="/mypage/courses/new" element={<CourseAdd />} />
-        <Route path="/mypage/courses/:courseId/edit" element={<CourseEdit />} />
+        
       </Routes>
     </BrowserRouter>
   )
