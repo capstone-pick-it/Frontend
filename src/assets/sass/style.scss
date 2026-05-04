@@ -15,6 +15,7 @@
 @import 'sections/chat';
 @import 'sections/MyPage/mypage';
 @import 'sections/MyPage/courselist';
+@import 'sections/MyPage/courseadd';
 
 // components
 @import 'sections/_nav';
@@ -26,10 +27,9 @@
 @import 'components/input';
 @import 'components/dropdown';
 @import 'components/modal';
-
 @import 'components/preferencecard';
-
 @import 'components/profilecard';
+
 @import 'sections/MyPage/defaulttraits';
 @import 'sections/MyPage/coursecard';
 @import 'sections/MyPage/projecthistorysummary';
