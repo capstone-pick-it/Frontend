@@ -23,6 +23,7 @@ import ChatRoom from './pages/Chat/ChatRoom'
 import MyPage from './pages/MyPage/MyPage'
 import CourseList from './pages/MyPage/CourseList'
 import CourseAdd from './pages/MyPage/CourseAdd';
+import CourseEdit from './pages/MyPage/CourseEdit';
 
 const AuthLayout = ({ children }) => {
   return <div className="container auth-container">{children}</div>
@@ -83,7 +84,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<SplashRoute />} />
+        <Route path="/" element={<MyPage />} />
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/signup" element={<SignupRoute />} />
         <Route path="/reset-password" element={<PasswordResetRoute />} />
@@ -99,6 +100,7 @@ const App = () => {
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/mypage/courses" element={<CourseList />} />
         <Route path="/mypage/courses/new" element={<CourseAdd />} />
+        <Route path="/mypage/courses/:courseId/edit" element={<CourseEdit />} />
       </Routes>
     </BrowserRouter>
   )
