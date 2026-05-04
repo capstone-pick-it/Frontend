@@ -20,7 +20,7 @@ const CourseList = () => {
   }, []);
 
   return (
-    <div className="container course-list-page">
+    <div className="container has-topbar course-list-page">
       {/* 상단 헤더 */}
       <TopBar
         title="강의 목록"

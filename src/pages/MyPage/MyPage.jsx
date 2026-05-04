@@ -22,7 +22,7 @@ const MyPage = () => {
     }, []);
 
     return (
-        <div className="container mypage-container">
+        <div className="container has-topbar mypage-container">
         
             {/* 페이지 타이틀 (TopBar) */}
             <TopBar title="마이페이지" />

@@ -61,7 +61,7 @@ const CourseAdd = () => {
     };
 
     return (
-        <div className="container course-add-page">
+        <div className="container has-topbar course-add-page">
         <TopBar
             title="강의 추가"
             variant="back"

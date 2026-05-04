@@ -76,7 +76,7 @@ const CourseEdit = () => {
   };
 
   return (
-    <div className="container course-edit-page">
+    <div className="container has-topbar course-edit-page">
       <TopBar
         title="강의 수정"
         variant="back"

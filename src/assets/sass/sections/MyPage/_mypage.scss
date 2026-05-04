@@ -1,7 +1,5 @@
 .mypage-container {
-    // common.scss의 .container 함께 사용
-    padding-top: 32px;
-    padding-bottom: 90px; // 하단 Nav가 콘텐츠를 가리지 않도록 여유 공간 확보
+    padding-bottom: 130px; // 하단 여유 공간 확보
 
     .mypage-content {
         display: flex;

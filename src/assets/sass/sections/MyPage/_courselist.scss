@@ -1,8 +1,4 @@
 .course-list-page {
-    // container 값 재정의
-    padding-top: 47px;
-    padding-bottom: 90px;
-
     &__content {
         // 강의 목록 화면 전체 폭으로 보이도록 container 좌우 padding 상쇄
         margin-left: -16px;
