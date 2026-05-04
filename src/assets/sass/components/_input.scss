@@ -1,19 +1,32 @@
-.Input_Wrap{
+.Input_Wrap {
     display: flex;
     flex-direction: column;
     gap: 8px;
     margin-bottom: 16px;
     
-    .title{
+    .title {
         @include heading2;
     }
 
-    input{
+    input {
         width: 100%;
         height: 56px;
         border-radius: var(--radius-md);
         border: solid 1px var(--gray-500);
         @include body3;
         padding: 15.5px 16px;
+        box-sizing: border-box;
+        background-color: var(--white);
+        color: var(--black);
+    }
+
+    // 비활성화
+    &.disabled {
+        input {
+            border: none;
+            background-color: var(--gray-100);
+            color: var(--gray-500);
+            cursor: not-allowed;
+        }
     }
 }
