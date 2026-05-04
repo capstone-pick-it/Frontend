@@ -1,9 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
+import StatBox from './StatBox';
+import Modal from './Modal';
+import { POINT_HISTORY } from '../data/mockData';
 
 // 이름, 전공, 학년, 레벨, 포인트 데이터속성 받아오기
-const ProfileCard = ({ name, major, year, level, points }) => {
-  return (
-    <div className="profile-card">
+const ProfileCard = ({
+    name,
+    major,
+    year,
+    level,
+    points,
+    enableStatModal = false,
+    }) => {
+    const [isLevelModalOpen, setIsLevelModalOpen] = useState(false);
+    const [isPointModalOpen, setIsPointModalOpen] = useState(false);
+
+    const handleLevelClick = () => {
+        if (!enableStatModal) return;
+        setIsLevelModalOpen(true);
+    };
+
+    const handlePointClick = () => {
+        if (!enableStatModal) return;
+        setIsPointModalOpen(true);
+    };
+
+
+    return (
+    <>
+    <div className={`profile-card ${enableStatModal ? 'clickable' : ''}`}>
 
         {/* 1. 상단: 회원정보 */}
         <div className="profile-info">
@@ -20,21 +45,74 @@ const ProfileCard = ({ name, major, year, level, points }) => {
         <div className="profile-stats">
 
             {/* 팀플레벨 */}
-            <div className="stat-box">
-                <span className="stat-label">팀플레벨</span>
-                <span className="stat-value">LV.{level}</span>
+            <div onClick={handleLevelClick}>
+                <StatBox 
+                    label="팀플레벨" 
+                    value={`LV.${level}`} 
+                />
             </div>
 
-            {/* 포인트 (팀플레벨과 같은 디자인이므로 클래스명 재사용) */}
-            <div className="stat-box">
-                <span className="stat-label">포인트</span>
-                <span className="stat-value">{points}p</span>
-            </div> 
+            {/* 포인트 */}
+            <div onClick={handlePointClick}>
+                <StatBox 
+                    label="포인트" 
+                    value={`${points}p`} 
+                />
+            </div>
 
         </div>
-
     </div>
-  );
+
+    {/* 팀플레벨 모달 */}
+    {enableStatModal && isLevelModalOpen && (
+        <Modal
+            title="팀플레벨"
+            titleColor="black"
+            onClose={() => setIsLevelModalOpen(false)}
+            onConfirm={() => setIsLevelModalOpen(false)}
+        >
+            <div className="modal__level-info">
+                <span className="modal__level-name">Lv.{level}</span>
+                <span className="modal__level-score">0/20</span>
+            </div>
+        </Modal>
+    )}
+
+    {/* 포인트 모달 */}
+    {enableStatModal && isPointModalOpen && (
+        <Modal
+            title="포인트"
+            titleColor="black"
+            onClose={() => setIsPointModalOpen(false)}
+            onConfirm={() => setIsPointModalOpen(false)}
+        >
+            <div className="modal__point">
+
+                {/* 현재 포인트 */}
+                <div className="modal__point-row">
+                    <span className="modal__point-label">현재 보유 포인트</span>
+                    <span className="modal__point-value">{points}p</span>
+                </div>
+
+                <div className="modal__divider" />
+
+                {/* 스크롤 영역 */}
+                <div className="modal__point-history">
+                    <span className="modal__point-history-title">내역</span>
+
+                    {POINT_HISTORY.map((item, index) => (
+                        <div key={index} className="modal__point-history-row">
+                            <span className="modal__point-history-label">{item.label}</span>
+                            <span className="modal__point-history-value">{item.value}</span>
+                        </div>
+                    ))}
+                </div>
+
+            </div>
+        </Modal>
+    )}
+    </>
+    );
 };
 
 export default ProfileCard;

@@ -25,13 +25,64 @@ export const TEAM_STATUS = {
     "냠": "ACCEPTED"   // 팀원 요청 수락 상태
 }
 
+// 회원 정보 데이터
+export const USER_INFO = {
+    id: "user_123",
+    name: '이승희',
+    major: '컴퓨터공학과',
+    year: 4,
+    level: 1,
+    points: 100,
+};
+
+// 포인트 내역 데이터
+export const POINT_HISTORY = [
+    {
+        label: '신규가입 포인트',
+        value: '+100p' },
+  ];
+
+// 기본 팀플 성향 데이터
+export const USER_DEFAULT_TRAITS = ['미리미리', '효율주의', '대면선호', '협업선호', '새벽형인간'];
+
+// 강의 정보 데이터
+export const COURSE_TRAITS = [
+    {
+        id: "course_001",
+        name: "캡스톤디자인",
+        semester: "2026년도 1학기",
+        importance: "높음",
+        traits: ['미리미리', '완벽주의', '대면선호', '협업선호', '새벽형인간'],
+    },
+    {
+        id: "course_002",
+        name: "클라우드컴퓨팅",
+        semester: "2026년도 1학기",
+        importance: "보통",
+        traits: ['미리미리', '완벽주의', '비대면선호', '협업선호', '아침형인간'],
+    },
+    {
+        id: "course_003",
+        name: "소프트웨어디자인패턴",
+        semester: "2026년도 1학기",
+        importance: "낮음",
+        traits: ['벼락치기', '효율주의', '비대면선호', '분담선호', '새벽형인간'],
+    }
+];
+
+// 프로젝트 이력 요약 데이터
+export const PROJECT_HISTORY_SUMMARY = [
+    { label: '참여수', value: 3, },
+    { label: '완수율', value: '100%', },
+    { label: '상호평가', value: '4/5', },
+];
+
 //OnboardingInfo 데이터
 export const ONBOARDING_INFO_OPTIONS = {
   MAJORS: ["컴퓨터공학과", "서비스디자인공학과"],
   GRADES: [1, 2, 3, 4],
   SEMESTERS: ["2026년 1학기", "2025년 2학기", "2025년 1학기", "2024년 2학기", "2024년 1학기"]
 };
-
 
 //팀플 성향 카드 데이터
 export const PREFERENCE =[

@@ -1,12 +1,29 @@
-#Button_Wrap{
+.button {
     width: 100%;
     height: 56px;
     color: var(--white);
     background-color: var(--primary-700);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
     @include body2;
 
     display: flex;
     justify-content: center;
     align-items: center;
+
+    &--primary {
+        background-color: var(--primary-700);
+        color: var(--white);
+    }
+
+    &--error {
+        background-color: var(--error-dark);
+        color: var(--white);
+    }
+
+    &--gray {
+        background-color: var(--gray-100);
+        color: var(--gray-500);
+    }
 }

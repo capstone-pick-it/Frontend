@@ -17,7 +17,8 @@
             align-items: center;
             padding: 16px 16px;
             border: solid 1px var(--gray-500); 
-            border-radius: 8px;
+            border-radius: var(--radius-md);
+            cursor: pointer; // 커서 올렸을 때 손모양
 
             .option{
                 @include body3;
@@ -25,6 +26,12 @@
 
             img{
                 width: 24px;
+                transition: transform 0.2s ease;
+
+                // open되면 180도 회전(화살표 위로)
+                &.open {
+                    transform: rotate(180deg);
+                }
             }
         }
 
@@ -38,7 +45,7 @@
            min-height: 56px;
            background-color: var(--white);
            border: solid 1px var(--gray-500);
-           border-radius: 8px;
+           border-radius: var(--radius-md);
 
            li{
             cursor: pointer;
@@ -48,6 +55,55 @@
             align-items: center;
             @include body3;
            }
+        }
+    }
+
+    // 마이페이지에서 사용하는 타이틀 스타일 드롭다운
+    &.inline {
+        margin-bottom: 0; 
+
+        .dropdown_container {
+            .dropdown {
+                border: none;
+                background: transparent;
+                padding: 0; 
+                justify-content: flex-start;
+                gap: 4px; 
+
+                .option {
+                    color: var(--black);
+                    @include heading2; 
+                }
+            }
+
+            // 리스트 스타일도 함께 변경
+            ul.list {
+                top: 100%;
+                left: 0;
+                margin-top: 0;
+
+                width: 240px;
+
+                border: 1px solid var(--primary-200);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+                li {
+                    @include body1;
+                    color: var(--black);
+
+                    height: 40px;
+                    padding: 0 8px;
+
+                    display: flex;
+                    align-items: center;
+
+                    white-space: nowrap; // 강의명 길어도 줄바꿈 X
+
+                    &:hover, &:active {
+                        background: var(--primary-50);
+                    }
+                }
+            }
         }
     }
 }

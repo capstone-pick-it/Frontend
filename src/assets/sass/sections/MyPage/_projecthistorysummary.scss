@@ -1,0 +1,53 @@
+@import "../../setting/mixin.scss";
+
+.project-history-summary {
+    // 전체 레이아웃
+    display: flex;
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    align-self: stretch;
+
+    gap: 0;
+
+    background: var(--gray-50);
+
+    width: 393px;
+    margin-left: -16px;
+    margin-right: -16px;
+
+    // 상단 타이틀 영역
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        align-self: stretch;
+
+        color: var(--black);
+    }
+
+    // 타이틀
+    &__title {
+        color: var(--black);
+        @include body4;
+    }
+
+    // 자세히 보기
+    &__link {
+        color: var(--black);
+        text-align: center;
+        @include caption;
+
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+
+        text-decoration-line: underline;
+        text-decoration-style: solid;
+        text-decoration-skip-ink: auto;
+        text-decoration-thickness: auto;
+        text-underline-offset: auto;
+        text-underline-position: from-font;
+    }
+}

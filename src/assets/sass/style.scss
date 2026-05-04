@@ -6,20 +6,32 @@
 @import "setting/var";
 @import "setting/mixin";
 
-// pages
-@import 'sections/mypage';
+// pages (sections)
 @import 'sections/_auth';
 @import 'sections/_login';
 @import 'sections/_signup';
 @import 'sections/_password-reset';
 @import 'sections/onboarding';
 @import 'sections/chat';
+@import 'sections/MyPage/mypage';
+@import 'sections/MyPage/courselist';
+@import 'sections/MyPage/courseadd';
+@import 'sections/MyPage/courseedit';
 
 // components
 @import 'sections/_nav';
 @import 'components/topbar';
-@import 'components/profilecard';
+@import 'components/tag';
+@import 'components/statbox';
+@import 'components/triplestatbox';
 @import 'components/button';
 @import 'components/input';
 @import 'components/dropdown';
+@import 'components/modal';
 @import 'components/preferencecard';
+@import 'components/profilecard';
+
+@import 'sections/MyPage/defaulttraits';
+@import 'sections/MyPage/coursecard';
+@import 'sections/MyPage/projecthistorysummary';
+@import 'sections/MyPage/courselistitem';

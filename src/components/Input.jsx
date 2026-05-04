@@ -1,16 +1,25 @@
-import React from 'react'
+import React from 'react';
 
-const Input = ({ title, onChange, value }) => {
+const Input = ({
+  title,
+  onChange,
+  value,
+  placeholder = '내용을 입력해주세요.',
+  disabled = false, // 비활성화 기본 false
+}) => {
   return (
-    <div className="Input_Wrap">
+    <div className={`Input_Wrap ${disabled ? 'disabled' : ''}`}>
       <div className="title">{title}</div>
-        <input type="text" 
-        placeholder='내용을 입력해주세요.' 
+
+      <input
+        type="text"
+        placeholder={placeholder}
         onChange={onChange}
         value={value}
-        />
+        disabled={disabled}
+      />
     </div>
-  )
-}
+  );
+};
 
-export default Input
+export default Input;
