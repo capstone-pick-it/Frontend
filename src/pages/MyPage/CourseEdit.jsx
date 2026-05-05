@@ -9,20 +9,18 @@ import Button from '../../components/Button';
 import Modal from '../../components/Modal';
 import Nav from '../../components/Nav';
 
-import { COURSE_TRAITS, PREFERENCE } from '../../data/mockData';
+import { COURSE_INFO, PREFERENCE } from '../../data/mockData';
 
 const CourseEdit = () => {
   const navigate = useNavigate();
   const { courseId } = useParams();
 
   // URL의 courseId와 일치하는 강의 데이터 조회
-  const course = COURSE_TRAITS.find((item) => item.id === courseId);
+  const course = COURSE_INFO.find((item) => item.id === courseId);
 
   const [importance, setImportance] = useState(course?.importance || '높음');
   const [selectedTraits, setSelectedTraits] = useState(course?.traits || []);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  const normalize = (text) => text.replaceAll(' ', '');
 
   // 존재하지 않는 courseId로 접근한 경우
   if (!course) {
@@ -40,7 +38,8 @@ const CourseEdit = () => {
   }
 
   const handleTraitClick = (item) => {
-    const traitName = normalize(item.title);
+    // COURSE_INFO.traits와 PREFERENCE.title의 표기를 동일하게 사용
+    const traitName = item.title;
 
     setSelectedTraits((prev) => {
       const isSelected = prev.includes(traitName);
@@ -60,6 +59,8 @@ const CourseEdit = () => {
       semester: course.semester,
       importance,
       traits: selectedTraits,
+      // 진행 중/완료 상태는 수정 대상이 아니므로 기존 값 유지
+      projectStatus: course.projectStatus,
     };
 
     console.log('수정할 강의 데이터:', updatedCourse);
@@ -110,19 +111,15 @@ const CourseEdit = () => {
           <h2 className="course-edit-page__title">팀플 성향</h2>
 
           <div className="course-edit-page__grid">
-            {PREFERENCE.map((item) => {
-              const traitName = normalize(item.title);
-
-              return (
-                <PreferenceCard
-                  key={item.id}
-                  title={item.title}
-                  content={item.content}
-                  selected={selectedTraits.includes(traitName)}
-                  onClick={() => handleTraitClick(item)}
-                />
-              );
-            })}
+            {PREFERENCE.map((item) => (
+              <PreferenceCard
+                key={item.id}
+                title={item.title}
+                content={item.content}
+                selected={selectedTraits.includes(item.title)}
+                onClick={() => handleTraitClick(item)}
+              />
+            ))}
           </div>
         </section>
 

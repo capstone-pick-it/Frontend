@@ -100,10 +100,12 @@ const ProfileCard = ({
                 <div className="modal__point-history">
                     <span className="modal__point-history-title">내역</span>
 
-                    {POINT_HISTORY.map((item, index) => (
-                        <div key={index} className="modal__point-history-row">
+                    {POINT_HISTORY.map((item) => (
+                        <div key={item.id} className="modal__point-history-row">
                             <span className="modal__point-history-label">{item.label}</span>
-                            <span className="modal__point-history-value">{item.value}</span>
+                            <span className="modal__point-history-value">
+                                {item.type === "EARNED" ? `+${item.value}p` : `-${item.value}p`}
+                            </span>
                         </div>
                     ))}
                 </div>

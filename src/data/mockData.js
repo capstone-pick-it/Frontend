@@ -38,36 +38,72 @@ export const USER_INFO = {
 // 포인트 내역 데이터
 export const POINT_HISTORY = [
     {
-        label: '신규가입 포인트',
-        value: '+100p' },
-  ];
+        id: "point_001",
+        label: "신규가입 포인트",
+        value: 100,
+        type: "EARNED",
+    },
+];
 
 // 기본 팀플 성향 데이터
-export const USER_DEFAULT_TRAITS = ['미리미리', '효율주의', '대면선호', '협업선호', '새벽형인간'];
+export const USER_DEFAULT_TRAITS = [
+    "미리미리",
+    "효율주의",
+    "대면 선호",
+    "협업 선호",
+    "새벽형 인간",
+];
 
 // 강의 정보 데이터
-export const COURSE_TRAITS = [
+export const COURSE_INFO = [
     {
         id: "course_001",
         name: "캡스톤디자인",
         semester: "2026년도 1학기",
         importance: "높음",
-        traits: ['미리미리', '완벽주의', '대면선호', '협업선호', '새벽형인간'],
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형 인간"],
+        projectStatus: "ONGOING",
     },
     {
         id: "course_002",
         name: "클라우드컴퓨팅",
         semester: "2026년도 1학기",
         importance: "보통",
-        traits: ['미리미리', '완벽주의', '비대면선호', '협업선호', '아침형인간'],
+        traits: ["미리미리", "완벽주의", "비대면 선호", "협업 선호", "아침형 인간"],
+        projectStatus: "ONGOING",
     },
     {
         id: "course_003",
         name: "소프트웨어디자인패턴",
         semester: "2026년도 1학기",
         importance: "낮음",
-        traits: ['벼락치기', '효율주의', '비대면선호', '분담선호', '새벽형인간'],
-    }
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형 인간"],
+        projectStatus: "ONGOING",
+    },
+    {
+        id: "course_004",
+        name: "소프트웨어분석및설계",
+        semester: "2025년도 1학기",
+        importance: "높음",
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형 인간"],
+        projectStatus: "COMPLETED",
+    },
+    {
+        id: "course_005",
+        name: "컴퓨터네트워크",
+        semester: "2024년도 2학기",
+        importance: "보통",
+        traits: ["미리미리", "효율주의", "비대면 선호", "분담 선호", "아침형 인간"],
+        projectStatus: "COMPLETED",
+    },
+    {
+        id: "course_006",
+        name: "자바프로그래밍",
+        semester: "2024년도 1학기",
+        importance: "보통",
+        traits: ["벼락치기", "효율주의", "대면 선호", "협업 선호", "새벽형 인간"],
+        projectStatus: "COMPLETED",
+    },
 ];
 
 // 프로젝트 이력 요약 데이터
@@ -81,10 +117,10 @@ export const PROJECT_HISTORY_SUMMARY = {
 // 프로젝트 이력 상세 데이터
 export const PROJECT_HISTORY = [
     {
-        id: "history_project_001",
-        courseId: "history_course_001",
-        courseName: "소프트웨어분석및설계",
+        id: "project_001",
+        courseId: "course_004", //소프트웨어분석및설계
         completionRate: 100,
+        status: "COMPLETED",
         peerReview: {
             completion: 4,
             participation: 4,
@@ -93,10 +129,10 @@ export const PROJECT_HISTORY = [
         },
     },
     {
-        id: "history_project_002",
-        courseId: "history_course_002",
-        courseName: "컴퓨터네트워크",
+        id: "project_002",
+        courseId: "course_005", // 컴퓨터네트워크
         completionRate: 100,
+        status: "COMPLETED",
         peerReview: {
             completion: 4,
             participation: 4,
@@ -105,10 +141,10 @@ export const PROJECT_HISTORY = [
         },
     },
     {
-        id: "history_project_003",
-        courseId: "history_course_003",
-        courseName: "자바프로그래밍",
+        id: "project_003",
+        courseId: "course_006", // 자바프로그래밍
         completionRate: 100,
+        status: "COMPLETED",
         peerReview: {
             completion: 4,
             participation: 4,
@@ -135,6 +171,6 @@ export const PREFERENCE =[
     { id: 6, title: "비대면 선호", content: "장소 제약 없는 회의를 선호해요, 온라인 협업으로 효율을 추구해요"},
     { id: 7, title: "협업 선호", content: "함께 시너지를 발휘해 작업하는걸 선호해요, 긴 회의나 잦은 만남도 괜찮아요"},
     { id: 8, title: "분담 선호", content: "함께 진행하는거보단 체계적인 분담 체제를 선호해요, 빠르고 명확한 일처리가 좋아요"},
-    { id: 9, title: "아침형 인간", content: "아침 시간을 선호해요, 일찍 자고 일찍 일어나 오전 시간대를 주고 활용해요"},
+    { id: 9, title: "아침형 인간", content: "아침 시간을 선호해요, 일찍 자고 일찍 일어나 오전 시간대를 주로 활용해요"},
     { id: 10, title: "새벽형 인간", content: "새벽 시간을 선호해요, 새벽 시간대에 주로 활동하고 집중이 잘돼요"}
 ]

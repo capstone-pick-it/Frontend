@@ -10,14 +10,14 @@ import ProjectHistorySummary from '../../components/MyPage/ProjectHistorySummary
 import { 
     USER_INFO,
     USER_DEFAULT_TRAITS,
-    COURSE_TRAITS,
+    COURSE_INFO,
     PROJECT_HISTORY_SUMMARY } from '../../data/mockData';
 
 const MyPage = () => {
     // 초기값 mockData로 설정
     const [userInfo, setUserInfo] = useState(USER_INFO);
     const [traits, setTraits] = useState(USER_DEFAULT_TRAITS);
-    const [courses, setCourses] = useState(COURSE_TRAITS);
+    const [courses, setCourses] = useState(COURSE_INFO);
     const [projectHistorySummary, setProjectHistorySummary] = useState(PROJECT_HISTORY_SUMMARY);
 
     // API 연동 (백엔드에서 데이터 연동)
