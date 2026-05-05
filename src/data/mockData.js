@@ -71,10 +71,51 @@ export const COURSE_TRAITS = [
 ];
 
 // 프로젝트 이력 요약 데이터
-export const PROJECT_HISTORY_SUMMARY = [
-    { label: '참여수', value: 3, },
-    { label: '완수율', value: '100%', },
-    { label: '상호평가', value: '4/5', },
+export const PROJECT_HISTORY_SUMMARY = {
+    projectCount: 3,
+    completionRate: 100,
+    averagePeerReview: 4,
+    maxPeerReviewScore: 5,
+};
+
+// 프로젝트 이력 상세 데이터
+export const PROJECT_HISTORY = [
+    {
+        id: "project_001",
+        courseId: "course_001",
+        courseName: "소프트웨어분석및설계",
+        completionRate: 100,
+        peerReview: {
+            completion: 4,
+            participation: 4,
+            satisfaction: 4,
+            maxScore: 5,
+        },
+    },
+    {
+        id: "project_002",
+        courseId: "course_002",
+        courseName: "컴퓨터네트워크",
+        completionRate: 100,
+        peerReview: {
+            completion: 4,
+            participation: 4,
+            satisfaction: 4,
+            maxScore: 5,
+        },
+    },
+    {
+        id: "project_003",
+        courseId: "course_003",
+        courseName: "자바프로그래밍",
+        completionRate: 100,
+        peerReview: {
+            completion: 4,
+            participation: 4,
+            satisfaction: 4,
+            maxScore: 5,
+        },
+    },
 ];
 
 //OnboardingInfo 데이터
