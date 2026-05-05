@@ -81,8 +81,8 @@ export const PROJECT_HISTORY_SUMMARY = {
 // 프로젝트 이력 상세 데이터
 export const PROJECT_HISTORY = [
     {
-        id: "project_001",
-        courseId: "course_001",
+        id: "history_project_001",
+        courseId: "history_course_001",
         courseName: "소프트웨어분석및설계",
         completionRate: 100,
         peerReview: {
@@ -93,8 +93,8 @@ export const PROJECT_HISTORY = [
         },
     },
     {
-        id: "project_002",
-        courseId: "course_002",
+        id: "history_project_002",
+        courseId: "history_course_002",
         courseName: "컴퓨터네트워크",
         completionRate: 100,
         peerReview: {
@@ -105,8 +105,8 @@ export const PROJECT_HISTORY = [
         },
     },
     {
-        id: "project_003",
-        courseId: "course_003",
+        id: "history_project_003",
+        courseId: "history_course_003",
         courseName: "자바프로그래밍",
         completionRate: 100,
         peerReview: {

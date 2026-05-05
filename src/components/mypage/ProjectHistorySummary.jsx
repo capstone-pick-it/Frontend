@@ -1,7 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import TripleStatBox from '../TripleStatBox';
 
 const ProjectHistorySummary = ({ summary }) => {
+  const navigate = useNavigate();
+
   const stats = [
     {
       label: '참여수',
@@ -25,13 +28,11 @@ const ProjectHistorySummary = ({ summary }) => {
         {/* 타이틀 */}
         <h2 className="project-history-summary__title">프로젝트 이력</h2>
 
-        {/* 자세히 보기 버튼 - 추후 페이지 연결 */}
+        {/* 자세히 보기 버튼 */}
         <button
           type="button"
           className="project-history-summary__link"
-          onClick={() => {
-            console.log('프로젝트 이력 상세 페이지 이동');
-          }}
+          onClick={() => navigate('/mypage/project-history')}
         >
           자세히 보기
         </button>

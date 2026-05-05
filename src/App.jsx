@@ -24,6 +24,7 @@ import MyPage from './pages/MyPage/MyPage'
 import CourseList from './pages/MyPage/CourseList'
 import CourseAdd from './pages/MyPage/CourseAdd';
 import CourseEdit from './pages/MyPage/CourseEdit';
+import ProjectHistory from './pages/MyPage/ProjectHistory';
 
 const AuthLayout = ({ children }) => {
   return <div className="container auth-container">{children}</div>
@@ -101,6 +102,8 @@ const App = () => {
         <Route path="/mypage/courses" element={<CourseList />} />
         <Route path="/mypage/courses/new" element={<CourseAdd />} />
         <Route path="/mypage/courses/:courseId/edit" element={<CourseEdit />} />
+        <Route path="/mypage/project-history" element={<ProjectHistory />}
+/>
 
       </Routes>
     </BrowserRouter>
