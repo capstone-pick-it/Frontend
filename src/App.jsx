@@ -45,7 +45,7 @@ const LoginRoute = () => {
       <Login
         onSignupClick={() => navigate('/signup')}
         onResetPasswordClick={() => navigate('/reset-password')}
-        onLoginSuccess={() => navigate('/mypage')}
+        onLoginSuccess={() => navigate('/home')}
       />
     </AuthLayout>
   )
