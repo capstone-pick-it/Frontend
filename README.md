@@ -28,6 +28,7 @@ src
 │       │   ├── _chat.scss
 │       │   └── _mypage.scss
 │       └── setting     # 전역 설정 (common, reset, var, style.scss)
+├── data                # 더미 데이터 (mockData)
 ├── components          # 재사용 가능한 공통 컴포넌트 (Button, Input 등) 및 해당 페이지에서만 사용되는 컴포넌트는 페이지별 폴더 생성 후 관리
 ├── pages               # 메인 페이지 컴포넌트
 │   ├── Splash.jsx      # 스플래시 화면
