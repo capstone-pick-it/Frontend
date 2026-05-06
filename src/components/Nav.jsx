@@ -10,7 +10,7 @@ import chat_b from '../assets/images/Nav/chat_b.svg'
 import mypage_b from '../assets/images/Nav/mypage_b.svg'
 
 const navItems = [
-    { to: '/', label: '홈', icon: home, activeIcon: home_b, className: 'home' },
+    { to: '/home', label: '홈', icon: home, activeIcon: home_b, className: 'home' },
     { to: '/group', label: '모집', icon: group, activeIcon: group_b, className: 'group', imageClassName: 'img_group' },
     { to: '/chat', label: '채팅', icon: chat, activeIcon: chat_b, className: 'chat' },
     { to: '/mypage', label: '마이페이지', icon: mypage, activeIcon: mypage_b, className: 'mypage' },
