@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import AuthButton from '../../components/Login/AuthButton'
-import AuthField from '../../components/Login/AuthField'
-import AuthStepHeader from '../../components/Login/AuthStepHeader'
-import AuthSuccess from '../../components/Login/AuthSuccess'
+import AuthButton from '../../components/Auth/AuthButton'
+import AuthField from '../../components/Auth/AuthField'
+import AuthStepHeader from '../../components/Auth/AuthStepHeader'
+import AuthSuccess from '../../components/Auth/AuthSuccess'
 
 const EMAIL = '20220201@sungshin'
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import logo from '../../assets/images/logo.png'
-import AuthButton from '../../components/Login/AuthButton'
-import AuthField from '../../components/Login/AuthField'
+import AuthButton from '../../components/Auth/AuthButton'
+import AuthField from '../../components/Auth/AuthField'
 
 const Login = ({ onSignupClick, onResetPasswordClick, onLoginSuccess }) => {
   return (
