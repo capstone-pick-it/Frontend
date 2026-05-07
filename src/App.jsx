@@ -15,6 +15,9 @@ import OnboardingInfo from './pages/Onboarding/OnboardingInfo'
 import OnboardingStep from './pages/Onboarding/OnboardingStep'
 import OnboardingResult from './pages/Onboarding/OnboardingResult'
 
+// 모집페이지 관련 경로 import
+import Recruit from './pages/Recruit';
+
 // Chat 페이지 관련 경로 import
 import Chat from './pages/Chat/Chat'
 import ChatRoom from './pages/Chat/ChatRoom'
@@ -91,9 +94,13 @@ const App = () => {
         <Route path="/reset-password" element={<PasswordResetRoute />} />
 
         <Route path="/onboarding" element={<Onboarding />} />
+
+
         <Route path="/onboardinginfo" element={<OnboardingInfo />} />
         <Route path="/onboardingstep" element={<OnboardingStep />} />
         <Route path="/onboardingresult" element={<OnboardingResult />} />
+
+        <Route path="/recruit" element={<Recruit />} />
 
         <Route path="/chat" element={<Chat />} />
         <Route path="/chatroom/:roomId" element={<ChatRoom />} />

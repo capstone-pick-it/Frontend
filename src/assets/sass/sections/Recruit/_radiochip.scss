@@ -11,6 +11,7 @@
     border-radius: var(--radius-full);
     border: 1px solid var(--gray-400);
     background: var(--white);
+    cursor: pointer;
 
     &__content {
         display: flex;
@@ -21,21 +22,16 @@
     &__icon {
         width: 18px;
         height: 18px;
-        filter: grayscale(1);
+        flex-shrink: 0;
     }
 
     &__label {
         color: var(--gray-600);
-        text-align: center;
         @include body3;
     }
 
     &--selected {
         border-color: var(--primary-700);
-
-        .radio-chip__icon {
-            filter: none;
-        }
 
         .radio-chip__label {
             color: var(--primary-700);

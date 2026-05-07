@@ -281,8 +281,9 @@
         }
 
         .profile-card__header {
+            position: relative;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
         }
 
         .profile-card__info {

@@ -12,6 +12,7 @@
 @import 'sections/_signup';
 @import 'sections/_password-reset';
 @import 'sections/onboarding';
+@import 'sections/Recruit/recruit';
 @import 'sections/chat';
 @import 'sections/MyPage/mypage';
 @import 'sections/MyPage/courselist';
@@ -31,6 +32,10 @@
 @import 'components/modal';
 @import 'components/preferencecard';
 @import 'components/profilecard';
+
+@import 'sections/Recruit/searchbar';
+@import 'sections/Recruit/dropdownchip';
+@import 'sections/Recruit/radiochip';
 
 @import 'sections/MyPage/defaulttraits';
 @import 'sections/MyPage/coursecard';

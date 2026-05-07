@@ -1,5 +1,6 @@
 import React from 'react';
-import radioIcon from '../../assets/images/Recruit/icon-radio.svg';
+import radioDefault from '../../assets/images/Recruit/icon-radio.svg';
+import radioActive from '../../assets/images/Recruit/icon-radio_pri.svg';
 
 const RadioChip = ({ label, selected = false, onClick }) => {
   return (
@@ -9,7 +10,11 @@ const RadioChip = ({ label, selected = false, onClick }) => {
       onClick={onClick}
     >
       <span className="radio-chip__content">
-        <img src={radioIcon} alt="" className="radio-chip__icon" aria-hidden="true" />
+        <img
+          src={selected ? radioActive : radioDefault}
+          alt=""
+          className="radio-chip__icon"
+        />
         <span className="radio-chip__label">{label}</span>
       </span>
     </button>

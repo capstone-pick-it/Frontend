@@ -8,8 +8,8 @@
     
     // viewport는 부모 기준X 화면 기준O
     // .container 영향으로 모달 아래로 치우치는 문제 해결
-    width: 100vw; // viewport width
-    height: 100vh; // viewport height
+    width: 100vw;
+    height: 100vh;
     z-index: 9999;
 
     display: flex;
@@ -46,6 +46,8 @@
         flex-shrink: 0;
 
         img {
+            width: 24px;
+            height: 24px;
             aspect-ratio: 1 / 1;
         }
     }
@@ -82,7 +84,7 @@
         @include body3;
     }
 
-    // 팀플레벨 모달 본문
+    // 팀플레벨 모달
     &__level-info {
         display: flex;
         align-items: center;
@@ -101,7 +103,7 @@
         @include body3;
     }
 
-    // 포인트 모달 본문
+    // 포인트 모달
     &__point {
         display: flex;
         flex-direction: column;
@@ -171,19 +173,22 @@
         @include body3;
     }
 
+    // 하단 버튼 공통 영역
+    // default는 확인 버튼 1개, confirm 계열은 취소/확인 버튼 2개
     &__actions {
         display: flex;
         width: 100%;
         margin-top: 16px;
         gap: 12px;
+
+        .modal__action-button {
+            flex: 1;
+        }
     }
 
     // 모집페이지 모달
     &--recruit-filter {
-        width: 350px;
-        padding: 16px 16px 32px 16px;
-        gap: 24px;
-        align-items: flex-end;
+        gap: 16px;
 
         .modal__title {
             @include heading1;
@@ -193,11 +198,6 @@
         .modal__content {
             display: flex;
             flex-direction: column;
-            gap: 32px;
-        }
-
-        .modal__actions {
-            margin-top: 0;
         }
     }
 }
