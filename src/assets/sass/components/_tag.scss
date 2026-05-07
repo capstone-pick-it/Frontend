@@ -4,15 +4,31 @@
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  white-space: nowrap; // 줄바꿈 X
+  white-space: nowrap; // 줄바꿈X
 
-  height: 24px; //
-  padding: 0 8px; 
+  height: 24px;
+  padding: 0 8px;
 
   border-radius: var(--radius-full);
   background-color: var(--primary-200);
   color: var(--primary-800);
 
   @include body4; // Bold, 14
+
+  // 스타일1: 모집상태 태그 (디폴트)
+  &--recruit-default {
+    gap: 16px;
+    border-radius: var(--radius-sm);
+    background: var(--primary-200);
+    color: var(--primary-800);
+  }
+
+  // 스타일2: 모집상태 태그 (모집페이지에서만 사용)
+  &--recruit-page {
+    gap: 16px;
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--primary-600);
+    background: var(--primary-50);
+    color: var(--primary-600);
+  }
 }
-    

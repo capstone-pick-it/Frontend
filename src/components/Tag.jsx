@@ -1,8 +1,8 @@
 import React from 'react';
 
-const Tag = ({ label }) => {
+const Tag = ({ label, variant = 'default' }) => {
   return (
-    <span className="common-tag">
+    <span className={`common-tag common-tag--${variant}`}>
       {label}
     </span>
   );
