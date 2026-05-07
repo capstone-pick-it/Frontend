@@ -13,11 +13,15 @@ const OnboardingResult = () => {
       </div>
       <main>
         <ProfileCard
-        name={"이승희"}
-        major={"컴퓨터공학과"}
-        year={"4힉년"}
-        level={"1"}
-        points={"100"}
+          variant="onboarding"
+          name="이승희"
+          major="컴퓨터공학과"
+          year={4}
+          level={1}
+          points={100}
+          status="모집 중"
+          traits={["미리준비", "완벽주의", "대면선호"]}
+          importance="높음"
         />
       </main>
       <Button title={"완료"}/>

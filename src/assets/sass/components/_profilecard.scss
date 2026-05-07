@@ -7,51 +7,296 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    
+
     width: 360px;
     margin: 0 auto;
     padding: 16px;
-    gap: 16px; 
+    gap: 16px;
     flex-shrink: 0;
+    box-sizing: border-box;
 
     border-radius: var(--radius-lg);
     background: var(--primary-50);
     box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.10);
 
-    // 회원정보 영역
-    .profile-info {
+    // 내부 컨텐츠 영역
+    &__content {
         display: flex;
         flex-direction: column;
-        gap: 4px;
-
-        // 이름 텍스트 필드
-        .user-name {
-            @include heading2; 
-            color: var(--black);
-            margin: 0; 
-        }
-
-        // 학과 & 학년 텍스트 필드
-        .user-major {
-            @include body5;
-            color: var(--black);
-            margin: 0;
-        }
+        align-items: flex-start;
+        align-self: stretch;
+        width: 100%;
+        gap: 16px;
     }
 
-    // 스탯 영역 (스탯: 팀플레벨, 포인트)
-    .profile-stats {
+    // 1. 상단: 회원정보 영역
+    &__header {
         display: flex;
-        gap: 8px; // 박스 사이 간격
+        justify-content: space-between;
+        align-items: flex-start;
+        align-self: stretch;
         width: 100%;
     }
 
-    // 스탯 클릭이 가능한 경우(본인 카드)에만 cursor 적용
-    &.clickable {
-        .profile-stats {
+    &__info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        flex: 1;
+    }
+
+    // 이름 + 모집상태 태그
+    &__name-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        align-self: stretch;
+    }
+
+    // 이름 텍스트 필드
+    &__name {
+        @include heading2;
+        color: var(--black);
+        margin: 0;
+    }
+
+    // 학과 & 학년 텍스트 필드
+    &__major {
+        @include body5;
+        color: var(--black);
+        margin: 0;
+        align-self: stretch;
+    }
+
+    // 홈: 현재 카드 순서 / 전체 팀원 수
+    &__member-count {
+        @include caption;
+        color: var(--gray-700);
+        text-align: center;
+    }
+
+    // 모집 페이지: 펼치기 / 닫기 버튼
+    &__toggle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        border: none;
+        padding: 0;
+        background: transparent;
+        cursor: pointer;
+
+        img {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.2s ease;
+
+            // open되면 180도 회전, 화살표 위로
+            &.open {
+                transform: rotate(180deg);
+            }
+        }
+    }
+
+    // 2. 성향 태그 영역
+    &__traits {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-self: stretch;
+    }
+
+    // 3. 스탯 영역
+    &__stats {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        align-self: stretch;
+        width: 100%;
+
+        > div {
+            flex: 1;
+        }
+
+        // 스탯 클릭이 가능한 경우, 본인 마이페이지에서만 cursor 적용
+        &.clickable {
             > div {
                 cursor: pointer;
             }
         }
+    }
+
+    // 모집 페이지: TripleStatBox 2개와 채팅 버튼 묶음
+    &__recruit-detail {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        align-self: stretch;
+        gap: 16px;
+        width: 100%;
+
+        .triple-stat-box {
+            width: 100%;
+        }
+    }
+
+    // 4. 홈 프로젝트 워크스페이스: 채팅 / 신고 버튼
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+    }
+
+    // 홈 프로젝트 워크스페이스: 팀원 순서 dot 영역
+    &__dots {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+    }
+
+    &__dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 5px;
+        background: var(--gray-200);
+
+        &.active {
+            background: var(--black);
+        }
+    }
+
+    // 마이페이지 프로필카드
+    &--mypage {
+        width: 360px;
+        padding: 16px;
+        gap: 16px;
+
+        border-radius: var(--radius-lg);
+        background: var(--primary-50);
+        box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.10);
+
+        .profile-card__content {
+            gap: 16px;
+        }
+
+        .profile-card__header {
+            justify-content: flex-start;
+        }
+
+        .profile-card__info {
+            gap: 4px;
+        }
+
+        .profile-card__stats {
+            width: auto;
+
+            > div {
+                flex: none;
+            }
+        }
+    }
+
+    // 온보딩 완료 후 프로필카드
+    &--onboarding {
+        padding: 16px;
+        gap: 10px;
+        align-self: stretch;
+
+        border-radius: var(--radius-md);
+        background: var(--primary-50);
+        box-shadow: none;
+
+        .profile-card__content {
+            gap: 32px;
+        }
+
+        .profile-card__header {
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .profile-card__info {
+            gap: 8px;
+        }
+
+        .profile-card__stats {
+            > div {
+                flex: 1;
+            }
+        }
+    }
+
+    // 홈 프로젝트 워크스페이스 프로필카드
+    &--workspace {
+        width: 360px;
+        min-height: 228px;
+        padding: 16px;
+        gap: 16px;
+
+        border-radius: var(--radius-lg);
+        background: var(--primary-50);
+        box-shadow: none;
+
+        .profile-card__content {
+            gap: 16px;
+        }
+
+        .profile-card__header {
+            width: 329px;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .profile-card__info {
+            gap: 8px;
+        }
+
+        .profile-card__stats {
+            display: inline-flex;
+            width: auto;
+
+            > div {
+                flex: none;
+            }
+        }
+    }
+
+    // 모집 페이지 프로필카드
+    &--recruit {
+        width: 360px;
+        padding: 12px 16px;
+        gap: 10px;
+
+        border-radius: var(--radius-lg);
+        background: var(--gray-50);
+        box-shadow: none;
+
+        .profile-card__content {
+            gap: 16px;
+        }
+
+        .profile-card__header {
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .profile-card__info {
+            gap: 16px;
+        }
+
+        .profile-card__name-row {
+            align-self: auto;
+        }
+    }
+
+    // 모집 페이지 프로필카드가 펼쳐진 상태
+    &--recruit.is-expanded {
+        padding: 16px;
+        gap: 16px;
     }
 }

@@ -174,3 +174,392 @@ export const PREFERENCE =[
     { id: 9, title: "아침형 인간", content: "아침 시간을 선호해요, 일찍 자고 일찍 일어나 오전 시간대를 주로 활용해요"},
     { id: 10, title: "새벽형 인간", content: "새벽 시간을 선호해요, 새벽 시간대에 주로 활동하고 집중이 잘돼요"}
 ]
+
+// 모집 페이지 유저 데이터 (김성연, 김예린, 김지희, 김채원, 문채이, 이승희, 이은우)
+export const RECRUIT_USERS = [
+    {
+        id: "user_001",
+        name: "김성연",
+        major: "컴퓨터공학과",
+        year: 3,
+        level: 2,
+        points: 180,
+    },
+    {
+        id: "user_002",
+        name: "김예린",
+        major: "서비스디자인공학과",
+        year: 4,
+        level: 3,
+        points: 260,
+    },
+    {
+        id: "user_003",
+        name: "김지희",
+        major: "컴퓨터공학과",
+        year: 2,
+        level: 1,
+        points: 120,
+    },
+    {
+        id: "user_004",
+        name: "김채원",
+        major: "컴퓨터공학과",
+        year: 4,
+        level: 4,
+        points: 340,
+    },
+    {
+        id: "user_005",
+        name: "문채이",
+        major: "서비스디자인공학과",
+        year: 3,
+        level: 2,
+        points: 210,
+    },
+    {
+        id: "user_123", // 현재 마이페이지 유저
+        name: "이승희",
+        major: "컴퓨터공학과",
+        year: 4,
+        level: 1,
+        points: 100,
+    },
+    {
+        id: "user_006",
+        name: "이은우",
+        major: "컴퓨터공학과",
+        year: 3,
+        level: 3,
+        points: 290,
+    },
+];
+
+// 모집 페이지 카드 목록 데이터
+export const RECRUIT_CARDS = [
+    // 캡스톤디자인
+    {
+        id: "card_capstone_001",
+        userId: "user_001",
+        courseId: "course_001",
+        courseName: "캡스톤디자인",
+        status: "모집 중",
+        importance: "높음",
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형 인간"],
+        projectSummary: {
+            projectCount: 2,
+            completionRate: 100,
+            averagePeerReview: 4,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_capstone_002",
+        userId: "user_002",
+        courseId: "course_001",
+        courseName: "캡스톤디자인",
+        status: "모집 중",
+        importance: "보통",
+        traits: ["미리미리", "효율주의", "비대면 선호", "협업 선호", "아침형 인간"],
+        projectSummary: {
+            projectCount: 4,
+            completionRate: 100,
+            averagePeerReview: 5,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_capstone_003",
+        userId: "user_003",
+        courseId: "course_001",
+        courseName: "캡스톤디자인",
+        status: "모집 중",
+        importance: "높음",
+        traits: ["벼락치기", "효율주의", "대면 선호", "분담 선호", "새벽형 인간"],
+        projectSummary: {
+            projectCount: 1,
+            completionRate: 100,
+            averagePeerReview: 3,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_capstone_004",
+        userId: "user_004",
+        courseId: "course_001",
+        courseName: "캡스톤디자인",
+        status: "모집 중",
+        importance: "높음",
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "아침형 인간"],
+        projectSummary: {
+            projectCount: 5,
+            completionRate: 100,
+            averagePeerReview: 5,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_capstone_005",
+        userId: "user_005",
+        courseId: "course_001",
+        courseName: "캡스톤디자인",
+        status: "모집 중",
+        importance: "보통",
+        traits: ["미리미리", "효율주의", "비대면 선호", "협업 선호", "새벽형 인간"],
+        projectSummary: {
+            projectCount: 3,
+            completionRate: 100,
+            averagePeerReview: 4,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_capstone_006",
+        userId: "user_123",
+        courseId: "course_001",
+        courseName: "캡스톤디자인",
+        status: "모집 중",
+        importance: "높음",
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형 인간"],
+        projectSummary: PROJECT_HISTORY_SUMMARY,
+    },
+    {
+        id: "card_capstone_007",
+        userId: "user_006",
+        courseId: "course_001",
+        courseName: "캡스톤디자인",
+        status: "모집 중",
+        importance: "낮음",
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "아침형 인간"],
+        projectSummary: {
+            projectCount: 2,
+            completionRate: 50,
+            averagePeerReview: 3,
+            maxPeerReviewScore: 5,
+        },
+    },
+
+    // 클라우드컴퓨팅
+    {
+        id: "card_cloud_001",
+        userId: "user_001",
+        courseId: "course_002",
+        courseName: "클라우드컴퓨팅",
+        status: "모집 중",
+        importance: "보통",
+        traits: ["미리미리", "효율주의", "비대면 선호", "분담 선호", "아침형 인간"],
+        projectSummary: {
+            projectCount: 2,
+            completionRate: 100,
+            averagePeerReview: 4,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_cloud_002",
+        userId: "user_002",
+        courseId: "course_002",
+        courseName: "클라우드컴퓨팅",
+        status: "모집 중",
+        importance: "높음",
+        traits: ["미리미리", "완벽주의", "비대면 선호", "협업 선호", "아침형 인간"],
+        projectSummary: {
+            projectCount: 4,
+            completionRate: 100,
+            averagePeerReview: 5,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_cloud_003",
+        userId: "user_003",
+        courseId: "course_002",
+        courseName: "클라우드컴퓨팅",
+        status: "모집 중",
+        importance: "보통",
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형 인간"],
+        projectSummary: {
+            projectCount: 1,
+            completionRate: 100,
+            averagePeerReview: 3,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_cloud_004",
+        userId: "user_004",
+        courseId: "course_002",
+        courseName: "클라우드컴퓨팅",
+        status: "모집 중",
+        importance: "높음",
+        traits: ["미리미리", "완벽주의", "비대면 선호", "협업 선호", "새벽형 인간"],
+        projectSummary: {
+            projectCount: 5,
+            completionRate: 100,
+            averagePeerReview: 5,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_cloud_005",
+        userId: "user_005",
+        courseId: "course_002",
+        courseName: "클라우드컴퓨팅",
+        status: "모집 중",
+        importance: "낮음",
+        traits: ["미리미리", "효율주의", "비대면 선호", "협업 선호", "아침형 인간"],
+        projectSummary: {
+            projectCount: 3,
+            completionRate: 100,
+            averagePeerReview: 4,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_cloud_006",
+        userId: "user_123",
+        courseId: "course_002",
+        courseName: "클라우드컴퓨팅",
+        status: "모집 중",
+        importance: "보통",
+        traits: ["미리미리", "완벽주의", "비대면 선호", "협업 선호", "아침형 인간"],
+        projectSummary: PROJECT_HISTORY_SUMMARY,
+    },
+    {
+        id: "card_cloud_007",
+        userId: "user_006",
+        courseId: "course_002",
+        courseName: "클라우드컴퓨팅",
+        status: "모집 중",
+        importance: "보통",
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "아침형 인간"],
+        projectSummary: {
+            projectCount: 2,
+            completionRate: 50,
+            averagePeerReview: 3,
+            maxPeerReviewScore: 5,
+        },
+    },
+
+    // 소프트웨어디자인패턴
+    {
+        id: "card_pattern_001",
+        userId: "user_001",
+        courseId: "course_003",
+        courseName: "소프트웨어디자인패턴",
+        status: "모집 중",
+        importance: "낮음",
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형 인간"],
+        projectSummary: {
+            projectCount: 2,
+            completionRate: 100,
+            averagePeerReview: 4,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_pattern_002",
+        userId: "user_002",
+        courseId: "course_003",
+        courseName: "소프트웨어디자인패턴",
+        status: "모집 중",
+        importance: "보통",
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "아침형 인간"],
+        projectSummary: {
+            projectCount: 4,
+            completionRate: 100,
+            averagePeerReview: 5,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_pattern_003",
+        userId: "user_003",
+        courseId: "course_003",
+        courseName: "소프트웨어디자인패턴",
+        status: "모집 중",
+        importance: "낮음",
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형 인간"],
+        projectSummary: {
+            projectCount: 1,
+            completionRate: 100,
+            averagePeerReview: 3,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_pattern_004",
+        userId: "user_004",
+        courseId: "course_003",
+        courseName: "소프트웨어디자인패턴",
+        status: "모집 중",
+        importance: "보통",
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형 인간"],
+        projectSummary: {
+            projectCount: 5,
+            completionRate: 100,
+            averagePeerReview: 5,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_pattern_005",
+        userId: "user_005",
+        courseId: "course_003",
+        courseName: "소프트웨어디자인패턴",
+        status: "모집 중",
+        importance: "높음",
+        traits: ["미리미리", "효율주의", "비대면 선호", "협업 선호", "새벽형 인간"],
+        projectSummary: {
+            projectCount: 3,
+            completionRate: 100,
+            averagePeerReview: 4,
+            maxPeerReviewScore: 5,
+        },
+    },
+    {
+        id: "card_pattern_006",
+        userId: "user_123",
+        courseId: "course_003",
+        courseName: "소프트웨어디자인패턴",
+        status: "모집 중",
+        importance: "낮음",
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형 인간"],
+        projectSummary: PROJECT_HISTORY_SUMMARY,
+    },
+    {
+        id: "card_pattern_007",
+        userId: "user_006",
+        courseId: "course_003",
+        courseName: "소프트웨어디자인패턴",
+        status: "모집 중",
+        importance: "보통",
+        traits: ["벼락치기", "효율주의", "대면 선호", "분담 선호", "아침형 인간"],
+        projectSummary: {
+            projectCount: 2,
+            completionRate: 50,
+            averagePeerReview: 3,
+            maxPeerReviewScore: 5,
+        },
+    },
+];
+
+// 카드 목록 조회용 데이터 （카드와 유저 정보를 합쳐서 사용）
+export const RECRUIT_CARD_LIST = RECRUIT_CARDS.map((card) => {
+    const user = RECRUIT_USERS.find((item) => item.id === card.userId);
+
+    return {
+        ...card,
+        user,
+    };
+});
+
+// 강의별 카드 목록 조회
+export const getRecruitCardsByCourseId = (courseId) => {
+    return RECRUIT_CARD_LIST.filter((card) => card.courseId === courseId);
+};
+
+// 카드 상세 조회
+export const getRecruitCardById = (cardId) => {
+    return RECRUIT_CARD_LIST.find((card) => card.id === cardId);
+};
