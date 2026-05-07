@@ -14,6 +14,12 @@ const Modal = ({
   onConfirm,
   onCancel,
   onClose,
+
+  // 모집페이지 모달처럼 하단 버튼 영역이 필요 없는 경우 false로 전달
+  showActions = true,
+
+  // 특정 페이지에서 추가 스타일이 필요한 경우 사용
+  className = '',
 }) => {
   const isError = type === 'error';
   const hasCancel = variant === 'confirm';
@@ -21,7 +27,7 @@ const Modal = ({
 
   return (
     <div className="modal-overlay">
-      <div className={`modal modal--${type}`}>
+      <div className={`modal modal--${type} modal--${variant} ${className}`}>
         {/* 닫기 버튼 */}
         <button type="button" className="modal__close-btn" onClick={onClose}>
           <img src={closeIcon} alt="닫기" />
@@ -31,29 +37,32 @@ const Modal = ({
         <h2 className={`modal__title modal__title--${titleColorClass}`}>
           {title}
         </h2>
+
         {/* 본문: children이 있으면 children을 우선 표시 */}
         <div className="modal__content">
           {children || <p className="modal__description">{description}</p>}
         </div>
 
-        {/* 버튼 영역 */}
-        <div className="modal__actions">
-          {hasCancel && (
+        {/* 버튼 영역: showActions=false이면 숨김 */}
+        {showActions && (
+          <div className="modal__actions">
+            {hasCancel && (
+              <Button
+                title={cancelText}
+                variant="gray"
+                onClick={onCancel}
+                className="modal__action-button"
+              />
+            )}
+
             <Button
-              title={cancelText}
-              variant="gray"
-              onClick={onCancel}
+              title={confirmText}
+              variant={isError ? 'error' : 'primary'}
+              onClick={onConfirm}
               className="modal__action-button"
             />
-          )}
-
-          <Button
-            title={confirmText}
-            variant={isError ? 'error' : 'primary'}
-            onClick={onConfirm}
-            className="modal__action-button"
-          />
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -6,7 +6,7 @@
     left: 50%;
     transform: translateX(-50%);
     
-    // viweport는 부모 기준X 화면 기준O
+    // viewport는 부모 기준X 화면 기준O
     // .container 영향으로 모달 아래로 치우치는 문제 해결
     width: 100vw; // viewport width
     height: 100vh; // viewport height
@@ -176,5 +176,28 @@
         width: 100%;
         margin-top: 16px;
         gap: 12px;
+    }
+
+    // 모집페이지 모달
+    &--recruit-filter {
+        width: 350px;
+        padding: 16px 16px 32px 16px;
+        gap: 24px;
+        align-items: flex-end;
+
+        .modal__title {
+            @include heading1;
+            color: var(--black);
+        }
+
+        .modal__content {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .modal__actions {
+            margin-top: 0;
+        }
     }
 }
