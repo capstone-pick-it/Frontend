@@ -15,7 +15,7 @@
 
   @include body4; // Bold, 14
 
-  // 스타일1: 모집상태 태그 (디폴트)
+  // 모집상태태그 (디폴트)
   &--recruit-default {
     gap: 16px;
     border-radius: var(--radius-sm);
@@ -23,12 +23,54 @@
     color: var(--primary-800);
   }
 
-  // 스타일2: 모집상태 태그 (모집페이지에서만 사용)
+  // 모집상태 태그 (모집페이지용)
   &--recruit-page {
     gap: 16px;
     border-radius: var(--radius-sm);
     border: 0.5px solid var(--primary-600);
     background: var(--primary-50);
     color: var(--primary-600);
+  }
+
+   // 필터칩, 미선택 (모집페이지용)
+  &--filter {
+    height: 35px;
+    padding: 0 16px;
+    gap: 8px;
+
+    border-radius: var(--radius-full);
+    border: 1px solid var(--gray-400);
+    background: var(--white);
+    color: var(--gray-600);
+
+    @include body3;
+  }
+
+  // 필터칩, 선택 - outline (모집페이지용)
+  &--filter-outline {
+    height: 35px;
+    padding: 0 16px;
+    gap: 8px;
+
+    border-radius: var(--radius-full);
+    border: 1px solid var(--primary-700);
+    background: var(--white);
+    color: var(--primary-700);
+
+    @include body2;
+  }
+
+  // 필터칩, 선택 - filled (모집페이지용)
+  &--filter-filled {
+    height: 35px;
+    padding: 0 16px;
+    gap: 8px;
+
+    border-radius: var(--radius-full);
+    border: 1px solid var(--primary-700);
+    background: var(--primary-700);
+    color: var(--white);
+
+    @include body2;
   }
 }
