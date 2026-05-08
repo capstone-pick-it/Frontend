@@ -19,6 +19,10 @@
     background: var(--primary-50);
     box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.10);
 
+    transition:
+        padding 0.28s ease,
+        gap 0.28s ease;
+
     // 내부 컨텐츠 영역
     &__content {
         display: flex;
@@ -90,7 +94,9 @@
         img {
             width: 24px;
             height: 24px;
-            transition: transform 0.2s ease;
+
+            // 펼침 상태 변경에 맞춰 화살표 방향을 부드럽게 회전
+            transition: transform 0.25s ease;
 
             // open되면 180도 회전, 화살표 위로
             &.open {
@@ -137,8 +143,35 @@
         gap: 16px;
         width: 100%;
 
+        /*
+            닫힌 상태에서도 DOM은 유지한다.
+            조건부 렌더링으로 제거하면 닫힐 때 애니메이션 없이 바로 사라지기 때문.
+        */
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transform: translateY(-4px);
+        pointer-events: none;
+
+        /*
+            max-height로 높이를 부드럽게 열고 닫고,
+            opacity와 transform으로 살짝 내려오며 나타나는 느낌을 준다.
+        */
+        transition:
+            max-height 0.28s ease,
+            opacity 0.2s ease,
+            transform 0.28s ease;
+
         .triple-stat-box {
             width: 100%;
+        }
+
+        // 모집 페이지 카드가 펼쳐진 상태
+        &.is-open {
+            max-height: 320px;
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
         }
     }
 
@@ -170,7 +203,7 @@
         }
     }
 
-    // 마이페이지 프로필카드
+    // 마이페이지
     &--mypage {
         width: 360px;
         padding: 16px;
@@ -201,7 +234,7 @@
         }
     }
 
-    // 온보딩 완료 후 프로필카드
+    // 온보딩 완료
     &--onboarding {
         padding: 16px;
         gap: 10px;
@@ -231,7 +264,7 @@
         }
     }
 
-    // 홈 프로젝트 워크스페이스 프로필카드
+    // 홈(워크스페이스)
     &--workspace {
         width: 360px;
         min-height: 228px;
@@ -266,7 +299,7 @@
         }
     }
 
-    // 모집 페이지 프로필카드
+    // 모집 페이지
     &--recruit {
         width: 360px;
         padding: 12px 16px;
@@ -295,7 +328,7 @@
         }
     }
 
-    // 모집 페이지 프로필카드가 펼쳐진 상태
+    // 펼쳐진 상태
     &--recruit.is-expanded {
         padding: 16px;
         gap: 16px;

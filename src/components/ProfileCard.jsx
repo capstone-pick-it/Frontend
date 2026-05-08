@@ -13,14 +13,13 @@ import moreIcon from '../assets/images/more1.svg';
 const ProfileCard = ({
     variant = 'mypage',
 
-    // 기존 방식: 개별 props
     name,
     major,
     year,
     level,
     points,
 
-    // 모집 페이지 목업데이터 방식: user 객체
+    // 목업데이터 user 객체
     user,
 
     // 모집 상태, 성향 태그, 중요도
@@ -158,6 +157,7 @@ const ProfileCard = ({
                                 className="profile-card__toggle"
                                 onClick={() => setIsExpanded((prev) => !prev)}
                                 aria-label={isExpanded ? '프로필 접기' : '프로필 펼치기'}
+                                aria-expanded={isExpanded}
                             >
                                 <img
                                     src={moreIcon}
@@ -171,23 +171,22 @@ const ProfileCard = ({
 
                     {/* 2. 스탯 영역 */}
                     {isRecruitPage ? (
-                        <>
-                            {/* 모집 페이지: 펼쳤을 때만 상세 정보 표시 */}
-                            {isExpanded && (
-                                <div className="profile-card__recruit-detail">
-                                    <TripleStatBox stats={profileStats} />
+                        // 조건부 렌더링X 항상 렌더링O: CSS transition 자연스럽게 적용
+                        <div
+                            className={`profile-card__recruit-detail ${isExpanded ? 'is-open' : ''}`}
+                            aria-hidden={!isExpanded}
+                        >
+                            <TripleStatBox stats={profileStats} />
 
-                                    {projectStats.length > 0 && (
-                                        <TripleStatBox stats={projectStats} />
-                                    )}
-
-                                    <Button
-                                        variant="chat-full"
-                                        onClick={onChatClick}
-                                    />
-                                </div>
+                            {projectStats.length > 0 && (
+                                <TripleStatBox stats={projectStats} />
                             )}
-                        </>
+
+                            <Button
+                                variant="chat-full"
+                                onClick={onChatClick}
+                            />
+                        </div>
                     ) : (
                         <div className={`profile-card__stats ${enableStatModal ? 'clickable' : ''}`}>
 
