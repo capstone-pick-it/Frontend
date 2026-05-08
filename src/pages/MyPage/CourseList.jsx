@@ -12,7 +12,7 @@ const CourseList = () => {
   const navigate = useNavigate();
 
   // 초기값 mockData로 설정
-  // COURSE_INFO에는 진행 중, 완료 강의가 모두 있으므로 강의 목록에서는 진행 중 강의만 표시
+  // 진행중(ONGOING) 강의만 표시
   const [courses, setCourses] = useState(
     COURSE_INFO.filter((course) => course.projectStatus === 'ONGOING')
   );
@@ -20,8 +20,11 @@ const CourseList = () => {
   // API 연동 (백엔드에서 데이터 연동)
   useEffect(() => {
     // 추후 실제 로직 구현
-    // API 연동 후에도 projectStatus가 ONGOING인 강의만 목록에 표시
   }, []);
+
+  const handleEditCourse = (courseId) => {
+    navigate(`/mypage/courses/${courseId}/edit`);
+  };
 
   return (
     <div className="container has-topbar course-list-page">
@@ -37,7 +40,11 @@ const CourseList = () => {
       <main className="course-list-page__content">
         <ul className="course-list-page__list">
           {courses.map((course) => (
-            <CourseListItem key={course.id} course={course} />
+            <CourseListItem
+              key={course.id}
+              course={course}
+              onEdit={handleEditCourse}
+            />
           ))}
         </ul>
       </main>

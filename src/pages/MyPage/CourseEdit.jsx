@@ -25,7 +25,7 @@ const CourseEdit = () => {
   // 존재하지 않는 courseId로 접근한 경우
   if (!course) {
     return (
-      <div className="container course-edit-page">
+      <div className="container has-topbar course-edit-page">
         <TopBar
           title="강의 수정"
           variant="back"
@@ -33,23 +33,18 @@ const CourseEdit = () => {
         />
 
         <p className="course-edit-page__empty">강의 정보를 찾을 수 없습니다.</p>
+
+        <Nav />
       </div>
     );
   }
 
-  const handleTraitClick = (item) => {
-    // COURSE_INFO.traits와 PREFERENCE.title의 표기를 동일하게 사용
-    const traitName = item.title;
-
-    setSelectedTraits((prev) => {
-      const isSelected = prev.includes(traitName);
-
-      if (isSelected) {
-        return prev.filter((trait) => trait !== traitName);
-      }
-
-      return [...prev, traitName];
-    });
+  const handleTraitClick = (traitTitle) => {
+    setSelectedTraits((prev) =>
+      prev.includes(traitTitle)
+        ? prev.filter((trait) => trait !== traitTitle)
+        : [...prev, traitTitle]
+    );
   };
 
   const handleSubmit = () => {
@@ -59,7 +54,6 @@ const CourseEdit = () => {
       semester: course.semester,
       importance,
       traits: selectedTraits,
-      // 진행 중/완료 상태는 수정 대상이 아니므로 기존 값 유지
       projectStatus: course.projectStatus,
     };
 
@@ -117,7 +111,7 @@ const CourseEdit = () => {
                 title={item.title}
                 content={item.content}
                 selected={selectedTraits.includes(item.title)}
-                onClick={() => handleTraitClick(item)}
+                onClick={() => handleTraitClick(item.title)}
               />
             ))}
           </div>

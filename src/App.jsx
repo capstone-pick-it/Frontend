@@ -24,6 +24,7 @@ import ChatRoom from './pages/Chat/ChatRoom'
 
 // 마이페이지 관련 경로 import
 import MyPage from './pages/MyPage/MyPage'
+import TraitsEdit from './pages/MyPage/TraitsEdit';
 import CourseList from './pages/MyPage/CourseList'
 import CourseAdd from './pages/MyPage/CourseAdd';
 import CourseEdit from './pages/MyPage/CourseEdit';
@@ -106,6 +107,7 @@ const App = () => {
         <Route path="/chatroom/:roomId" element={<ChatRoom />} />
 
         <Route path="/mypage" element={<MyPage />} />
+        <Route path="/mypage/traits/edit" element={<TraitsEdit />} />
         <Route path="/mypage/courses" element={<CourseList />} />
         <Route path="/mypage/courses/new" element={<CourseAdd />} />
         <Route path="/mypage/courses/:courseId/edit" element={<CourseEdit />} />

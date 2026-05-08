@@ -1,6 +1,5 @@
 import React from 'react';
 
-// 아이콘 경로 (프로젝트 기준으로 수정)
 import chatIcon from '../assets/images/icon-chat2.svg';
 import reportIcon from '../assets/images/icon-report.svg';
 

@@ -23,33 +23,24 @@ const CourseAdd = () => {
     const [importance, setImportance] = useState('높음');
 
     // 기본 성향으로 초기값 세팅
-    const [selected, setSelected] = useState(USER_DEFAULT_TRAITS);
-
-    // 공백 제거해서 비교 (온보딩과 동일 처리)
-    const normalize = (text) => text.replaceAll(' ', '');
+    const [selectedTraits, setSelectedTraits] = useState(USER_DEFAULT_TRAITS);
 
     // 성향 선택 로직
-    const handleClick = (item) => {
-        const normalized = normalize(item.title);
-
-        setSelected((prev) => {
-        const exists = prev.includes(normalized);
-
-        if (exists) {
-            return prev.filter((v) => v !== normalized);
-        }
-
-        return [...prev, normalized];
-        });
+    const handleTraitClick = (traitTitle) => {
+        setSelectedTraits((prev) =>
+            prev.includes(traitTitle)
+                ? prev.filter((trait) => trait !== traitTitle)
+                : [...prev, traitTitle]
+        );
     };
 
     // 제출
     const handleSubmit = () => {
         const newCourse = {
-        name: courseName,
-        semester,
-        importance,
-        traits: selected,
+            name: courseName,
+            semester,
+            importance,
+            traits: selectedTraits,
         };
 
         console.log('추가될 강의:', newCourse);
@@ -62,64 +53,62 @@ const CourseAdd = () => {
 
     return (
         <div className="container has-topbar course-add-page">
-        <TopBar
-            title="강의 추가"
-            variant="back"
-            onBack={() => navigate('/mypage/courses')}
-        />
-
-        <main className="course-add-page__content">
-            {/* 강의명 */}
-            <Input
-                title="강의명"
-                value={courseName}
-                onChange={(e) => setCourseName(e.target.value)}
+            <TopBar
+                title="강의 추가"
+                variant="back"
+                onBack={() => navigate('/mypage/courses')}
             />
 
-            {/* 수강학기 */}
-            <Dropdown
-                title="수강학기"
-                list={ONBOARDING_INFO_OPTIONS.SEMESTERS}
-                onChange={setSemester}
-            />
+            <main className="course-add-page__content">
+                {/* 강의명 */}
+                <Input
+                    title="강의명"
+                    value={courseName}
+                    onChange={(e) => setCourseName(e.target.value)}
+                />
 
-            {/* 중요도 */}
-            <Dropdown
-                title="중요도"
-                list={['높음', '보통', '낮음']}
-                onChange={setImportance}
-            />
+                {/* 수강학기 */}
+                <Dropdown
+                    title="수강학기"
+                    list={ONBOARDING_INFO_OPTIONS.SEMESTERS}
+                    value={semester}
+                    onChange={setSemester}
+                />
 
-            {/* 성향 */}
-            <section className="course-add-page__traits">
-            <h2 className="course-add-page__title">팀플 성향</h2>
+                {/* 중요도 */}
+                <Dropdown
+                    title="중요도"
+                    list={['높음', '보통', '낮음']}
+                    value={importance}
+                    onChange={setImportance}
+                />
 
-            <div className="course-add-page__grid">
-                {PREFERENCE.map((item) => {
-                const normalized = normalize(item.title);
+                {/* 성향 */}
+                <section className="course-add-page__traits">
+                    <h2 className="course-add-page__title">팀플 성향</h2>
 
-                return (
-                    <PreferenceCard
-                        key={item.id}
-                        title={item.title}
-                        content={item.content}
-                        selected={selected.includes(normalized)}
-                        onClick={() => handleClick(item)}
-                    />
-                );
-                })}
-            </div>
-            </section>
+                    <div className="course-add-page__grid">
+                        {PREFERENCE.map((item) => (
+                            <PreferenceCard
+                                key={item.id}
+                                title={item.title}
+                                content={item.content}
+                                selected={selectedTraits.includes(item.title)}
+                                onClick={() => handleTraitClick(item.title)}
+                            />
+                        ))}
+                    </div>
+                </section>
 
-            {/* 완료 버튼 */}
-            <Button
-                title="완료"
-                onClick={handleSubmit}
-                className="course-add-page__button"
-            />
-        </main>
+                {/* 완료 버튼 */}
+                <Button
+                    title="완료"
+                    onClick={handleSubmit}
+                    className="course-add-page__button"
+                />
+            </main>
 
-        <Nav />
+            <Nav />
         </div>
     );
 };

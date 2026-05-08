@@ -4,27 +4,25 @@ import Tag from '../Tag';
 const DefaultTraits = ({ traits = [], onEdit }) => {
   return (
     <div className="default-traits">
+      {/* 헤더 영역 */}
+      <div className="traits-header">
+        <h2 className="title">기본 팀플 성향</h2>
 
-        {/* 헤더 영역 */}
-        <div className="traits-header">
-            <h2 className="title">기본 팀플 성향</h2>
+        <button
+          type="button"
+          className="edit-link"
+          onClick={onEdit}
+        >
+          기본 성향 수정
+        </button>
+      </div>
 
-            <button 
-                type="button"
-                className="edit-link"
-                onClick={onEdit}
-            >
-                기본 성향 수정
-            </button>
-        </div>
-
-        {/* 태그 리스트 */}
-        <div className="traits-list">
-            {traits.map((trait, index) => (
-                <Tag key={index} label={trait} />
-            ))}
-        </div>
-
+      {/* 태그 리스트 */}
+      <div className="traits-list">
+        {traits.map((trait, index) => (
+          <Tag key={`${trait}-${index}`} label={trait} />
+        ))}
+      </div>
     </div>
   );
 };
