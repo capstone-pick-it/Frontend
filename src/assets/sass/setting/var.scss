@@ -56,4 +56,12 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
+
+
+    // Radius (테두리 둥글기)
+    --radius-sm: 4px;      // 체크박스, 작은 태그
+    --radius-md: 8px;      // 기본 버튼, 입력창
+    --radius-lg: 16px;     // 메인 카드, 모달 팝업
+    --radius-full: 9999px; // 키워드 칩, 둥근 버튼
+
 }

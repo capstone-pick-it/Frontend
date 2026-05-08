@@ -1,0 +1,132 @@
+@import "../../setting/mixin.scss";
+
+.project-history {
+    background: var(--white);
+
+    // 전체 레이아웃
+    &__content {
+        display: flex;
+        flex-direction: column;
+        width: 393px;
+        margin-left: -16px;
+        margin-right: -16px;
+    }
+
+    // 상단 요약 영역 (참여수 / 완수율 / 상호평가)
+    &__header-stats {
+        display: flex;
+        width: 393px;
+        height: 82px;
+        padding: 16px;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+
+        background: var(--white);
+    }
+
+    &__header-stat {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+
+    &__header-stat-label {
+        text-align: center;
+        @include caption;
+    }
+
+    &__header-stat-value {
+        text-align: center;
+        @include heading1;
+    }
+
+    // 프로젝트 리스트 영역
+    &__list {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+        
+    }
+
+    // 프로젝트 카드 (강의 하나)
+    &__item {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        padding: 16px 16px 16px;
+        box-sizing: border-box;
+
+        border-top: 1px solid var(--gray-500);
+        border-bottom: 1px solid var(--gray-500);
+
+        background: var(--gray-50);
+    }
+
+    // 강의 헤더
+    &__course-header {
+        display: flex;
+        width: 361px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__course-name {
+        width: 273px;
+        min-width: 0;
+        @include heading2;
+
+        white-space: nowrap; // 줄바꿈X
+        overflow: hidden; // 넘치면 없애기
+        text-overflow: ellipsis; // 넘친 건 ...로
+    }
+
+    &__completion {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    &__completion-label {
+        text-align: center;
+        @include caption;
+    }
+
+    &__completion-value {
+        text-align: center;
+        @include body2;
+    }
+
+    // 구분선
+    &__divider {
+        width: 361px;
+        height: 1px;
+        background: var(--gray-500);
+    }
+
+    // 팀원평가
+    &__review {
+        display: flex;
+        width: 361px;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &__review-title {
+        @include body4;
+    }
+
+    // TripleStatBox (팀원평가)
+    .triple-stat-box {
+        max-width: 361px;
+        background: var(--white);
+    }
+
+    .triple-stat-box__value {
+        color: var(--black);
+    }
+}

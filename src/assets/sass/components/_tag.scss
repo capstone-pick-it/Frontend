@@ -1,0 +1,77 @@
+@import "../setting/mixin";
+
+.common-tag {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap; // 줄바꿈X
+
+  height: 24px;
+  padding: 0 8px;
+
+  border-radius: var(--radius-full);
+  background-color: var(--primary-200);
+  color: var(--primary-800);
+
+  box-sizing: border-box;
+    cursor: default;
+
+  &[type="button"] {
+    cursor: pointer;
+  }
+
+  &--filter,
+  &--filter-outline,
+  &--filter-filled {
+    height: 35px;
+    padding: 0 16px;
+    gap: 8px;
+    border-radius: var(--radius-full);
+  }
+
+  @include body4; // Bold, 14
+
+  // 모집상태태그 (디폴트)
+  &--recruit-default {
+    gap: 16px;
+    border-radius: var(--radius-sm);
+    background: var(--primary-200);
+    color: var(--primary-800);
+  }
+
+  // 모집상태 태그 (모집페이지용)
+  &--recruit-page {
+    gap: 16px;
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--primary-600);
+    background: var(--primary-50);
+    color: var(--primary-600);
+  }
+
+   // 필터칩, 미선택 (모집페이지용)
+  &--filter {
+    border: 1px solid var(--gray-400);
+    background: var(--white);
+    color: var(--gray-600);
+
+    @include body3;
+  }
+
+  // 필터칩, 선택 - outline (모집페이지용)
+  &--filter-outline {
+    border: 1px solid var(--primary-700);
+    background: var(--white);
+    color: var(--primary-700);
+
+    @include body2;
+  }
+
+  // 필터칩, 선택 - filled (모집페이지용)
+  &--filter-filled {
+    border: 1px solid var(--primary-700);
+    background: var(--primary-700);
+    color: var(--white);
+
+    @include body2;
+  }
+}

@@ -1,0 +1,13 @@
+.course-list-page {
+    &__content {
+        // 강의 목록 화면 전체 폭으로 보이도록 container 좌우 padding 상쇄
+        margin-left: -16px;
+        margin-right: -16px;
+    }
+
+    &__list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+}
