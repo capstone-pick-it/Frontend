@@ -1,16 +1,22 @@
 import React from 'react'
-import logo from '../assets/images/logo.png'
-import AuthButton from '../components/Login/AuthButton'
-import AuthField from '../components/Login/AuthField'
+import logo from '../../assets/images/logo.png'
+import AuthButton from '../../components/Auth/AuthButton'
+import AuthField from '../../components/Auth/AuthField'
 
-const Login = ({ onSignupClick, onResetPasswordClick }) => {
+const Login = ({ onSignupClick, onResetPasswordClick, onLoginSuccess }) => {
   return (
     <main className="login">
       <section className="login__logo-area">
         <img className="login__logo" src={logo} alt="Pick-It" />
       </section>
 
-      <form className="login__form">
+      <form
+        className="login__form"
+        onSubmit={(event) => {
+          event.preventDefault()
+          onLoginSuccess()
+        }}
+      >
         <AuthField type="email" placeholder="학교 이메일주소" />
         <AuthField type="password" placeholder="비밀번호" />
         <button className="login__reset" type="button" onClick={onResetPasswordClick}>
