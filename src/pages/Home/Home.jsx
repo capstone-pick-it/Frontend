@@ -17,6 +17,65 @@ const tabs = [
 
 const currentUserName = '이승희'
 
+const capstoneTeammates = [
+  {
+    name: '문채이',
+    school: '컴퓨터공학과 4학년',
+    tags: ['빠른소통', '꼼꼼함', '비대면선호'],
+    level: 'LV.2',
+    point: '140p',
+    priority: '보통',
+  },
+  {
+    name: '이승희',
+    school: '컴퓨터공학과 4학년',
+    tags: ['미리준비', '완벽주의', '대면선호'],
+    level: 'LV.1',
+    point: '100p',
+    priority: '높음',
+  },
+  {
+    name: '김성연',
+    school: '컴퓨터공학과 4학년',
+    tags: ['적극참여', '자료조사', '대면선호'],
+    level: 'LV.3',
+    point: '220p',
+    priority: '높음',
+  },
+  {
+    name: '이은우',
+    school: '컴퓨터공학과 4학년',
+    tags: ['자료조사', '꼼꼼함', '비대면선호'],
+    level: 'LV.2',
+    point: '130p',
+    priority: '보통',
+  },
+  {
+    name: '김지희',
+    school: '컴퓨터공학과 4학년',
+    tags: ['일정관리', '빠른소통', '대면선호'],
+    level: 'LV.2',
+    point: '150p',
+    priority: '높음',
+  },
+  {
+    name: '김예린',
+    school: '컴퓨터공학과 4학년',
+    tags: ['디자인', '꼼꼼함', '완벽주의'],
+    level: 'LV.3',
+    point: '210p',
+    priority: '높음',
+  },
+  {
+    name: '김채원',
+    school: '컴퓨터공학과 4학년',
+    tags: ['일정관리', '디자인', '빠른소통'],
+    level: 'LV.2',
+    point: '160p',
+    priority: '보통',
+  },
+]
+
 const recruitingProjects = [
   {
     id: 1,
@@ -78,35 +137,10 @@ const activeProjects = [
   {
     id: 2,
     title: '캡스톤 디자인',
-    members: '이승희 김성연 김채원',
+    members: '문채이 이승희 김성연 이은우 김지희 김예린 김채원',
     status: '진행 중',
     progress: 72,
-    teammates: [
-      {
-        name: '이승희',
-        school: '컴퓨터공학과 4학년',
-        tags: ['미리준비', '완벽주의', '대면선호'],
-        level: 'LV.1',
-        point: '100p',
-        priority: '높음',
-      },
-      {
-        name: '김성연',
-        school: '컴퓨터공학과 4학년',
-        tags: ['적극참여', '자료조사', '대면선호'],
-        level: 'LV.3',
-        point: '220p',
-        priority: '높음',
-      },
-      {
-        name: '김채원',
-        school: '컴퓨터공학과 4학년',
-        tags: ['일정관리', '디자인', '빠른소통'],
-        level: 'LV.2',
-        point: '160p',
-        priority: '보통',
-      },
-    ],
+    teammates: capstoneTeammates,
     checklist,
   },
 ]
@@ -118,32 +152,7 @@ const completedProjects = [
     members: '문채이 이승희 김성연 이은우 김지희 김예린 김채원',
     status: '진행 완료',
     progress: 100,
-    teammates: [
-      {
-        name: '이승희',
-        school: '컴퓨터공학과 4학년',
-        tags: ['미리준비', '완벽주의', '대면선호'],
-        level: 'LV.1',
-        point: '100p',
-        priority: '높음',
-      },
-      {
-        name: '문채이',
-        school: '컴퓨터공학과 4학년',
-        tags: ['빠른소통', '꼼꼼함', '비대면선호'],
-        level: 'LV.2',
-        point: '140p',
-        priority: '보통',
-      },
-      {
-        name: '김성연',
-        school: '컴퓨터공학과 4학년',
-        tags: ['적극참여', '자료조사', '대면선호'],
-        level: 'LV.3',
-        point: '220p',
-        priority: '높음',
-      },
-    ],
+    teammates: capstoneTeammates,
     checklist: [
       { id: 2011, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', assignee: '이승희', done: true },
       { id: 2012, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', assignee: '문채이', done: true },
@@ -173,6 +182,8 @@ const Home = () => {
   const [activeItems, setActiveItems] = useState(activeProjects)
   const [doneItems, setDoneItems] = useState(completedProjects)
   const [exitTarget, setExitTarget] = useState(null)
+  const [reviewProject, setReviewProject] = useState(null)
+  const [reviewIndex, setReviewIndex] = useState(0)
   const [memberIndex, setMemberIndex] = useState(0)
   const [checklistPage, setChecklistPage] = useState(0)
   const [editingChecklistId, setEditingChecklistId] = useState(null)
@@ -255,6 +266,8 @@ const Home = () => {
   const checklistPages = Math.max(1, Math.ceil(checklistItems.length / 4))
   const visibleChecklist = checklistItems.slice(checklistPage * 4, checklistPage * 4 + 4)
   const editingChecklistItem = checklistItems.find((item) => item.id === editingChecklistId)
+  const reviewTeammates = reviewProject?.teammates?.filter((member) => member.name !== currentUserName) || []
+  const reviewTeammate = reviewTeammates[reviewIndex]
 
   const updateProjectChecklist = (nextChecklist) => {
     if (!selectedProject) {
@@ -315,20 +328,40 @@ const Home = () => {
       return
     }
 
-    const finishedProject = {
+    setReviewProject({
       ...selectedProject,
       status: '진행 완료',
       progress: 100,
+    })
+    setReviewIndex(0)
+    setModal('review')
+  }
+
+  const completeProjectAfterReview = () => {
+    if (!reviewProject) {
+      setModal(null)
+      return
     }
 
-    setActiveItems((items) => items.filter((project) => project.id !== selectedProject.id))
-    setDoneItems((items) => [finishedProject, ...items])
+    setActiveItems((items) => items.filter((project) => project.id !== reviewProject.id))
+    setDoneItems((items) => [reviewProject, ...items])
     setActiveTab('done')
     setMemberIndex(0)
     setChecklistPage(0)
     setEditingChecklistId(null)
-    setModal('review')
-    navigate(`/home/done/${finishedProject.id}`)
+    setReviewProject(null)
+    setReviewIndex(0)
+    setModal(null)
+    navigate('/home')
+  }
+
+  const handleReviewNext = () => {
+    if (reviewIndex < reviewTeammates.length - 1) {
+      setReviewIndex((index) => index + 1)
+      return
+    }
+
+    completeProjectAfterReview()
   }
 
   return (
@@ -524,7 +557,15 @@ const Home = () => {
         />
       )}
 
-      {modal === 'review' && <ReviewModal onClose={() => setModal(null)} />}
+      {modal === 'review' && reviewTeammate && (
+        <ReviewModal
+          teammate={reviewTeammate}
+          currentIndex={reviewIndex}
+          totalCount={reviewTeammates.length}
+          onPrev={() => setReviewIndex((index) => Math.max(0, index - 1))}
+          onNext={handleReviewNext}
+        />
+      )}
     </main>
   )
 }
