@@ -14,6 +14,8 @@ const tabs = [
   { key: 'done', label: '진행 완료' },
 ]
 
+const currentUserName = '이승희'
+
 const recruitingProjects = [
   {
     id: 1,
@@ -32,10 +34,10 @@ const recruitingProjects = [
 ]
 
 const checklist = [
-  { id: 1, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', done: false },
-  { id: 2, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', done: false },
-  { id: 3, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', done: false },
-  { id: 4, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', done: true },
+  { id: 1, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', assignee: '이승희', done: false },
+  { id: 2, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', assignee: '김성연', done: false },
+  { id: 3, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', assignee: '김채원', done: false },
+  { id: 4, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', assignee: '이승희', done: true },
 ]
 
 const activeProjects = [
@@ -64,12 +66,12 @@ const activeProjects = [
       },
     ],
     checklist: [
-      { id: 101, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', done: false },
-      { id: 102, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', done: false },
-      { id: 103, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', done: false },
-      { id: 104, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', done: true },
-      { id: 105, title: '중간 발표 준비', date: '2026년 5월 8일 금요일', dueAt: '2026-05-08', done: false },
-      { id: 106, title: '최종 발표 자료 제작', date: '2026년 6월 2일 화요일', dueAt: '2026-06-02', done: false },
+      { id: 101, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', assignee: '이승희', done: false },
+      { id: 102, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', assignee: '문채이', done: false },
+      { id: 103, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', assignee: '이승희', done: false },
+      { id: 104, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', assignee: '문채이', done: true },
+      { id: 105, title: '중간 발표 준비', date: '2026년 5월 8일 금요일', dueAt: '2026-05-08', assignee: '문채이', done: false },
+      { id: 106, title: '최종 발표 자료 제작', date: '2026년 6월 2일 화요일', dueAt: '2026-06-02', assignee: '이승희', done: false },
     ],
   },
   {
@@ -213,6 +215,7 @@ const Home = () => {
       title: '새로운 할 일',
       date: '0000년 0월 00일 0요일',
       dueAt: '9999-12-31',
+      assignee: selectedProject.teammates[0]?.name || currentUserName,
       done: false,
     }
     const nextChecklist = [...(selectedProject?.checklist || []), nextItem]
@@ -367,10 +370,16 @@ const Home = () => {
                 <button type="button" onClick={() => currentTab === 'active' && setEditingChecklistId(item.id)}>
                   <h3>{item.title}</h3>
                   <p>{item.date}</p>
+                  <span>담당자 {item.assignee}</span>
                 </button>
                 <button
                   type="button"
-                  disabled={currentTab !== 'active'}
+                  disabled={currentTab !== 'active' || item.assignee !== currentUserName}
+                  aria-label={
+                    item.assignee === currentUserName
+                      ? '체크리스트 완료 상태 변경'
+                      : `${item.assignee} 담당 할 일입니다`
+                  }
                   onClick={() => toggleChecklistItem(item.id)}
                 >
                   {item.done ? '✓' : ''}
@@ -445,6 +454,7 @@ const Home = () => {
       {editingChecklistItem && (
         <ChecklistEditModal
           item={editingChecklistItem}
+          members={selectedProject?.teammates || []}
           onClose={() => setEditingChecklistId(null)}
           onSave={saveChecklistItem}
         />
