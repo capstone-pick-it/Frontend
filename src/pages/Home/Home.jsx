@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Nav from '../../components/Nav'
+import TopBar from '../../components/TopBar'
 import ChecklistEditModal from '../../components/Home/ChecklistEditModal'
 import ConfirmModal from '../../components/Home/ConfirmModal'
 import DoorIcon from '../../components/Home/DoorIcon'
@@ -331,19 +332,12 @@ const Home = () => {
   }
 
   return (
-    <main className="container home-page">
-      <header className={isDetailPage ? 'home-page-header is-detail' : 'home-page-header'}>
-        {isDetailPage ? (
-          <>
-            <button type="button" onClick={closeProjectDetail} aria-label="이전으로 돌아가기">
-              &lt;
-            </button>
-            <h1>{selectedProject?.title || '프로젝트'}</h1>
-          </>
-        ) : (
-          <h1>나의 팀 프로젝트</h1>
-        )}
-      </header>
+    <main className="container has-topbar home-page">
+      <TopBar
+        title={isDetailPage ? selectedProject?.title || '프로젝트' : '나의 팀 프로젝트'}
+        variant={isDetailPage ? 'back' : 'default'}
+        onBack={closeProjectDetail}
+      />
 
       {!isDetailPage && (
         <>
