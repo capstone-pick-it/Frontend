@@ -168,15 +168,17 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState('recruiting')
   const [modal, setModal] = useState(null)
   const [showTeamConfirm, setShowTeamConfirm] = useState(false)
+  const [recruitingItems, setRecruitingItems] = useState(recruitingProjects)
   const [activeItems, setActiveItems] = useState(activeProjects)
   const [doneItems, setDoneItems] = useState(completedProjects)
+  const [exitTarget, setExitTarget] = useState(null)
   const [memberIndex, setMemberIndex] = useState(0)
   const [checklistPage, setChecklistPage] = useState(0)
   const [editingChecklistId, setEditingChecklistId] = useState(null)
   const checklistIdRef = useRef(1000)
 
   const projectsByTab = {
-    recruiting: recruitingProjects,
+    recruiting: recruitingItems,
     active: activeItems,
     done: doneItems,
   }
@@ -191,6 +193,7 @@ const Home = () => {
     setActiveTab(tabKey)
     setShowTeamConfirm(false)
     setModal(null)
+    setExitTarget(null)
     setMemberIndex(0)
     setChecklistPage(0)
     setEditingChecklistId(null)
@@ -210,10 +213,40 @@ const Home = () => {
     }
 
     setModal(null)
+    setExitTarget(null)
     setMemberIndex(0)
     setChecklistPage(0)
     setEditingChecklistId(null)
     navigate('/home')
+  }
+
+  const openExitModal = (project, tabKey = currentTab) => {
+    setExitTarget({ projectId: project.id, tabKey })
+    setModal('exit')
+  }
+
+  const completeExit = () => {
+    if (!exitTarget) {
+      setModal(null)
+      return
+    }
+
+    if (exitTarget.tabKey === 'recruiting') {
+      setRecruitingItems((items) => items.filter((project) => project.id !== exitTarget.projectId))
+      setShowTeamConfirm(false)
+    }
+
+    if (exitTarget.tabKey === 'active') {
+      setActiveItems((items) => items.filter((project) => project.id !== exitTarget.projectId))
+      setActiveTab('active')
+      navigate('/home')
+    }
+
+    setExitTarget(null)
+    setMemberIndex(0)
+    setChecklistPage(0)
+    setEditingChecklistId(null)
+    setModal(null)
   }
 
   const selectedMember = selectedProject?.teammates?.[memberIndex]
@@ -334,7 +367,7 @@ const Home = () => {
                 tab={activeTab}
                 key={project.id}
                 onConfirm={() => setShowTeamConfirm(true)}
-                onExit={() => setModal('exit')}
+                onExit={() => openExitModal(project, activeTab)}
                 onOpen={activeTab !== 'recruiting' ? () => openProjectDetail(project) : undefined}
               />
             ))}
@@ -450,7 +483,7 @@ const Home = () => {
 
           {currentTab === 'active' && (
             <>
-              <button className="home-exit-icon-button" type="button" onClick={() => setModal('exit')}>
+              <button className="home-exit-icon-button" type="button" onClick={() => openExitModal(selectedProject, currentTab)}>
                 <DoorIcon />
               </button>
 
@@ -470,8 +503,8 @@ const Home = () => {
           description={'미리 사정을 이야기하셨다면 네 를,\n아무 말도 없으셨다면 아니오 를 눌러주세요.\n아니오를 고를 시 무단 탈주로 간주되며,\n포인트를 돌려받으실 수 없습니다.'}
           cancelText="아니오"
           confirmText="네"
-          onClose={() => setModal(null)}
-          onConfirm={() => setModal(null)}
+          onClose={completeExit}
+          onConfirm={completeExit}
         />
       )}
 
@@ -480,7 +513,10 @@ const Home = () => {
           title="팀을 나가시겠습니까?"
           cancelText="아니오"
           confirmText="네"
-          onClose={() => setModal(null)}
+          onClose={() => {
+            setExitTarget(null)
+            setModal(null)
+          }}
           onConfirm={() => setModal('team-confirm-guide')}
         />
       )}
