@@ -117,6 +117,38 @@ const completedProjects = [
     members: '문채이 이승희 김성연 이은우 김지희 김예린 김채원',
     status: '진행 완료',
     progress: 100,
+    teammates: [
+      {
+        name: '이승희',
+        school: '컴퓨터공학과 4학년',
+        tags: ['미리준비', '완벽주의', '대면선호'],
+        level: 'LV.1',
+        point: '100p',
+        priority: '높음',
+      },
+      {
+        name: '문채이',
+        school: '컴퓨터공학과 4학년',
+        tags: ['빠른소통', '꼼꼼함', '비대면선호'],
+        level: 'LV.2',
+        point: '140p',
+        priority: '보통',
+      },
+      {
+        name: '김성연',
+        school: '컴퓨터공학과 4학년',
+        tags: ['적극참여', '자료조사', '대면선호'],
+        level: 'LV.3',
+        point: '220p',
+        priority: '높음',
+      },
+    ],
+    checklist: [
+      { id: 2011, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', assignee: '이승희', done: true },
+      { id: 2012, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', assignee: '문채이', done: true },
+      { id: 2013, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', assignee: '김성연', done: true },
+      { id: 2014, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', assignee: '이승희', done: true },
+    ],
   },
 ]
 
@@ -368,9 +400,11 @@ const Home = () => {
             {visibleChecklist.map((item) => (
               <article className={item.done ? 'is-done' : ''} key={item.id}>
                 <button type="button" onClick={() => currentTab === 'active' && setEditingChecklistId(item.id)}>
-                  <h3>{item.title}</h3>
+                  <div className="home-checklist__title-row">
+                    <h3>{item.title}</h3>
+                    <span>{item.assignee}</span>
+                  </div>
                   <p>{item.date}</p>
-                  <span>담당자 {item.assignee}</span>
                 </button>
                 <button
                   type="button"

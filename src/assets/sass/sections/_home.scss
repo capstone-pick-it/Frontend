@@ -401,7 +401,8 @@
       background-color: var(--gray-100);
 
       h3,
-      p {
+      p,
+      span {
         color: var(--gray-400);
       }
     }
@@ -412,10 +413,24 @@
     flex: 1;
     background-color: transparent;
     text-align: left;
+  }
+
+  .home-checklist__title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    min-width: 0;
+
+    h3 {
+      min-width: 0;
+      max-width: 210px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     span {
-      display: block;
-      margin-top: 2px;
+      flex: 0 0 auto;
       color: var(--primary-700);
       @include caption;
     }
