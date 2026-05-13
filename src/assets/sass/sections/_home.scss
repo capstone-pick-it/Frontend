@@ -1,32 +1,7 @@
 .home-page {
   min-height: 852px;
-  padding: 68px 16px 108px;
+  padding: 113px 16px 108px;
   background-color: var(--white);
-}
-
-.home-page-header {
-  margin-bottom: 36px;
-
-  h1 {
-    @include heading1;
-    color: var(--black);
-  }
-
-  &.is-detail {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    button {
-      width: 22px;
-      height: 28px;
-      background-color: transparent;
-      color: var(--black);
-      font-size: 24px;
-      line-height: 1;
-      font-weight: 700;
-    }
-  }
 }
 
 .home-tabs {
@@ -401,7 +376,8 @@
       background-color: var(--gray-100);
 
       h3,
-      p {
+      p,
+      span {
         color: var(--gray-400);
       }
     }
@@ -412,6 +388,27 @@
     flex: 1;
     background-color: transparent;
     text-align: left;
+  }
+
+  .home-checklist__title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    min-width: 0;
+
+    h3 {
+      min-width: 0;
+      max-width: 210px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    span {
+      flex: 0 0 auto;
+      color: var(--primary-700);
+      @include caption;
+    }
   }
 
   article > button:last-child {
@@ -427,6 +424,7 @@
     &:disabled {
       border-color: var(--gray-300);
       color: var(--gray-300);
+      cursor: default;
     }
   }
 
@@ -563,6 +561,17 @@
     @include body5;
   }
 
+  select {
+    width: 100%;
+    height: 46px;
+    padding: 0 13px;
+    border: 1px solid var(--gray-300);
+    border-radius: 7px;
+    background-color: var(--white);
+    color: var(--black);
+    @include body5;
+  }
+
   div {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -642,6 +651,11 @@
     background-color: var(--gray-100);
     color: var(--gray-500);
     @include body4;
+
+    &:disabled {
+      color: var(--gray-300);
+      cursor: default;
+    }
 
     &:last-child {
       background-color: var(--primary-700);

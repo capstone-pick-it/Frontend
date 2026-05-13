@@ -6,11 +6,14 @@ const scores = [
   { label: '팀원만족도', value: 2 },
 ]
 
-const ReviewModal = ({ onClose }) => {
+const ReviewModal = ({ teammate, currentIndex, totalCount, onPrev, onNext }) => {
+  const isFirstReview = currentIndex === 0
+  const isLastReview = currentIndex === totalCount - 1
+
   return (
     <div className="home-modal-backdrop">
       <section className="home-review-modal">
-        <h2>이승희과의 캡스톤 디자인</h2>
+        <h2>{teammate.name} 님과의 프로젝트는 어떠셨나요?</h2>
         <p>팀 프로젝트 어떠셨나요?</p>
 
         <div className="home-review-modal__scores">
@@ -27,9 +30,9 @@ const ReviewModal = ({ onClose }) => {
         </div>
 
         <div className="home-review-modal__buttons">
-          <button type="button" onClick={onClose}>이전</button>
-          <span>1/7</span>
-          <button type="button" onClick={onClose}>완료</button>
+          <button type="button" disabled={isFirstReview} onClick={onPrev}>이전</button>
+          <span>{currentIndex + 1}/{totalCount}</span>
+          <button type="button" onClick={onNext}>{isLastReview ? '완료' : '다음'}</button>
         </div>
       </section>
     </div>
