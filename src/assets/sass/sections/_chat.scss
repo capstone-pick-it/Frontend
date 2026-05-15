@@ -95,7 +95,8 @@
 
     footer{
         position: absolute;
-        bottom: 106px;
+        // bottom: 106px;
+        bottom: 46px;
 
         display: flex;
         align-items: center;
@@ -157,7 +158,7 @@
 //채팅방 토스트
 #ChatToast_Wrap{
     position: absolute;
-    bottom: 186px;
+    bottom: 126px;
     left: 50%;
     transform: translateX(-50%);
 
