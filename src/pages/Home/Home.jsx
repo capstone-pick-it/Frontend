@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Nav from '../../components/Nav'
+import TopBar from '../../components/TopBar'
 import ChecklistEditModal from '../../components/Home/ChecklistEditModal'
 import ConfirmModal from '../../components/Home/ConfirmModal'
 import DoorIcon from '../../components/Home/DoorIcon'
@@ -12,6 +13,67 @@ const tabs = [
   { key: 'recruiting', label: '모집 중' },
   { key: 'active', label: '진행 중' },
   { key: 'done', label: '진행 완료' },
+]
+
+const currentUserName = '이승희'
+
+const capstoneTeammates = [
+  {
+    name: '문채이',
+    school: '컴퓨터공학과 4학년',
+    tags: ['빠른소통', '꼼꼼함', '비대면선호'],
+    level: 'LV.2',
+    point: '140p',
+    priority: '보통',
+  },
+  {
+    name: '이승희',
+    school: '컴퓨터공학과 4학년',
+    tags: ['미리준비', '완벽주의', '대면선호'],
+    level: 'LV.1',
+    point: '100p',
+    priority: '높음',
+  },
+  {
+    name: '김성연',
+    school: '컴퓨터공학과 4학년',
+    tags: ['적극참여', '자료조사', '대면선호'],
+    level: 'LV.3',
+    point: '220p',
+    priority: '높음',
+  },
+  {
+    name: '이은우',
+    school: '컴퓨터공학과 4학년',
+    tags: ['자료조사', '꼼꼼함', '비대면선호'],
+    level: 'LV.2',
+    point: '130p',
+    priority: '보통',
+  },
+  {
+    name: '김지희',
+    school: '컴퓨터공학과 4학년',
+    tags: ['일정관리', '빠른소통', '대면선호'],
+    level: 'LV.2',
+    point: '150p',
+    priority: '높음',
+  },
+  {
+    name: '김예린',
+    school: '컴퓨터공학과 4학년',
+    tags: ['디자인', '꼼꼼함', '완벽주의'],
+    level: 'LV.3',
+    point: '210p',
+    priority: '높음',
+  },
+  {
+    name: '김채원',
+    school: '컴퓨터공학과 4학년',
+    tags: ['일정관리', '디자인', '빠른소통'],
+    level: 'LV.2',
+    point: '160p',
+    priority: '보통',
+  },
 ]
 
 const recruitingProjects = [
@@ -32,10 +94,10 @@ const recruitingProjects = [
 ]
 
 const checklist = [
-  { id: 1, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', done: false },
-  { id: 2, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', done: false },
-  { id: 3, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', done: false },
-  { id: 4, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', done: true },
+  { id: 1, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', assignee: '이승희', done: false },
+  { id: 2, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', assignee: '김성연', done: false },
+  { id: 3, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', assignee: '김채원', done: false },
+  { id: 4, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', assignee: '이승희', done: true },
 ]
 
 const activeProjects = [
@@ -64,46 +126,21 @@ const activeProjects = [
       },
     ],
     checklist: [
-      { id: 101, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', done: false },
-      { id: 102, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', done: false },
-      { id: 103, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', done: false },
-      { id: 104, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', done: true },
-      { id: 105, title: '중간 발표 준비', date: '2026년 5월 8일 금요일', dueAt: '2026-05-08', done: false },
-      { id: 106, title: '최종 발표 자료 제작', date: '2026년 6월 2일 화요일', dueAt: '2026-06-02', done: false },
+      { id: 101, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', assignee: '이승희', done: false },
+      { id: 102, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', assignee: '문채이', done: false },
+      { id: 103, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', assignee: '이승희', done: false },
+      { id: 104, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', assignee: '문채이', done: true },
+      { id: 105, title: '중간 발표 준비', date: '2026년 5월 8일 금요일', dueAt: '2026-05-08', assignee: '문채이', done: false },
+      { id: 106, title: '최종 발표 자료 제작', date: '2026년 6월 2일 화요일', dueAt: '2026-06-02', assignee: '이승희', done: false },
     ],
   },
   {
     id: 2,
     title: '캡스톤 디자인',
-    members: '이승희 김성연 김채원',
+    members: '문채이 이승희 김성연 이은우 김지희 김예린 김채원',
     status: '진행 중',
     progress: 72,
-    teammates: [
-      {
-        name: '이승희',
-        school: '컴퓨터공학과 4학년',
-        tags: ['미리준비', '완벽주의', '대면선호'],
-        level: 'LV.1',
-        point: '100p',
-        priority: '높음',
-      },
-      {
-        name: '김성연',
-        school: '컴퓨터공학과 4학년',
-        tags: ['적극참여', '자료조사', '대면선호'],
-        level: 'LV.3',
-        point: '220p',
-        priority: '높음',
-      },
-      {
-        name: '김채원',
-        school: '컴퓨터공학과 4학년',
-        tags: ['일정관리', '디자인', '빠른소통'],
-        level: 'LV.2',
-        point: '160p',
-        priority: '보통',
-      },
-    ],
+    teammates: capstoneTeammates,
     checklist,
   },
 ]
@@ -115,6 +152,13 @@ const completedProjects = [
     members: '문채이 이승희 김성연 이은우 김지희 김예린 김채원',
     status: '진행 완료',
     progress: 100,
+    teammates: capstoneTeammates,
+    checklist: [
+      { id: 2011, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', assignee: '이승희', done: true },
+      { id: 2012, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', assignee: '문채이', done: true },
+      { id: 2013, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', assignee: '김성연', done: true },
+      { id: 2014, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', assignee: '이승희', done: true },
+    ],
   },
 ]
 
@@ -134,15 +178,19 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState('recruiting')
   const [modal, setModal] = useState(null)
   const [showTeamConfirm, setShowTeamConfirm] = useState(false)
+  const [recruitingItems, setRecruitingItems] = useState(recruitingProjects)
   const [activeItems, setActiveItems] = useState(activeProjects)
   const [doneItems, setDoneItems] = useState(completedProjects)
+  const [exitTarget, setExitTarget] = useState(null)
+  const [reviewProject, setReviewProject] = useState(null)
+  const [reviewIndex, setReviewIndex] = useState(0)
   const [memberIndex, setMemberIndex] = useState(0)
   const [checklistPage, setChecklistPage] = useState(0)
   const [editingChecklistId, setEditingChecklistId] = useState(null)
   const checklistIdRef = useRef(1000)
 
   const projectsByTab = {
-    recruiting: recruitingProjects,
+    recruiting: recruitingItems,
     active: activeItems,
     done: doneItems,
   }
@@ -157,6 +205,7 @@ const Home = () => {
     setActiveTab(tabKey)
     setShowTeamConfirm(false)
     setModal(null)
+    setExitTarget(null)
     setMemberIndex(0)
     setChecklistPage(0)
     setEditingChecklistId(null)
@@ -176,10 +225,40 @@ const Home = () => {
     }
 
     setModal(null)
+    setExitTarget(null)
     setMemberIndex(0)
     setChecklistPage(0)
     setEditingChecklistId(null)
     navigate('/home')
+  }
+
+  const openExitModal = (project, tabKey = currentTab) => {
+    setExitTarget({ projectId: project.id, tabKey })
+    setModal('exit')
+  }
+
+  const completeExit = () => {
+    if (!exitTarget) {
+      setModal(null)
+      return
+    }
+
+    if (exitTarget.tabKey === 'recruiting') {
+      setRecruitingItems((items) => items.filter((project) => project.id !== exitTarget.projectId))
+      setShowTeamConfirm(false)
+    }
+
+    if (exitTarget.tabKey === 'active') {
+      setActiveItems((items) => items.filter((project) => project.id !== exitTarget.projectId))
+      setActiveTab('active')
+      navigate('/home')
+    }
+
+    setExitTarget(null)
+    setMemberIndex(0)
+    setChecklistPage(0)
+    setEditingChecklistId(null)
+    setModal(null)
   }
 
   const selectedMember = selectedProject?.teammates?.[memberIndex]
@@ -187,6 +266,8 @@ const Home = () => {
   const checklistPages = Math.max(1, Math.ceil(checklistItems.length / 4))
   const visibleChecklist = checklistItems.slice(checklistPage * 4, checklistPage * 4 + 4)
   const editingChecklistItem = checklistItems.find((item) => item.id === editingChecklistId)
+  const reviewTeammates = reviewProject?.teammates?.filter((member) => member.name !== currentUserName) || []
+  const reviewTeammate = reviewTeammates[reviewIndex]
 
   const updateProjectChecklist = (nextChecklist) => {
     if (!selectedProject) {
@@ -213,6 +294,7 @@ const Home = () => {
       title: '새로운 할 일',
       date: '0000년 0월 00일 0요일',
       dueAt: '9999-12-31',
+      assignee: selectedProject.teammates[0]?.name || currentUserName,
       done: false,
     }
     const nextChecklist = [...(selectedProject?.checklist || []), nextItem]
@@ -246,36 +328,49 @@ const Home = () => {
       return
     }
 
-    const finishedProject = {
+    setReviewProject({
       ...selectedProject,
       status: '진행 완료',
       progress: 100,
+    })
+    setReviewIndex(0)
+    setModal('review')
+  }
+
+  const completeProjectAfterReview = () => {
+    if (!reviewProject) {
+      setModal(null)
+      return
     }
 
-    setActiveItems((items) => items.filter((project) => project.id !== selectedProject.id))
-    setDoneItems((items) => [finishedProject, ...items])
+    setActiveItems((items) => items.filter((project) => project.id !== reviewProject.id))
+    setDoneItems((items) => [reviewProject, ...items])
     setActiveTab('done')
     setMemberIndex(0)
     setChecklistPage(0)
     setEditingChecklistId(null)
-    setModal('review')
-    navigate(`/home/done/${finishedProject.id}`)
+    setReviewProject(null)
+    setReviewIndex(0)
+    setModal(null)
+    navigate('/home')
+  }
+
+  const handleReviewNext = () => {
+    if (reviewIndex < reviewTeammates.length - 1) {
+      setReviewIndex((index) => index + 1)
+      return
+    }
+
+    completeProjectAfterReview()
   }
 
   return (
-    <main className="container home-page">
-      <header className={isDetailPage ? 'home-page-header is-detail' : 'home-page-header'}>
-        {isDetailPage ? (
-          <>
-            <button type="button" onClick={closeProjectDetail} aria-label="이전으로 돌아가기">
-              &lt;
-            </button>
-            <h1>{selectedProject?.title || '프로젝트'}</h1>
-          </>
-        ) : (
-          <h1>나의 팀 프로젝트</h1>
-        )}
-      </header>
+    <main className="container has-topbar home-page">
+      <TopBar
+        title={isDetailPage ? selectedProject?.title || '프로젝트' : '나의 팀 프로젝트'}
+        variant={isDetailPage ? 'back' : 'default'}
+        onBack={closeProjectDetail}
+      />
 
       {!isDetailPage && (
         <>
@@ -299,7 +394,7 @@ const Home = () => {
                 tab={activeTab}
                 key={project.id}
                 onConfirm={() => setShowTeamConfirm(true)}
-                onExit={() => setModal('exit')}
+                onExit={() => openExitModal(project, activeTab)}
                 onOpen={activeTab !== 'recruiting' ? () => openProjectDetail(project) : undefined}
               />
             ))}
@@ -365,12 +460,20 @@ const Home = () => {
             {visibleChecklist.map((item) => (
               <article className={item.done ? 'is-done' : ''} key={item.id}>
                 <button type="button" onClick={() => currentTab === 'active' && setEditingChecklistId(item.id)}>
-                  <h3>{item.title}</h3>
+                  <div className="home-checklist__title-row">
+                    <h3>{item.title}</h3>
+                    <span>{item.assignee}</span>
+                  </div>
                   <p>{item.date}</p>
                 </button>
                 <button
                   type="button"
-                  disabled={currentTab !== 'active'}
+                  disabled={currentTab !== 'active' || item.assignee !== currentUserName}
+                  aria-label={
+                    item.assignee === currentUserName
+                      ? '체크리스트 완료 상태 변경'
+                      : `${item.assignee} 담당 할 일입니다`
+                  }
                   onClick={() => toggleChecklistItem(item.id)}
                 >
                   {item.done ? '✓' : ''}
@@ -407,7 +510,7 @@ const Home = () => {
 
           {currentTab === 'active' && (
             <>
-              <button className="home-exit-icon-button" type="button" onClick={() => setModal('exit')}>
+              <button className="home-exit-icon-button" type="button" onClick={() => openExitModal(selectedProject, currentTab)}>
                 <DoorIcon />
               </button>
 
@@ -427,8 +530,8 @@ const Home = () => {
           description={'미리 사정을 이야기하셨다면 네 를,\n아무 말도 없으셨다면 아니오 를 눌러주세요.\n아니오를 고를 시 무단 탈주로 간주되며,\n포인트를 돌려받으실 수 없습니다.'}
           cancelText="아니오"
           confirmText="네"
-          onClose={() => setModal(null)}
-          onConfirm={() => setModal(null)}
+          onClose={completeExit}
+          onConfirm={completeExit}
         />
       )}
 
@@ -437,7 +540,10 @@ const Home = () => {
           title="팀을 나가시겠습니까?"
           cancelText="아니오"
           confirmText="네"
-          onClose={() => setModal(null)}
+          onClose={() => {
+            setExitTarget(null)
+            setModal(null)
+          }}
           onConfirm={() => setModal('team-confirm-guide')}
         />
       )}
@@ -445,12 +551,21 @@ const Home = () => {
       {editingChecklistItem && (
         <ChecklistEditModal
           item={editingChecklistItem}
+          members={selectedProject?.teammates || []}
           onClose={() => setEditingChecklistId(null)}
           onSave={saveChecklistItem}
         />
       )}
 
-      {modal === 'review' && <ReviewModal onClose={() => setModal(null)} />}
+      {modal === 'review' && reviewTeammate && (
+        <ReviewModal
+          teammate={reviewTeammate}
+          currentIndex={reviewIndex}
+          totalCount={reviewTeammates.length}
+          onPrev={() => setReviewIndex((index) => Math.max(0, index - 1))}
+          onNext={handleReviewNext}
+        />
+      )}
     </main>
   )
 }
