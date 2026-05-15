@@ -1,21 +1,22 @@
 import React from 'react'
-import team_request from '../../assets/images/Chat/user-add.svg'
-// import team_accept from '../../assets/images/Chat/user-tick.svg' // 현재 해당 svg 파일 없음
 import ChatMessage from '../../components/Chat/ChatMessage'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { CHAT_MESSAGES } from '../../data/mockData'
 import Nav from '../../components/Nav'
-import send from '../../assets/images/Chat/send.svg'
-import back from '../../assets/images/Chat/back.svg'
 import ChatToast from '../../components/Chat/ChatToast' 
-import { Link } from 'react-router-dom'
 import { TEAM_STATUS } from '../../data/mockData'
 import ConfirmModal from '../../components/Home/ConfirmModal'
 import { useState } from 'react'
-import ModalDropdown from '../../components/Chat/ModalDropDown'
+import ChatRoomHeader from '../../components/Chat/ChatRoomHeader'
+import ChatRoomInput from '../../components/Chat/ChatRoomInput'
+import { GROUP_USERS } from '../../data/mockData'
 
 const ChatRoom = () => {
     const { roomId } = useParams();
+
+    const currentRoom = GROUP_USERS.find((group) => group.courseName === roomId);
+    const total = currentRoom?.total || "0";
+
     const message = CHAT_MESSAGES[roomId] || [];
     const status = TEAM_STATUS[roomId];
     
@@ -26,16 +27,7 @@ const ChatRoom = () => {
     
   return (
     <div id="ChatRoom_Wrap" className="container">
-        <header>
-            <div>
-                <Link to="/chat">
-                    <img src={back} alt="" />
-                </Link>
-                <h1>{roomId}</h1>
-            </div>
-            <img src={team_request} onClick={isModalOpen} alt="" />
-        </header>
-
+       <ChatRoomHeader roomId={roomId} isModalOpen={isModalOpen} total={total} />
         <div id="ChatContent_Wrap">
             {message?.map((msg) => (
                 <ChatMessage
@@ -46,16 +38,8 @@ const ChatRoom = () => {
                 />
             ))}
         </div>
-       
-        <footer>
-            <input type="text" />
-            <button className="send_btn">
-                <img src={send} alt="" />
-            </button>
-        </footer>
-
+        <ChatRoomInput total={total}/>
         <ChatToast/>
-
         {isModal && (
             <ConfirmModal
             title="팀원 요청을 보내시겠습니까?"
@@ -65,7 +49,6 @@ const ChatRoom = () => {
             isModalOpen={() => setIsModal(false)}
             hasDropdown={true} />
         )}
-
         <Nav/>
     </div>
   )
