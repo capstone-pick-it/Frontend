@@ -10,11 +10,13 @@ import back from '../../assets/images/Chat/back.svg'
 import ChatToast from '../../components/Chat/ChatToast' 
 import { Link } from 'react-router-dom'
 import { TEAM_STATUS } from '../../data/mockData'
+import ConfirmModal from '../../components/Home/ConfirmModal'
 
 const ChatRoom = () => {
     const { roomId } = useParams();
     const message = CHAT_MESSAGES[roomId] || [];
     const status = TEAM_STATUS[roomId];
+    
     
   return (
     <div id="ChatRoom_Wrap" className="container">
@@ -38,7 +40,7 @@ const ChatRoom = () => {
                 />
             ))}
         </div>
-
+        {/* <ConfirmModal/> */}
         <footer>
             <input type="text" />
             <button className="send_btn">
