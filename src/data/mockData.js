@@ -4,6 +4,11 @@ export const USERS = [
     { id: 2, name: "이은우", message: "팀원 구하셨어요??" }
 ];
 
+// 단체 채팅 리스트용 데이터
+export const GROUP_USERS = [
+    { id: 1, courseName: "캡스톤디자인", message: "안녕하세요!", total:7 },
+];
+
 // 채팅방 상세 대화 데이터 
 export const CHAT_MESSAGES = {
     "김성연": [
@@ -15,8 +20,47 @@ export const CHAT_MESSAGES = {
     "이은우": [
         { id: 1, text: "안녕하세요!", isMe: false },
         { id: 2, text: "네 안녕하세요~", isMe: true },
+    ],
+     "캡스톤 디자인": [
+        { 
+            id: 1, 
+            sender: "user_01",     
+            senderName: "이승희",   
+            text: "안녕하세요",
+            isMe: false,       
+        },
+        { 
+            id: 2, 
+            sender: "user_02", 
+            senderName: "이은우", 
+            text: "안녕하세여", 
+            isMe: false,
+        },
+        { 
+            id: 3, 
+            sender: "user_03", 
+            senderName: "문채이", 
+            text: "안녕하세엽", 
+            isMe: false,
+        },
+        { 
+            id: 4, 
+            sender: "user_04", 
+            senderName: "김예린", 
+            text: "안녕하세용", 
+            isMe: false, 
+        },
+        { 
+            id: 5, 
+            sender: "my_id", 
+            senderName: "김성연", 
+            text: "안녕하세요!", 
+            isMe: true,
+        }
     ]
 };
+
+
 
 //채팅방 팀요청 상태 데이터
 export const TEAM_STATUS = {
