@@ -1,0 +1,43 @@
+@import "../../setting/mixin.scss";
+
+.dropdown-chip {
+    display: inline-flex;
+    height: 35px;
+    padding: 0 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+
+    border-radius: var(--radius-full);
+    border: 1px solid var(--gray-400);
+    background: var(--white);
+    cursor: pointer;
+
+    &__content {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__label {
+        color: var(--gray-600);
+        text-align: center;
+        @include body3;
+    }
+
+    &__icon {
+        width: 14px;
+        height: 24px;
+    }
+
+    // 필터 적용 상태
+    &--active {
+        border-color: var(--primary-700);
+
+        .dropdown-chip__label {
+            color: var(--primary-700);
+            @include body2;
+        }
+    }
+}

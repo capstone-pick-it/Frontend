@@ -1,0 +1,15 @@
+.mypage-container {
+    padding-bottom: 130px; // 하단 여유 공간 확보
+
+    .mypage-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .section-profile,
+    .section-default-traits,
+    .section-course-card,
+    .section-project-history-summary {
+        margin-bottom: 16px;
+    }
+}

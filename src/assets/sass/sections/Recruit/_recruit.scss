@@ -1,0 +1,135 @@
+@import "../../setting/mixin.scss";
+
+.recruit-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.recruit-course {
+    width: 100%;
+}
+
+// 상단 정렬&필터 영역
+.recruit-filter-area {
+    display: flex;
+    width: 100%;
+    height: 67px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+
+    margin-bottom: 16px;
+
+    &__top {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        width: 100%;
+        min-width: 0;
+    }
+
+    // 성향태그 영역만 가로 스크롤
+    &__traits {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        flex: 1;
+        min-width: 0;
+
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        .common-tag {
+            flex-shrink: 0;
+        }
+    }
+}
+
+.recruit-complete-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+
+    &__icon {
+        width: 12.762px;
+        height: 10px;
+        flex-shrink: 0;
+    }
+
+    span {
+        color: var(--gray-400);
+        text-align: center;
+        @include body2;
+    }
+
+    &.active {
+        span {
+            color: var(--primary-700);
+        }
+    }
+}
+
+// 카드 리스트
+// 세로 스크롤은 공통 .container에서 처리
+.recruit-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    padding-bottom: 16px;
+}
+
+// 모집 필터 모달 내부
+// 모달 박스와 버튼은 _modal.scss에서 관리
+.recruit-filter-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+
+    &__section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &__title {
+        margin: 0;
+        color: var(--black);
+        @include heading1;
+    }
+
+    // 정렬기준
+    &__chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: flex-start;
+    }
+
+    // 성향칩
+    &__chips--traits {
+        display: grid;
+        grid-template-columns: max-content max-content;
+        gap: 8px;
+        justify-content: flex-start;
+
+        .common-tag {
+            width: fit-content;
+            height: 35px;
+            padding: 0 16px;
+            justify-content: center;
+            white-space: nowrap;
+        }
+    }
+}
