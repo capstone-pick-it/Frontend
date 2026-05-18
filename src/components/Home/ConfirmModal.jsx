@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ONBOARDING_INFO_OPTIONS } from '../../data/mockData'
 import ModalDropDown from '../../components/Chat/ModalDropDown'
 
-const ConfirmModal = ({ title, description, cancelText, confirmText, hasDropdown, isModalOpen }) => {
+const ConfirmModal = ({ title, description, cancelText, confirmText, hasDropdown, isModalOpen, onConfirm, dropdownList, onCourseChange }) => {
 
   return (
     <div className="home-modal-backdrop">
@@ -13,12 +13,12 @@ const ConfirmModal = ({ title, description, cancelText, confirmText, hasDropdown
         {description && <p>{description}</p>}
        <div className='confirm-modal-dropdown'>
         {hasDropdown && (
-        <ModalDropDown list={ONBOARDING_INFO_OPTIONS.MAJORS} />
+        <ModalDropDown list={dropdownList ?? ONBOARDING_INFO_OPTIONS.MAJORS} onChange={onCourseChange} />
        )}
        </div>
         <div>
           <button type="button" onClick={isModalOpen} >{cancelText}</button>
-          <button type="button">{confirmText}</button>
+          <button type="button" onClick={onConfirm}>{confirmText}</button>
         </div>
       </section>
     </div>

@@ -9,7 +9,7 @@ export const GROUP_USERS = [
     { id: 1, courseName: "캡스톤디자인", message: "안녕하세요!", total:7 },
 ];
 
-// 채팅방 상세 대화 데이터 
+// 개인 및 단체 채팅 상세 대화 데이터 
 export const CHAT_MESSAGES = {
     "김성연": [
         { id: 1, text: "승희님 팀원 구하셨어요?", isMe: false },
@@ -21,7 +21,7 @@ export const CHAT_MESSAGES = {
         { id: 1, text: "안녕하세요!", isMe: false },
         { id: 2, text: "네 안녕하세요~", isMe: true },
     ],
-     "캡스톤 디자인": [
+     "캡스톤디자인": [
         { 
             id: 1, 
             sender: "user_01",     
@@ -66,7 +66,7 @@ export const CHAT_MESSAGES = {
 export const TEAM_STATUS = {
     "김성연": "WAITING",   // 팀 요청 전송 후 대기 상태
     "이은우": "REQUEST", // 팀 요청이 온 상태
-    "냠": "ACCEPTED"   // 팀원 요청 수락 상태
+    "문채이": "ACCEPTED"   // 팀원 요청 수락 상태
 }
 
 // 회원 정보 데이터
