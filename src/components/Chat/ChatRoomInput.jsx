@@ -10,7 +10,7 @@ const ChatRoomInput = ({ total }) => {
             <img src={add} alt="" />
         </button>
        )}
-        <input type="text" />
+        <input type="text" className={Number(total) > 3 ? 'with-add-btn' : ''} />
         <button className="send_btn">
             <img src={send} alt="" />
         </button>
