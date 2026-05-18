@@ -13,11 +13,11 @@ const GroupChatList = () => {
     const group_users = GROUP_USERS
 
   return (
-    <div className="GroupChatContainer_Wrap">
+    <div>
         {group_users?.map((group) => (
             <div
                 key={group.id}
-                className='ChatList_Wrap'
+                className='GroupChatContainer_Wrap'
                 onClick={() => navigate(`/chatroom/${group.courseName}`)}
             >
                 <img src={profile5} alt="" />
