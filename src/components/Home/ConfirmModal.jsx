@@ -13,7 +13,7 @@ const ConfirmModal = ({ title, description, cancelText, confirmText, hasDropdown
         {description && <p>{description}</p>}
        <div className='confirm-modal-dropdown'>
         {hasDropdown && (
-        <ModalDropDown list={dropdownList ?? ONBOARDING_INFO_OPTIONS.MAJORS} onChange={onCourseChange} />
+        <ModalDropDown list={dropdownList} onChange={onCourseChange} />
        )}
        </div>
         <div>
