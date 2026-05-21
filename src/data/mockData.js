@@ -592,9 +592,19 @@ export const RECRUIT_CARDS = [
 export const RECRUIT_CARD_LIST = RECRUIT_CARDS.map((card) => {
     const user = RECRUIT_USERS.find((item) => item.id === card.userId);
 
+    const defaultTraitCount = USER_DEFAULT_TRAITS.length;
+    const matchedTraitCount = card.traits.filter((trait) =>
+        USER_DEFAULT_TRAITS.includes(trait)
+    ).length;
+
+    const computedMatchScore = defaultTraitCount > 0
+        ? Math.round((matchedTraitCount / defaultTraitCount) * 100)
+        : 0;
+
     return {
         ...card,
         user,
+        matchScore: card.matchScore ?? computedMatchScore,
     };
 });
 
