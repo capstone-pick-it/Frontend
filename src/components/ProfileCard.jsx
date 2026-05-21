@@ -100,6 +100,19 @@ const ProfileCard = ({
 
     const workspaceDots = Array.from({ length: memberTotal }, (_, index) => index + 1);
 
+    const MAX_VISIBLE_RECRUIT_TRAITS = 4;
+
+    const shouldCollapseTraits = isRecruitPage && !isExpanded;
+
+    const visibleTraits = shouldCollapseTraits
+        ? traits.slice(0, MAX_VISIBLE_RECRUIT_TRAITS)
+        : traits;
+
+    const hiddenTraitCount =
+        shouldCollapseTraits && traits.length > MAX_VISIBLE_RECRUIT_TRAITS
+            ? traits.length - MAX_VISIBLE_RECRUIT_TRAITS
+            : 0;
+    
     return (
         <>
             <div className={`profile-card profile-card--${variant} ${isExpanded ? 'is-expanded' : ''}`}>
@@ -130,9 +143,13 @@ const ProfileCard = ({
                             {/* 성향 태그 */}
                             {showTraits && (
                                 <div className="profile-card__traits">
-                                    {traits.map((trait) => (
+                                    {visibleTraits.map((trait) => (
                                         <Tag key={trait} label={trait} />
                                     ))}
+
+                                    {hiddenTraitCount > 0 && (
+                                        <Tag label={`+${hiddenTraitCount}`} />
+                                    )}
                                 </div>
                             )}
 

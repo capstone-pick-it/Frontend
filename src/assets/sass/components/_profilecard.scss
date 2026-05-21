@@ -95,7 +95,7 @@
             width: 24px;
             height: 24px;
 
-            // 펼침 상태 변경에 맞춰 화살표 방향을 부드럽게 회전
+            // 펼침 상태 변경에 맞춰 화살표 방향을 회전
             transition: transform 0.25s ease;
 
             // open되면 180도 회전, 화살표 위로
@@ -142,21 +142,12 @@
         align-self: stretch;
         gap: 16px;
         width: 100%;
-
-        /*
-            닫힌 상태에서도 DOM은 유지한다.
-            조건부 렌더링으로 제거하면 닫힐 때 애니메이션 없이 바로 사라지기 때문.
-        */
         max-height: 0;
         opacity: 0;
         overflow: hidden;
         transform: translateY(-4px);
         pointer-events: none;
 
-        /*
-            max-height로 높이를 부드럽게 열고 닫고,
-            opacity와 transform으로 살짝 내려오며 나타나는 느낌을 준다.
-        */
         transition:
             max-height 0.28s ease,
             opacity 0.2s ease,
@@ -326,6 +317,16 @@
         .profile-card__name-row {
             align-self: auto;
             gap: 4px;
+        }
+
+        .profile-card__toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        .profile-card__traits {
+            gap: 6px; // 모집 페이지는 성향 태그 간격이 조금 더 좁게 설정(줄바꿈 문제)
         }
     }
 
