@@ -5,8 +5,10 @@ import Button from '../../components/Button'
 import { useState } from 'react'
 import delete_img from '../../assets/images/Onboarding/delete.svg'
 import { ONBOARDING_INFO_OPTIONS } from '../../data/mockData'
+import { useNavigate } from 'react-router-dom'
 
 const OnboardingInfo = () => {
+  const navigate = useNavigate();
   const [lectureList, SetLectureList] = useState([])
   const [input, SetInput] = useState("")
 
@@ -49,7 +51,7 @@ const OnboardingInfo = () => {
             ))}
           </div>
         </div>
-        <Button title={"다음"}/>
+        <Button title={"다음"} onClick={() => navigate('/onboardingstep')}/>
     </div>
   )
 }
