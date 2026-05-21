@@ -8,6 +8,7 @@ import { ONBOARDING_INFO_OPTIONS, USER_INFO } from '../../data/mockData'
 import { useNavigate } from 'react-router-dom'
 
 const OnboardingInfo = () => {
+  const navigate = useNavigate();
   const [lectureList, SetLectureList] = useState([])
   const [input, SetInput] = useState("")
 
@@ -50,7 +51,7 @@ const OnboardingInfo = () => {
             ))}
           </div>
         </div>
-        <Button title={"다음"}/>
+        <Button title={"다음"} onClick={() => navigate('/onboardingstep')}/>
     </div>
   )
 }

@@ -4,7 +4,12 @@ export const USERS = [
     { id: 2, name: "이은우", message: "팀원 구하셨어요??" }
 ];
 
-// 채팅방 상세 대화 데이터 
+// 단체 채팅 리스트용 데이터
+export const GROUP_USERS = [
+    { id: 1, courseName: "캡스톤디자인", message: "안녕하세요!", total:7 },
+];
+
+// 개인 및 단체 채팅 상세 대화 데이터 
 export const CHAT_MESSAGES = {
     "김성연": [
         { id: 1, text: "승희님 팀원 구하셨어요?", isMe: false },
@@ -15,14 +20,53 @@ export const CHAT_MESSAGES = {
     "이은우": [
         { id: 1, text: "안녕하세요!", isMe: false },
         { id: 2, text: "네 안녕하세요~", isMe: true },
+    ],
+     "캡스톤디자인": [
+        { 
+            id: 1, 
+            sender: "user_01",     
+            senderName: "이승희",   
+            text: "안녕하세요",
+            isMe: false,       
+        },
+        { 
+            id: 2, 
+            sender: "user_02", 
+            senderName: "이은우", 
+            text: "안녕하세여", 
+            isMe: false,
+        },
+        { 
+            id: 3, 
+            sender: "user_03", 
+            senderName: "문채이", 
+            text: "안녕하세엽", 
+            isMe: false,
+        },
+        { 
+            id: 4, 
+            sender: "user_04", 
+            senderName: "김예린", 
+            text: "안녕하세용", 
+            isMe: false, 
+        },
+        { 
+            id: 5, 
+            sender: "my_id", 
+            senderName: "김성연", 
+            text: "안녕하세요!", 
+            isMe: true,
+        }
     ]
 };
+
+
 
 //채팅방 팀요청 상태 데이터
 export const TEAM_STATUS = {
     "김성연": "WAITING",   // 팀 요청 전송 후 대기 상태
     "이은우": "REQUEST", // 팀 요청이 온 상태
-    "냠": "ACCEPTED"   // 팀원 요청 수락 상태
+    "문채이": "ACCEPTED"   // 팀원 요청 수락 상태
 }
 
 // 회원 정보 데이터
@@ -51,7 +95,7 @@ export const USER_DEFAULT_TRAITS = [
     "효율주의",
     "대면 선호",
     "협업 선호",
-    "새벽형 인간",
+    "새벽형",
 ];
 
 // 강의 정보 데이터
@@ -61,7 +105,7 @@ export const COURSE_INFO = [
         name: "캡스톤디자인",
         semester: "2026년도 1학기",
         importance: "높음",
-        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형 인간"],
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형"],
         projectStatus: "ONGOING",
     },
     {
@@ -69,7 +113,7 @@ export const COURSE_INFO = [
         name: "클라우드컴퓨팅",
         semester: "2026년도 1학기",
         importance: "보통",
-        traits: ["미리미리", "완벽주의", "비대면 선호", "협업 선호", "아침형 인간"],
+        traits: ["미리미리", "완벽주의", "비대면 선호", "협업 선호", "아침형"],
         projectStatus: "ONGOING",
     },
     {
@@ -77,7 +121,7 @@ export const COURSE_INFO = [
         name: "소프트웨어디자인패턴",
         semester: "2026년도 1학기",
         importance: "낮음",
-        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형 인간"],
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형"],
         projectStatus: "ONGOING",
     },
     {
@@ -85,7 +129,7 @@ export const COURSE_INFO = [
         name: "소프트웨어분석및설계",
         semester: "2025년도 1학기",
         importance: "높음",
-        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형 인간"],
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형"],
         projectStatus: "COMPLETED",
     },
     {
@@ -93,7 +137,7 @@ export const COURSE_INFO = [
         name: "컴퓨터네트워크",
         semester: "2024년도 2학기",
         importance: "보통",
-        traits: ["미리미리", "효율주의", "비대면 선호", "분담 선호", "아침형 인간"],
+        traits: ["미리미리", "효율주의", "비대면 선호", "분담 선호", "아침형"],
         projectStatus: "COMPLETED",
     },
     {
@@ -101,7 +145,7 @@ export const COURSE_INFO = [
         name: "자바프로그래밍",
         semester: "2024년도 1학기",
         importance: "보통",
-        traits: ["벼락치기", "효율주의", "대면 선호", "협업 선호", "새벽형 인간"],
+        traits: ["벼락치기", "효율주의", "대면 선호", "협업 선호", "새벽형"],
         projectStatus: "COMPLETED",
     },
 ];
@@ -171,8 +215,8 @@ export const PREFERENCE =[
     { id: 6, title: "비대면 선호", content: "장소 제약 없는 회의를 선호해요, 온라인 협업으로 효율을 추구해요"},
     { id: 7, title: "협업 선호", content: "함께 시너지를 발휘해 작업하는걸 선호해요, 긴 회의나 잦은 만남도 괜찮아요"},
     { id: 8, title: "분담 선호", content: "함께 진행하는거보단 체계적인 분담 체제를 선호해요, 빠르고 명확한 일처리가 좋아요"},
-    { id: 9, title: "아침형 인간", content: "아침 시간을 선호해요, 일찍 자고 일찍 일어나 오전 시간대를 주로 활용해요"},
-    { id: 10, title: "새벽형 인간", content: "새벽 시간을 선호해요, 새벽 시간대에 주로 활동하고 집중이 잘돼요"}
+    { id: 9, title: "아침형", content: "아침 시간을 선호해요, 일찍 자고 일찍 일어나 오전 시간대를 주로 활용해요"},
+    { id: 10, title: "새벽형", content: "새벽 시간을 선호해요, 새벽 시간대에 주로 활동하고 집중이 잘돼요"}
 ]
 
 // 모집 페이지 유저 데이터 (김성연, 김예린, 김지희, 김채원, 문채이, 이승희, 이은우)
@@ -245,7 +289,7 @@ export const RECRUIT_CARDS = [
         courseName: "캡스톤디자인",
         status: "모집 중",
         importance: "높음",
-        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형 인간"],
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형"],
         projectSummary: {
             projectCount: 2,
             completionRate: 100,
@@ -260,7 +304,7 @@ export const RECRUIT_CARDS = [
         courseName: "캡스톤디자인",
         status: "모집 중",
         importance: "보통",
-        traits: ["미리미리", "효율주의", "비대면 선호", "협업 선호", "아침형 인간"],
+        traits: ["미리미리", "효율주의", "비대면 선호", "협업 선호", "아침형"],
         projectSummary: {
             projectCount: 4,
             completionRate: 100,
@@ -275,7 +319,7 @@ export const RECRUIT_CARDS = [
         courseName: "캡스톤디자인",
         status: "모집 중",
         importance: "높음",
-        traits: ["벼락치기", "효율주의", "대면 선호", "분담 선호", "새벽형 인간"],
+        traits: ["벼락치기", "효율주의", "대면 선호", "분담 선호", "새벽형"],
         projectSummary: {
             projectCount: 1,
             completionRate: 100,
@@ -290,7 +334,7 @@ export const RECRUIT_CARDS = [
         courseName: "캡스톤디자인",
         status: "모집 중",
         importance: "높음",
-        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "아침형 인간"],
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "아침형"],
         projectSummary: {
             projectCount: 5,
             completionRate: 100,
@@ -305,7 +349,7 @@ export const RECRUIT_CARDS = [
         courseName: "캡스톤디자인",
         status: "모집 중",
         importance: "보통",
-        traits: ["미리미리", "효율주의", "비대면 선호", "협업 선호", "새벽형 인간"],
+        traits: ["미리미리", "효율주의", "비대면 선호", "협업 선호", "새벽형"],
         projectSummary: {
             projectCount: 3,
             completionRate: 100,
@@ -320,7 +364,7 @@ export const RECRUIT_CARDS = [
         courseName: "캡스톤디자인",
         status: "모집 중",
         importance: "높음",
-        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형 인간"],
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형"],
         projectSummary: PROJECT_HISTORY_SUMMARY,
     },
     {
@@ -330,7 +374,7 @@ export const RECRUIT_CARDS = [
         courseName: "캡스톤디자인",
         status: "모집 중",
         importance: "낮음",
-        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "아침형 인간"],
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "아침형"],
         projectSummary: {
             projectCount: 2,
             completionRate: 50,
@@ -347,7 +391,7 @@ export const RECRUIT_CARDS = [
         courseName: "클라우드컴퓨팅",
         status: "모집 중",
         importance: "보통",
-        traits: ["미리미리", "효율주의", "비대면 선호", "분담 선호", "아침형 인간"],
+        traits: ["미리미리", "효율주의", "비대면 선호", "분담 선호", "아침형"],
         projectSummary: {
             projectCount: 2,
             completionRate: 100,
@@ -362,7 +406,7 @@ export const RECRUIT_CARDS = [
         courseName: "클라우드컴퓨팅",
         status: "모집 중",
         importance: "높음",
-        traits: ["미리미리", "완벽주의", "비대면 선호", "협업 선호", "아침형 인간"],
+        traits: ["미리미리", "완벽주의", "비대면 선호", "협업 선호", "아침형"],
         projectSummary: {
             projectCount: 4,
             completionRate: 100,
@@ -377,7 +421,7 @@ export const RECRUIT_CARDS = [
         courseName: "클라우드컴퓨팅",
         status: "모집 중",
         importance: "보통",
-        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형 인간"],
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형"],
         projectSummary: {
             projectCount: 1,
             completionRate: 100,
@@ -392,7 +436,7 @@ export const RECRUIT_CARDS = [
         courseName: "클라우드컴퓨팅",
         status: "모집 중",
         importance: "높음",
-        traits: ["미리미리", "완벽주의", "비대면 선호", "협업 선호", "새벽형 인간"],
+        traits: ["미리미리", "완벽주의", "비대면 선호", "협업 선호", "새벽형"],
         projectSummary: {
             projectCount: 5,
             completionRate: 100,
@@ -407,7 +451,7 @@ export const RECRUIT_CARDS = [
         courseName: "클라우드컴퓨팅",
         status: "모집 중",
         importance: "낮음",
-        traits: ["미리미리", "효율주의", "비대면 선호", "협업 선호", "아침형 인간"],
+        traits: ["미리미리", "효율주의", "비대면 선호", "협업 선호", "아침형"],
         projectSummary: {
             projectCount: 3,
             completionRate: 100,
@@ -422,7 +466,7 @@ export const RECRUIT_CARDS = [
         courseName: "클라우드컴퓨팅",
         status: "모집 중",
         importance: "보통",
-        traits: ["미리미리", "완벽주의", "비대면 선호", "협업 선호", "아침형 인간"],
+        traits: ["미리미리", "완벽주의", "비대면 선호", "협업 선호", "아침형"],
         projectSummary: PROJECT_HISTORY_SUMMARY,
     },
     {
@@ -432,7 +476,7 @@ export const RECRUIT_CARDS = [
         courseName: "클라우드컴퓨팅",
         status: "모집 중",
         importance: "보통",
-        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "아침형 인간"],
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "아침형"],
         projectSummary: {
             projectCount: 2,
             completionRate: 50,
@@ -449,7 +493,7 @@ export const RECRUIT_CARDS = [
         courseName: "소프트웨어디자인패턴",
         status: "모집 중",
         importance: "낮음",
-        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형 인간"],
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형"],
         projectSummary: {
             projectCount: 2,
             completionRate: 100,
@@ -464,7 +508,7 @@ export const RECRUIT_CARDS = [
         courseName: "소프트웨어디자인패턴",
         status: "모집 중",
         importance: "보통",
-        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "아침형 인간"],
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "아침형"],
         projectSummary: {
             projectCount: 4,
             completionRate: 100,
@@ -479,7 +523,7 @@ export const RECRUIT_CARDS = [
         courseName: "소프트웨어디자인패턴",
         status: "모집 중",
         importance: "낮음",
-        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형 인간"],
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형"],
         projectSummary: {
             projectCount: 1,
             completionRate: 100,
@@ -494,7 +538,7 @@ export const RECRUIT_CARDS = [
         courseName: "소프트웨어디자인패턴",
         status: "모집 중",
         importance: "보통",
-        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형 인간"],
+        traits: ["미리미리", "완벽주의", "대면 선호", "협업 선호", "새벽형"],
         projectSummary: {
             projectCount: 5,
             completionRate: 100,
@@ -509,7 +553,7 @@ export const RECRUIT_CARDS = [
         courseName: "소프트웨어디자인패턴",
         status: "모집 중",
         importance: "높음",
-        traits: ["미리미리", "효율주의", "비대면 선호", "협업 선호", "새벽형 인간"],
+        traits: ["미리미리", "효율주의", "비대면 선호", "협업 선호", "새벽형"],
         projectSummary: {
             projectCount: 3,
             completionRate: 100,
@@ -524,7 +568,7 @@ export const RECRUIT_CARDS = [
         courseName: "소프트웨어디자인패턴",
         status: "모집 중",
         importance: "낮음",
-        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형 인간"],
+        traits: ["벼락치기", "효율주의", "비대면 선호", "분담 선호", "새벽형"],
         projectSummary: PROJECT_HISTORY_SUMMARY,
     },
     {
@@ -534,7 +578,7 @@ export const RECRUIT_CARDS = [
         courseName: "소프트웨어디자인패턴",
         status: "모집 중",
         importance: "보통",
-        traits: ["벼락치기", "효율주의", "대면 선호", "분담 선호", "아침형 인간"],
+        traits: ["벼락치기", "효율주의", "대면 선호", "분담 선호", "아침형"],
         projectSummary: {
             projectCount: 2,
             completionRate: 50,

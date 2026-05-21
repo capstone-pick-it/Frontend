@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { USER_INFO } from '../../data/mockData'
 
 const OnboardingResult = () => {
+  const navigate = useNavigate();
   return (
     <div id="OnboardingResult_Wrap" className="container">
       <div className="text_container">
@@ -26,7 +27,7 @@ const OnboardingResult = () => {
           importance="높음"
         />
       </main>
-      <Button title={"완료"}/>
+      <Button title={"완료"} onClick={() => navigate('/home')}/>
     </div>
   )
 }
