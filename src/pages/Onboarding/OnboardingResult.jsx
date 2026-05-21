@@ -2,13 +2,14 @@ import React from 'react'
 import ProfileCard from '../../components/ProfileCard'
 import Button from '../../components/Button'
 import { useNavigate } from 'react-router-dom'
+import { USER_INFO } from '../../data/mockData'
 
 const OnboardingResult = () => {
   const navigate = useNavigate();
   return (
     <div id="OnboardingResult_Wrap" className="container">
       <div className="text_container">
-        <h1>이승희 님의
+        <h1>{USER_INFO.name} 님의
           <br />카드가 만들어졌어요 !
         </h1>
         <p>과목별 성향 및 중요도 편집은 마이페이지에서 가능합니다.</p>
@@ -16,7 +17,7 @@ const OnboardingResult = () => {
       <main>
         <ProfileCard
           variant="onboarding"
-          name="이승희"
+          name={USER_INFO.name}
           major="컴퓨터공학과"
           year={4}
           level={1}
