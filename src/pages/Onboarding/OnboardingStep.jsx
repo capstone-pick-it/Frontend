@@ -19,7 +19,7 @@ const OnboardingStep = () => {
   }
 
   const [currentStep, setCurrentStep] = useState(0)
-  const totalSteps = 4;
+  const totalSteps = 5;
   const currentItem = PREFERENCE.slice(currentStep*2, currentStep*2+2)
 
   const handleNext = async() => {
@@ -27,7 +27,7 @@ const OnboardingStep = () => {
     const hasSelection = currentPairIds.some(id => selected.includes(id));
     if (!hasSelection) return;
 
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1)
     } else {
       try {
