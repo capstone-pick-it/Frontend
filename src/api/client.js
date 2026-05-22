@@ -12,6 +12,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
   if (config.requiresAuth) {
     const token = getAccessToken()
+    console.log('[Auth] requiresAuth:', config.requiresAuth, '| token:', token ? '있음' : '없음')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -23,6 +24,7 @@ apiClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
     const data = error.response?.data
+    console.log('[Error] status:', error.response?.status, '| data:', data)
     const err = new Error(data?.message || '요청 처리 중 오류가 발생했습니다.')
     err.status = error.response?.status
     err.code = data?.code

@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { PREFERENCE, USER_INFO } from '../../data/mockData'
 import StepBar from '../../components/Onboarding/StepBar'
+import { saveOnboardingPersonality } from '../../api/auth'
 
 const OnboardingStep = () => {
   const navigate= useNavigate();
@@ -18,18 +19,26 @@ const OnboardingStep = () => {
   }
 
   const [currentStep, setCurrentStep] = useState(0)
-  const totalSteps =5;
+  const totalSteps = 4;
   const currentItem = PREFERENCE.slice(currentStep*2, currentStep*2+2)
 
-  const handleNext = () => {
+  const handleNext = async() => {
     const currentPairIds = currentItem.map(item => item.id);
     const hasSelection = currentPairIds.some(id => selected.includes(id));
     if (!hasSelection) return;
 
-    if(currentStep<4){
-      setCurrentStep(currentStep+1)
-    }else{
-      navigate('/onboardingresult')
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1)
+    } else {
+      try {
+        const traits = formTraits(selected)
+        await saveOnboardingPersonality(traits)
+        navigate('/onboardingresult')
+      } catch (error) {
+        console.log(error.status)
+        console.log(error.message)
+        console.log(error.result)
+      }
     }
   }
 
@@ -39,6 +48,14 @@ const OnboardingStep = () => {
       const filteredSelected = selected.filter((selectedId) => !currentPairIds.includes(selectedId));
       setSelected([...filteredSelected, id]);
     }
+
+  const formTraits = (selected) => {
+    return selected.map((id) => ({
+      traitItemId: Math.ceil(id / 2),
+      selectedType: id % 2 === 1 ? 'A' : 'B',
+    }))
+  }
+    
   
   return (
     <div id="OnboardingStep_Wrap" className="container">
