@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
-import { isOnboardingDone } from './api/token';
+import { getOnboardingStatus } from './api/auth';
 
 import './assets/sass/style.scss';
 
@@ -64,7 +64,10 @@ const LoginRoute = () => {
       <Login
         onSignupClick={() => navigate('/signup')}
         onResetPasswordClick={() => navigate('/reset-password')}
-        onLoginSuccess={() => navigate(isOnboardingDone() ? '/home' : '/onboarding')}
+        onLoginSuccess={async () => {
+          const { result } = await getOnboardingStatus()
+          navigate(result?.isCompleted ? '/home' : '/onboarding')
+        }}
       />
     </AuthLayout>
   );

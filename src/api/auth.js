@@ -56,3 +56,18 @@ export const verifySignupEmailCode = ({ email, code }) => {
     body: JSON.stringify(createEmailVerifyRequestBody({ email, code })),
   })
 }
+
+export const getOnboardingStatus = () => {
+  return request('/api/users/onboarding/status', {
+    method: 'GET',
+    auth: true,
+  })
+}
+
+export const saveOnboardingProfile = ({ school, major, grade, semester, courses }) => {
+  return request('/api/users/onboarding/profile',{
+    method: 'POST',
+    auth: true,
+     body: JSON.stringify({ school, major, grade, semester, courses }),
+  })
+}
