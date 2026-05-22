@@ -1,6 +1,7 @@
 const ACCESS_TOKEN_KEY = 'pickitAccessToken'
 const REFRESH_TOKEN_KEY = 'pickitRefreshToken'
 const USER_KEY = 'pickitUser'
+const ONBOARDING_KEY = 'pickitOnboardingDone'
 
 export const getAccessToken = () => localStorage.getItem(ACCESS_TOKEN_KEY)
 
@@ -19,6 +20,10 @@ export const saveAuthTokens = ({ accessToken, refreshToken, userId, nickname }) 
     localStorage.setItem(USER_KEY, JSON.stringify({ userId, nickname }))
   }
 }
+
+export const isOnboardingDone = () => !!localStorage.getItem(ONBOARDING_KEY)
+
+export const saveOnboardingDone = () => localStorage.setItem(ONBOARDING_KEY, 'true')
 
 export const clearAuthTokens = () => {
   localStorage.removeItem(ACCESS_TOKEN_KEY)

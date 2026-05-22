@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import { isOnboardingDone } from './api/token';
 
 import './assets/sass/style.scss';
 
@@ -63,7 +64,7 @@ const LoginRoute = () => {
       <Login
         onSignupClick={() => navigate('/signup')}
         onResetPasswordClick={() => navigate('/reset-password')}
-        onLoginSuccess={() => navigate('/home')}
+        onLoginSuccess={() => navigate(isOnboardingDone() ? '/home' : '/onboarding')}
       />
     </AuthLayout>
   );

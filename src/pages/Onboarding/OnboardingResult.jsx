@@ -3,6 +3,7 @@ import ProfileCard from '../../components/ProfileCard'
 import Button from '../../components/Button'
 import { useNavigate } from 'react-router-dom'
 import { USER_INFO } from '../../data/mockData'
+import { saveOnboardingDone } from '../../api/token'
 
 const OnboardingResult = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const OnboardingResult = () => {
           importance="높음"
         />
       </main>
-      <Button title={"완료"} onClick={() => navigate('/home')}/>
+      <Button title={"완료"} onClick={() => { saveOnboardingDone(); navigate('/home') }}/>
     </div>
   )
 }
