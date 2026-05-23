@@ -65,8 +65,14 @@ const LoginRoute = () => {
         onSignupClick={() => navigate('/signup')}
         onResetPasswordClick={() => navigate('/reset-password')}
         onLoginSuccess={async () => {
-          const { result } = await getOnboardingStatus()
-          navigate(result?.isCompleted ? '/home' : '/onboarding')
+          try {
+            const { result } = await getOnboardingStatus()
+            console.log('[온보딩 상태]', result)
+            navigate(result?.isCompleted ? '/home' : '/onboarding')
+          } catch (error) {
+            console.log('[온보딩 상태 에러]', error.status, error.message)
+            navigate('/onboarding')
+          }
         }}
       />
     </AuthLayout>
