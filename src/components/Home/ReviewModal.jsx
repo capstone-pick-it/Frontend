@@ -26,41 +26,43 @@ const ReviewModal = ({ teammate, currentIndex, totalCount, onNext }) => {
   return (
     <div className="home-modal-backdrop">
       <section className="home-review-modal">
-        <h2>{teammate.name} 님과의 프로젝트는 어떠셨나요?</h2>
-        <p>팀 프로젝트 어떠셨나요?</p>
+        <div className={showConfirm ? 'home-review-modal__content is-dimmed' : 'home-review-modal__content'}>
+          <h2>{teammate.name} 님과의 프로젝트는 어떠셨나요?</h2>
+          <p>팀 프로젝트 어떠셨나요?</p>
 
-        <div className="home-review-modal__scores">
-          {scoreItems.map((score) => (
-            <div className="home-review-row" key={score.key}>
-              <strong>{score.label}</strong>
-              <div>
-                {[1, 2, 3, 4, 5].map((item) => (
-                  <button
-                    className={item <= scores[score.key] ? 'is-active' : ''}
-                    type="button"
-                    key={item}
-                    aria-label={`${score.label} ${item}점`}
-                    onClick={() => selectScore(score.key, item)}
-                  >
-                    ✓
-                  </button>
-                ))}
+          <div className="home-review-modal__scores">
+            {scoreItems.map((score) => (
+              <div className="home-review-row" key={score.key}>
+                <strong>{score.label}</strong>
+                <div>
+                  {[1, 2, 3, 4, 5].map((item) => (
+                    <button
+                      className={item <= scores[score.key] ? 'is-active' : ''}
+                      type="button"
+                      key={item}
+                      aria-label={`${score.label} ${item}점`}
+                      onClick={() => selectScore(score.key, item)}
+                    >
+                      ✓
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div className="home-review-modal__buttons">
-          <span>{currentIndex + 1}/{totalCount}</span>
-          <button type="button" disabled={!isComplete} onClick={() => setShowConfirm(true)}>
-            {isLastReview ? '완료' : '다음'}
-          </button>
+          <div className="home-review-modal__buttons">
+            <span>{currentIndex + 1}/{totalCount}</span>
+            <button type="button" disabled={!isComplete} onClick={() => setShowConfirm(true)}>
+              {isLastReview ? '완료' : '다음'}
+            </button>
+          </div>
         </div>
 
         {showConfirm && (
           <div className="home-review-modal__confirm">
             <h3>이대로 평가를 제출하시겠습니까?</h3>
-            <p>평가는 수정할 수 없습니다!</p>
+            <p>평가는 수정할 수 없습니다</p>
             <div>
               <button type="button" onClick={() => setShowConfirm(false)}>아니오</button>
               <button type="button" onClick={() => onNext(scores)}>네</button>
