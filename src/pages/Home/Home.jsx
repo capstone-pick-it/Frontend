@@ -23,7 +23,7 @@ import {
   leaveProject,
   updateChecklist,
   updateChecklistStatus,
-} from '../../api/home'
+} from '../../api/Home/home'
 
 const tabs = [
   { key: 'recruiting', label: '모집 중' },
