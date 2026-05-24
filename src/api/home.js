@@ -15,6 +15,20 @@ export const getProjectChecklists = (projectTeamId) => {
   })
 }
 
+export const getProjectDetail = (projectTeamId) => {
+  return request(`/projects/${projectTeamId}`, {
+    method: 'GET',
+    requireAuth: true,
+  })
+}
+
+export const getProjectMembers = (projectTeamId) => {
+  return request(`/projects/${projectTeamId}/members`, {
+    method: 'GET',
+    requireAuth: true,
+  })
+}
+
 export const createProjectChecklist = (projectTeamId, { title, dueDate, managerId }) => {
   return request(`/projects/${projectTeamId}/checklists`, {
     method: 'POST',

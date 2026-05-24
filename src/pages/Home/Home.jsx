@@ -18,6 +18,8 @@ import {
   getPeerReviewStatus,
   getPeerReviewTargets,
   getProjectChecklists,
+  getProjectDetail,
+  getProjectMembers,
   leaveProject,
   updateChecklist,
   updateChecklistStatus,
@@ -231,6 +233,34 @@ const normalizeChecklistItem = (item) => ({
   done: item.status ? item.status === 'DONE' : Boolean(item.done),
 })
 
+const normalizeProjectMember = (member, fallbackMember = {}) => ({
+  ...fallbackMember,
+  userId: member.userId ?? fallbackMember.userId,
+  projectTeamMemberId: member.projectTeamMemberId,
+  name: member.nickname || fallbackMember.name || '팀원',
+  school: member.major || fallbackMember.school || '',
+  role: member.role,
+  activeMember: member.activeMember,
+  tags: fallbackMember.tags || [],
+  level: fallbackMember.level || 'LV.1',
+  point: fallbackMember.point || '0p',
+  priority: fallbackMember.priority || '보통',
+})
+
+const normalizeProjectDetail = (detail, fallbackProject) => {
+  if (!detail) {
+    return fallbackProject
+  }
+
+  return {
+    ...fallbackProject,
+    id: detail.projectTeamId ?? fallbackProject.id,
+    title: detail.courseName || fallbackProject.title,
+    status: detail.status === 'DONE' ? '진행 완료' : fallbackProject.status,
+    progress: Math.round(detail.progressRate ?? fallbackProject.progress ?? 0),
+  }
+}
+
 const normalizeCompletionRequest = (request) => {
   if (!request) {
     return null
@@ -408,6 +438,21 @@ const Home = () => {
     ))
   }
 
+  const updateProjectDetail = (nextProject) => {
+    const updateItems = (items) => (
+      items.map((project) => (
+        project.id === nextProject.id ? nextProject : project
+      ))
+    )
+
+    if (currentTab === 'done') {
+      setDoneItems(updateItems)
+      return
+    }
+
+    setActiveItems(updateItems)
+  }
+
   useEffect(() => {
     if (activeItems.length === 0) {
       return
@@ -462,27 +507,48 @@ const Home = () => {
   }, [activeItems.map((project) => project.id).join(',')])
 
   useEffect(() => {
-    if (!isDetailPage || currentTab !== 'active' || !selectedProject) {
+    if (!isDetailPage || !selectedProject || currentTab === 'recruiting') {
       return
     }
 
     let ignore = false
 
-    const fetchChecklists = async () => {
+    const fetchProjectInterior = async () => {
       try {
-        const response = await getProjectChecklists(selectedProject.id)
-        const nextChecklist = (response.result?.checklists || []).map(normalizeChecklistItem)
+        const [detailResponse, membersResponse, checklistsResponse] = await Promise.all([
+          getProjectDetail(selectedProject.id),
+          getProjectMembers(selectedProject.id),
+          getProjectChecklists(selectedProject.id),
+        ])
+        const detail = detailResponse.result
+        const members = membersResponse.result?.members || []
+        const checklists = checklistsResponse.result?.checklists || []
+        const nextTeammates = members.map((member) => {
+          const fallbackMember = selectedProject.teammates?.find((teammate) => teammate.userId === member.userId)
+
+          return normalizeProjectMember(member, fallbackMember)
+        })
+        const nextProject = {
+          ...normalizeProjectDetail(detail, selectedProject),
+          teammates: nextTeammates.length > 0 ? nextTeammates : selectedProject.teammates,
+          members: nextTeammates.length > 0
+            ? nextTeammates.map((member) => member.name).join(' ')
+            : selectedProject.members,
+          checklist: checklists.length > 0
+            ? checklists.map(normalizeChecklistItem)
+            : selectedProject.checklist,
+        }
 
         if (!ignore) {
-          updateProjectChecklist(nextChecklist)
+          updateProjectDetail(nextProject)
           setChecklistPage(0)
         }
       } catch (error) {
-        console.warn('체크리스트 목록 조회 실패:', error.message)
+        console.warn('프로젝트 내부 상세 정보 조회 실패:', error.message)
       }
     }
 
-    fetchChecklists()
+    fetchProjectInterior()
 
     return () => {
       ignore = true
