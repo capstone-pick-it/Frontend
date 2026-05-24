@@ -1,0 +1,105 @@
+import { request } from './client'
+import { getRefreshToken } from './token'
+import {
+  createEmailSendRequestBody,
+  createEmailVerifyRequestBody,
+  createLoginRequestBody,
+  createPasswordResetRequestBody,
+  createPasswordResetSendRequestBody,
+  createPasswordResetVerifyRequestBody,
+  createSignupRequestBody,
+  createTokenRefreshRequestBody,
+} from './auth.dto'
+
+export const signupUser = ({ email, password, nickname }) => {
+  return request('/api/users/signup', {
+    method: 'POST',
+    body: JSON.stringify(createSignupRequestBody({ email, password, nickname })),
+  })
+}
+
+export const loginUser = ({ email, password }) => {
+  return request('/api/users/login', {
+    method: 'POST',
+    body: JSON.stringify(createLoginRequestBody({ email, password })),
+  })
+}
+
+export const refreshToken = (refreshToken = getRefreshToken()) => {
+  return request('/api/users/refresh', {
+    method: 'POST',
+    body: JSON.stringify(createTokenRefreshRequestBody({ refreshToken })),
+  })
+}
+
+export const logoutUser = () => {
+  return request('/api/users/logout', {
+    method: 'POST',
+    requireAuth: true,
+  })
+}
+
+export const deleteUser = () => {
+  return request('/api/users/delete', {
+    method: 'DELETE',
+    requireAuth: true,
+  })
+}
+
+export const sendSignupEmailCode = ({ email }) => {
+  return request('/api/users/email/send', {
+    method: 'POST',
+    body: JSON.stringify(createEmailSendRequestBody({ email })),
+  })
+}
+
+export const verifySignupEmailCode = ({ email, code }) => {
+  return request('/api/users/email/verify', {
+    method: 'POST',
+    body: JSON.stringify(createEmailVerifyRequestBody({ email, code })),
+  })
+}
+
+export const sendPasswordResetEmailCode = ({ email }) => {
+  return request('/api/users/password/reset/send', {
+    method: 'POST',
+    body: JSON.stringify(createPasswordResetSendRequestBody({ email })),
+  })
+}
+
+export const verifyPasswordResetEmailCode = ({ email, code }) => {
+  return request('/api/users/password/reset/verify', {
+    method: 'POST',
+    body: JSON.stringify(createPasswordResetVerifyRequestBody({ email, code })),
+  })
+}
+
+export const resetPassword = ({ email, newPassword }) => {
+  return request('/api/users/password/reset', {
+    method: 'PUT',
+    body: JSON.stringify(createPasswordResetRequestBody({ email, newPassword })),
+  })
+}
+
+export const getOnboardingStatus = () => {
+  return request('/api/users/onboarding/status', {
+    method: 'GET',
+    requireAuth: true,
+  })
+}
+
+export const saveOnboardingProfile = ({ school, major, grade, semester, courses }) => {
+  return request('/api/users/onboarding/profile',{
+    method: 'POST',
+    requireAuth: true,
+     body: JSON.stringify({ school, major, grade, semester, courses }),
+  })
+}
+
+export const saveOnboardingPersonality = (traits) => {
+  return request('/api/users/onboarding/personality',{
+    method: 'POST',
+    requireAuth: true,
+    body: JSON.stringify({ traits }),
+  })
+}
