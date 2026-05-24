@@ -205,6 +205,15 @@ const formatDueDate = (dueDate) => {
   }).format(date)
 }
 
+const getTodayDateValue = () => {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 const normalizeChecklistItem = (item) => ({
   id: item.checklistItemId ?? item.id,
   title: item.title,
@@ -369,13 +378,16 @@ const Home = () => {
       return
     }
 
-    const assignee = selectedProject.teammates[0]?.name || currentUserName
+    const assignee = selectedProject.teammates.find((member) => member.name === currentUserName)?.name
+      || selectedProject.teammates[0]?.name
+      || currentUserName
     const managerId = getManagerId(assignee)
+    const todayDate = getTodayDateValue()
 
     try {
       const response = await createProjectChecklist(selectedProject.id, {
         title: '새로운 할 일',
-        dueDate: '9999-12-31',
+        dueDate: todayDate,
         managerId,
       })
       const nextItem = normalizeChecklistItem(response.result)
@@ -393,8 +405,8 @@ const Home = () => {
     const nextItem = {
       id: checklistIdRef.current,
       title: '새로운 할 일',
-      date: '0000년 0월 00일 0요일',
-      dueAt: '9999-12-31',
+      date: formatDueDate(todayDate),
+      dueAt: todayDate,
       assignee,
       assigneeId: managerId,
       done: false,
