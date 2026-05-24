@@ -514,8 +514,12 @@
   }
 
   span {
-    color: var(--primary-700);
+    color: var(--gray-400);
     @include caption;
+
+    &.is-approved {
+      color: var(--primary-700);
+    }
   }
 }
 
