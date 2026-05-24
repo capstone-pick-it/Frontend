@@ -62,7 +62,7 @@ const getWeekdayFromItem = (item, parts) => {
   return weekdayOptions.includes(calculatedWeekday) ? calculatedWeekday : weekdayOptions[0]
 }
 
-const ChecklistEditModal = ({ item, members, onClose, onDelete, onSave }) => {
+const ChecklistEditModal = ({ canEdit, item, members, onClose, onDelete, onSave }) => {
   const [title, setTitle] = useState(item.title)
   const [dateParts, setDateParts] = useState(getDateParts(item))
   const [weekday, setWeekday] = useState(getWeekdayFromItem(item, getDateParts(item)))
@@ -77,10 +77,17 @@ const ChecklistEditModal = ({ item, members, onClose, onDelete, onSave }) => {
   return (
     <div className="home-modal-backdrop">
       <section className="home-checklist-modal">
-        <h2>할 일 수정</h2>
+        <button className="home-checklist-modal__close" type="button" aria-label="닫기" onClick={onClose}>
+          ×
+        </button>
+        <h2>{canEdit ? '할 일 수정' : '할 일 확인'}</h2>
         <label>
           <span>할 일</span>
-          <input value={title} onChange={(event) => setTitle(event.target.value)} />
+          <input
+            value={title}
+            disabled={!canEdit}
+            onChange={(event) => setTitle(event.target.value)}
+          />
         </label>
         <label>
           <span>기한</span>
@@ -88,6 +95,7 @@ const ChecklistEditModal = ({ item, members, onClose, onDelete, onSave }) => {
             <input
               inputMode="numeric"
               value={dateParts.year}
+              disabled={!canEdit}
               onChange={(event) => updateDatePart('year', event.target.value, 4)}
               aria-label="기한 연도"
             />
@@ -95,6 +103,7 @@ const ChecklistEditModal = ({ item, members, onClose, onDelete, onSave }) => {
             <input
               inputMode="numeric"
               value={dateParts.month}
+              disabled={!canEdit}
               onChange={(event) => updateDatePart('month', event.target.value, 2)}
               aria-label="기한 월"
             />
@@ -102,12 +111,18 @@ const ChecklistEditModal = ({ item, members, onClose, onDelete, onSave }) => {
             <input
               inputMode="numeric"
               value={dateParts.day}
+              disabled={!canEdit}
               onChange={(event) => updateDatePart('day', event.target.value, 2)}
               aria-label="기한 일"
             />
             <em>일</em>
             <div className="home-checklist-modal__weekday-select">
-              <select value={weekday} onChange={(event) => setWeekday(event.target.value)} aria-label="기한 요일">
+              <select
+                value={weekday}
+                disabled={!canEdit}
+                onChange={(event) => setWeekday(event.target.value)}
+                aria-label="기한 요일"
+              >
                 {weekdayOptions.map((option) => (
                   <option value={option} key={option}>
                     {option}
@@ -120,7 +135,11 @@ const ChecklistEditModal = ({ item, members, onClose, onDelete, onSave }) => {
         <label>
           <span>담당자</span>
           <div className="home-checklist-modal__select">
-            <select value={assignee} onChange={(event) => setAssignee(event.target.value)}>
+            <select
+              value={assignee}
+              disabled={!canEdit}
+              onChange={(event) => setAssignee(event.target.value)}
+            >
               {members.map((member) => (
                 <option value={member.name} key={member.name}>
                   {member.name}
@@ -129,26 +148,27 @@ const ChecklistEditModal = ({ item, members, onClose, onDelete, onSave }) => {
             </select>
           </div>
         </label>
-        <div>
-          {!item.isNew && (
-            <button type="button" onClick={() => onDelete(item.id)}>
-              삭제
+        {canEdit && (
+          <div className="home-checklist-modal__actions">
+            {!item.isNew && (
+              <button type="button" onClick={() => onDelete(item.id)}>
+                삭제
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => onSave({
+                ...item,
+                title: title.trim() || '새로운 할 일',
+                date: getDateTextFromParts(dateParts, weekday),
+                dueAt: getDueAtFromParts(dateParts),
+                assignee,
+              })}
+            >
+              수정
             </button>
-          )}
-          <button type="button" onClick={onClose}>취소</button>
-          <button
-            type="button"
-            onClick={() => onSave({
-              ...item,
-              title: title.trim() || '새로운 할 일',
-              date: getDateTextFromParts(dateParts, weekday),
-              dueAt: getDueAtFromParts(dateParts),
-              assignee,
-            })}
-          >
-            저장
-          </button>
-        </div>
+          </div>
+        )}
       </section>
     </div>
   )

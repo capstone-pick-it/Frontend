@@ -530,6 +530,7 @@
 }
 
 .home-checklist-modal {
+  position: relative;
   padding: 24px 16px 15px;
 
   h2 {
@@ -559,6 +560,12 @@
     background-color: var(--white);
     color: var(--black);
     @include body5;
+
+    &:disabled {
+      background-color: var(--white);
+      color: var(--black);
+      opacity: 1;
+    }
   }
 
   select {
@@ -570,6 +577,24 @@
     background-color: var(--white);
     color: var(--black);
     @include body5;
+
+    &:disabled {
+      background-color: var(--white);
+      color: var(--black);
+      opacity: 1;
+    }
+  }
+
+  .home-checklist-modal__close {
+    position: absolute;
+    top: 13px;
+    right: 13px;
+    width: 30px;
+    height: 30px;
+    border-radius: 0;
+    background-color: transparent;
+    color: var(--gray-500);
+    @include body2;
   }
 
   .home-checklist-modal__select {
@@ -647,7 +672,7 @@
     }
   }
 
-  div {
+  > div {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
@@ -664,6 +689,17 @@
     &:last-child {
       background-color: var(--primary-700);
       color: var(--white);
+    }
+  }
+
+  .home-checklist-modal__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 20px;
+
+    &:has(button:only-child) {
+      grid-template-columns: 1fr;
     }
   }
 }

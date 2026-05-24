@@ -647,13 +647,17 @@ const Home = () => {
                 </button>
                 <button
                   type="button"
-                  disabled={currentTab !== 'active' || item.assignee !== currentProjectUserName}
+                  disabled={currentTab !== 'active'}
                   aria-label={
                     item.assignee === currentProjectUserName
                       ? '체크리스트 완료 상태 변경'
                       : `${item.assignee} 담당 할 일입니다`
                   }
-                  onClick={() => toggleChecklistItem(item.id)}
+                  onClick={() => (
+                    item.assignee === currentProjectUserName
+                      ? toggleChecklistItem(item.id)
+                      : setEditingChecklistId(item.id)
+                  )}
                 >
                   {item.done ? '✓' : ''}
                 </button>
@@ -729,6 +733,7 @@ const Home = () => {
 
       {editingChecklistItem && (
         <ChecklistEditModal
+          canEdit={editingChecklistItem.assignee === currentProjectUserName}
           item={editingChecklistItem}
           members={selectedProject?.teammates || []}
           onClose={() => setEditingChecklistId(null)}
