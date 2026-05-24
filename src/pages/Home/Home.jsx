@@ -608,7 +608,12 @@ const Home = () => {
                 >
                   이전 팀원
                 </button>
-                <MemberCard member={selectedMember} onChatClick={() => navigate('/chat')} />
+                <MemberCard
+                  currentIndex={memberIndex + 1}
+                  member={selectedMember}
+                  totalCount={selectedProject.teammates.length}
+                  onChatClick={() => navigate('/chat')}
+                />
                 <button
                   type="button"
                   onClick={() => setMemberIndex((memberIndex + 1) % selectedProject.teammates.length)}
