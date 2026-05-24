@@ -6,8 +6,7 @@ const scores = [
   { label: '팀원만족도', value: 2 },
 ]
 
-const ReviewModal = ({ teammate, currentIndex, totalCount, onPrev, onNext }) => {
-  const isFirstReview = currentIndex === 0
+const ReviewModal = ({ teammate, currentIndex, totalCount, onNext }) => {
   const isLastReview = currentIndex === totalCount - 1
 
   return (
@@ -30,7 +29,6 @@ const ReviewModal = ({ teammate, currentIndex, totalCount, onPrev, onNext }) => 
         </div>
 
         <div className="home-review-modal__buttons">
-          <button type="button" disabled={isFirstReview} onClick={onPrev}>이전</button>
           <span>{currentIndex + 1}/{totalCount}</span>
           <button type="button" onClick={onNext}>{isLastReview ? '완료' : '다음'}</button>
         </div>

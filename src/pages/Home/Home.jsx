@@ -9,8 +9,14 @@ import HomeProjectCard from '../../components/Home/HomeProjectCard'
 import MemberCard from '../../components/Home/MemberCard'
 import ReviewModal from '../../components/Home/ReviewModal'
 import {
+  createCompletionRequest,
+  createPeerReview,
   createProjectChecklist,
+  decideCompletionRequest,
   deleteChecklist,
+  getCurrentCompletionRequest,
+  getPeerReviewStatus,
+  getPeerReviewTargets,
   getProjectChecklists,
   leaveProject,
   updateChecklist,
@@ -221,6 +227,37 @@ const normalizeChecklistItem = (item) => ({
   done: item.status ? item.status === 'DONE' : Boolean(item.done),
 })
 
+const normalizeCompletionRequest = (request) => {
+  if (!request) {
+    return null
+  }
+
+  return {
+    id: request.completionRequestId ?? request.id,
+    projectTeamId: request.projectTeamId,
+    status: request.status || 'PENDING',
+    requester: request.requester,
+    approvals: request.approvals || [],
+  }
+}
+
+const getApprovedNames = (request) => {
+  return (request?.approvals || [])
+    .filter((approval) => approval.decision === 'APPROVE')
+    .map((approval) => approval.user?.nickname)
+    .filter(Boolean)
+}
+
+const getReviewProgress = (status, fallbackTotal = 0) => {
+  const members = status?.members || []
+  const completedCount = members.filter((member) => member.completed).length
+
+  return {
+    completedCount,
+    totalCount: members.length || fallbackTotal,
+  }
+}
+
 const Home = () => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -233,6 +270,9 @@ const Home = () => {
   const [exitTarget, setExitTarget] = useState(null)
   const [reviewProject, setReviewProject] = useState(null)
   const [reviewIndex, setReviewIndex] = useState(0)
+  const [reviewTargets, setReviewTargets] = useState([])
+  const [completionRequests, setCompletionRequests] = useState({})
+  const [peerReviewStatuses, setPeerReviewStatuses] = useState({})
   const [memberIndex, setMemberIndex] = useState(0)
   const [checklistPage, setChecklistPage] = useState(0)
   const [editingChecklistId, setEditingChecklistId] = useState(null)
@@ -324,7 +364,17 @@ const Home = () => {
   const currentProjectUser = selectedProject?.teammates?.[0] || reviewProject?.teammates?.[0]
   const currentProjectUserName = currentProjectUser?.name || ''
   const currentProjectUserId = currentProjectUser?.userId
-  const reviewTeammates = reviewProject?.teammates?.filter((member) => member.name !== currentProjectUserName) || []
+  const completionRequest = selectedProject ? completionRequests[selectedProject.id] : null
+  const approvedNames = getApprovedNames(completionRequest)
+  const completionApproved = completionRequest?.status === 'APPROVED'
+    || (selectedProject && approvedNames.length >= selectedProject.teammates.length)
+  const peerReviewStatus = selectedProject ? peerReviewStatuses[selectedProject.id] : null
+  const reviewProgress = getReviewProgress(peerReviewStatus, selectedProject?.teammates?.length || 0)
+  const currentUserReviewDone = (peerReviewStatus?.members || [])
+    .some((member) => member.userId === currentProjectUserId && member.completed)
+  const reviewTeammates = reviewTargets.length > 0
+    ? reviewTargets
+    : reviewProject?.teammates?.filter((member) => member.name !== currentProjectUserName) || []
   const reviewTeammate = reviewTeammates[reviewIndex]
 
   const updateProjectChecklist = (nextChecklist) => {
@@ -363,6 +413,49 @@ const Home = () => {
     }
 
     fetchChecklists()
+
+    return () => {
+      ignore = true
+    }
+  }, [isDetailPage, currentTab, selectedProject?.id])
+
+  useEffect(() => {
+    if (!isDetailPage || currentTab !== 'active' || !selectedProject) {
+      return
+    }
+
+    let ignore = false
+
+    const fetchCompletionState = async () => {
+      try {
+        const response = await getCurrentCompletionRequest(selectedProject.id)
+        const nextRequest = normalizeCompletionRequest(response.result)
+
+        if (!ignore && nextRequest) {
+          setCompletionRequests((requests) => ({
+            ...requests,
+            [selectedProject.id]: nextRequest,
+          }))
+        }
+      } catch (error) {
+        console.warn('프로젝트 종료 요청 조회 실패:', error.message)
+      }
+
+      try {
+        const response = await getPeerReviewStatus(selectedProject.id)
+
+        if (!ignore && response.result) {
+          setPeerReviewStatuses((statuses) => ({
+            ...statuses,
+            [selectedProject.id]: response.result,
+          }))
+        }
+      } catch (error) {
+        console.warn('프로젝트 평가 진행 상황 조회 실패:', error.message)
+      }
+    }
+
+    fetchCompletionState()
 
     return () => {
       ignore = true
@@ -502,9 +595,108 @@ const Home = () => {
     setChecklistPage(Math.max(0, Math.floor(nextIndex / 4)))
   }
 
-  const finishProject = () => {
+  const createFallbackCompletionRequest = (project, decision = 'APPROVE') => ({
+    id: Date.now(),
+    projectTeamId: project.id,
+    status: 'PENDING',
+    requester: {
+      userId: currentProjectUserId,
+      nickname: currentProjectUserName,
+    },
+    approvals: [
+      {
+        completionApprovalId: Date.now(),
+        user: {
+          userId: currentProjectUserId,
+          nickname: currentProjectUserName,
+        },
+        decision,
+      },
+    ],
+  })
+
+  const requestProjectCompletion = async () => {
     if (!selectedProject) {
       return
+    }
+
+    try {
+      const response = await createCompletionRequest(selectedProject.id)
+      const nextRequest = normalizeCompletionRequest(response.result)
+
+      setCompletionRequests((requests) => ({
+        ...requests,
+        [selectedProject.id]: nextRequest || createFallbackCompletionRequest(selectedProject),
+      }))
+    } catch (error) {
+      console.warn('프로젝트 종료 요청 생성 실패:', error.message)
+      setCompletionRequests((requests) => ({
+        ...requests,
+        [selectedProject.id]: createFallbackCompletionRequest(selectedProject),
+      }))
+    } finally {
+      setModal(null)
+    }
+  }
+
+  const decideProjectCompletion = async (decision) => {
+    if (!selectedProject || !completionRequest?.id) {
+      return
+    }
+
+    try {
+      const response = await decideCompletionRequest(completionRequest.id, { decision })
+      const nextRequest = normalizeCompletionRequest(response.result)
+
+      setCompletionRequests((requests) => ({
+        ...requests,
+        [selectedProject.id]: nextRequest || completionRequest,
+      }))
+    } catch (error) {
+      console.warn('프로젝트 종료 요청 응답 실패:', error.message)
+      const nextApprovals = [
+        ...(completionRequest.approvals || []).filter((approval) => approval.user?.userId !== currentProjectUserId),
+        {
+          completionApprovalId: Date.now(),
+          user: {
+            userId: currentProjectUserId,
+            nickname: currentProjectUserName,
+          },
+          decision,
+        },
+      ]
+
+      setCompletionRequests((requests) => ({
+        ...requests,
+        [selectedProject.id]: {
+          ...completionRequest,
+          approvals: nextApprovals,
+          status: decision === 'REJECT' ? 'REJECTED' : completionRequest.status,
+        },
+      }))
+    }
+  }
+
+  const startPeerReview = async () => {
+    if (!selectedProject) {
+      return
+    }
+
+    try {
+      const response = await getPeerReviewTargets(selectedProject.id)
+      const nextTargets = (response.result?.targets || [])
+        .filter((target) => !target.reviewed)
+        .map((target) => ({
+          userId: target.userId,
+          name: target.nickname,
+          school: target.major || '',
+          reviewed: target.reviewed,
+        }))
+
+      setReviewTargets(nextTargets)
+    } catch (error) {
+      console.warn('평가 대상 목록 조회 실패:', error.message)
+      setReviewTargets(selectedProject.teammates.filter((member) => member.name !== currentProjectUserName))
     }
 
     setReviewProject({
@@ -516,14 +708,14 @@ const Home = () => {
     setModal('review')
   }
 
-  const completeProjectAfterReview = () => {
-    if (!reviewProject) {
+  const completeProjectAfterReview = (project = reviewProject) => {
+    if (!project) {
       setModal(null)
       return
     }
 
-    setActiveItems((items) => items.filter((project) => project.id !== reviewProject.id))
-    setDoneItems((items) => [reviewProject, ...items])
+    setActiveItems((items) => items.filter((item) => item.id !== project.id))
+    setDoneItems((items) => [project, ...items])
     setActiveTab('done')
     setMemberIndex(0)
     setChecklistPage(0)
@@ -534,13 +726,63 @@ const Home = () => {
     navigate('/home')
   }
 
-  const handleReviewNext = () => {
+  const handleReviewNext = async () => {
+    if (!reviewProject || !reviewTeammate) {
+      setModal(null)
+      return
+    }
+
+    try {
+      await createPeerReview(reviewProject.id, {
+        revieweeUserId: reviewTeammate.userId,
+        completionScore: 3,
+        proactivityScore: 4,
+        satisfactionScore: 2,
+      })
+    } catch (error) {
+      console.warn('팀원 평가 등록 실패:', error.message)
+    }
+
     if (reviewIndex < reviewTeammates.length - 1) {
       setReviewIndex((index) => index + 1)
       return
     }
 
-    completeProjectAfterReview()
+    try {
+      const response = await getPeerReviewStatus(reviewProject.id)
+      const nextStatus = response.result
+      const progress = getReviewProgress(nextStatus, reviewProject.teammates.length)
+
+      setPeerReviewStatuses((statuses) => ({
+        ...statuses,
+        [reviewProject.id]: nextStatus,
+      }))
+
+      if (progress.totalCount > 0 && progress.completedCount >= progress.totalCount) {
+        completeProjectAfterReview(reviewProject)
+        return
+      }
+    } catch (error) {
+      console.warn('프로젝트 평가 진행 상황 조회 실패:', error.message)
+      setPeerReviewStatuses((statuses) => ({
+        ...statuses,
+        [reviewProject.id]: {
+          projectTeamId: reviewProject.id,
+          members: reviewProject.teammates.map((member) => ({
+            userId: member.userId,
+            nickname: member.name,
+            completed: true,
+          })),
+        },
+      }))
+      completeProjectAfterReview(reviewProject)
+      return
+    }
+
+    setReviewProject(null)
+    setReviewTargets([])
+    setReviewIndex(0)
+    setModal(null)
   }
 
   return (
@@ -702,9 +944,40 @@ const Home = () => {
                 <DoorIcon />
               </button>
 
-              <button className="home-exit-button" type="button" onClick={finishProject}>
-                팀 프로젝트 종료하기
-              </button>
+              {!completionRequest && (
+                <button className="home-exit-button" type="button" onClick={() => setModal('completion-request')}>
+                  팀 프로젝트 종료하기
+                </button>
+              )}
+
+              {completionRequest && !completionApproved && (
+                <section className="home-completion-card">
+                  <strong>팀 프로젝트를 종료하시겠습니까?</strong>
+                  <div>
+                    <button type="button" onClick={() => decideProjectCompletion('REJECT')}>거부</button>
+                    <button type="button" onClick={() => decideProjectCompletion('APPROVE')}>동의</button>
+                  </div>
+                  {approvedNames.length > 0 && (
+                    <p>
+                      {approvedNames.map((name) => (
+                        <span key={name}>{name}</span>
+                      ))}
+                    </p>
+                  )}
+                </section>
+              )}
+
+              {completionApproved && !currentUserReviewDone && (
+                <button className="home-exit-button" type="button" onClick={startPeerReview}>
+                  팀원 평가하기
+                </button>
+              )}
+
+              {completionApproved && currentUserReviewDone && (
+                <p className="home-review-progress">
+                  팀원 평가 완료 {reviewProgress.completedCount}/{reviewProgress.totalCount}
+                </p>
+              )}
             </>
           )}
         </section>
@@ -736,6 +1009,16 @@ const Home = () => {
         />
       )}
 
+      {modal === 'completion-request' && (
+        <ConfirmModal
+          title="팀 프로젝트 종료요청을 팀원에게 보내시겠습니까?"
+          cancelText="취소"
+          confirmText="보내기"
+          onClose={() => setModal(null)}
+          onConfirm={requestProjectCompletion}
+        />
+      )}
+
       {editingChecklistItem && (
         <ChecklistEditModal
           canEdit={editingChecklistItem.assignee === currentProjectUserName}
@@ -752,7 +1035,6 @@ const Home = () => {
           teammate={reviewTeammate}
           currentIndex={reviewIndex}
           totalCount={reviewTeammates.length}
-          onPrev={() => setReviewIndex((index) => Math.max(0, index - 1))}
           onNext={handleReviewNext}
         />
       )}

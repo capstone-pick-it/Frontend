@@ -473,6 +473,58 @@
   text-decoration: underline;
 }
 
+.home-completion-card {
+  margin-top: 17px;
+  padding: 16px;
+  border-radius: 7px;
+  background-color: var(--gray-100);
+
+  strong {
+    display: block;
+    margin-bottom: 14px;
+    color: var(--gray-700);
+    @include body3;
+  }
+
+  div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  button {
+    height: 46px;
+    border-radius: 7px;
+    background-color: var(--white);
+    color: var(--gray-500);
+    @include body2;
+
+    &:last-child {
+      background-color: var(--primary-700);
+      color: var(--white);
+    }
+  }
+
+  p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  span {
+    color: var(--primary-700);
+    @include caption;
+  }
+}
+
+.home-review-progress {
+  margin-top: 17px;
+  color: var(--primary-700);
+  text-align: center;
+  @include body5;
+}
+
 .home-modal-backdrop {
   position: absolute;
   inset: 0;
@@ -752,7 +804,7 @@
 
 .home-review-modal__buttons {
   display: grid;
-  grid-template-columns: 78px 1fr 78px;
+  grid-template-columns: 1fr 78px;
   align-items: center;
   gap: 18px;
 
