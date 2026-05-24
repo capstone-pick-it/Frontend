@@ -4,6 +4,9 @@ import {
   createEmailSendRequestBody,
   createEmailVerifyRequestBody,
   createLoginRequestBody,
+  createPasswordResetRequestBody,
+  createPasswordResetSendRequestBody,
+  createPasswordResetVerifyRequestBody,
   createSignupRequestBody,
   createTokenRefreshRequestBody,
 } from './auth.dto'
@@ -32,14 +35,14 @@ export const refreshToken = (refreshToken = getRefreshToken()) => {
 export const logoutUser = () => {
   return request('/api/users/logout', {
     method: 'POST',
-    auth: true,
+    requireAuth: true,
   })
 }
 
 export const deleteUser = () => {
   return request('/api/users/delete', {
     method: 'DELETE',
-    auth: true,
+    requireAuth: true,
   })
 }
 
@@ -57,17 +60,38 @@ export const verifySignupEmailCode = ({ email, code }) => {
   })
 }
 
+export const sendPasswordResetEmailCode = ({ email }) => {
+  return request('/api/users/password/reset/send', {
+    method: 'POST',
+    body: JSON.stringify(createPasswordResetSendRequestBody({ email })),
+  })
+}
+
+export const verifyPasswordResetEmailCode = ({ email, code }) => {
+  return request('/api/users/password/reset/verify', {
+    method: 'POST',
+    body: JSON.stringify(createPasswordResetVerifyRequestBody({ email, code })),
+  })
+}
+
+export const resetPassword = ({ email, newPassword }) => {
+  return request('/api/users/password/reset', {
+    method: 'PUT',
+    body: JSON.stringify(createPasswordResetRequestBody({ email, newPassword })),
+  })
+}
+
 export const getOnboardingStatus = () => {
   return request('/api/users/onboarding/status', {
     method: 'GET',
-    auth: true,
+    requireAuth: true,
   })
 }
 
 export const saveOnboardingProfile = ({ school, major, grade, semester, courses }) => {
   return request('/api/users/onboarding/profile',{
     method: 'POST',
-    auth: true,
+    requireAuth: true,
      body: JSON.stringify({ school, major, grade, semester, courses }),
   })
 }
@@ -75,7 +99,7 @@ export const saveOnboardingProfile = ({ school, major, grade, semester, courses 
 export const saveOnboardingPersonality = (traits) => {
   return request('/api/users/onboarding/personality',{
     method: 'POST',
-    auth: true,
+    requireAuth: true,
     body: JSON.stringify({ traits }),
   })
 }
