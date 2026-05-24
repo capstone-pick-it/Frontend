@@ -950,30 +950,34 @@ const Home = () => {
                 </button>
               )}
 
-              {completionRequest && !completionApproved && (
-                <section className="home-completion-card">
-                  {currentUserCompletionDecision === 'APPROVE' ? (
-                    <em>팀 프로젝트 종료에 동의하셨습니다</em>
-                  ) : (
-                    <>
-                      <strong>팀 프로젝트를 종료하시겠습니까?</strong>
-                      <button type="button" onClick={() => decideProjectCompletion('APPROVE')}>동의</button>
-                    </>
-                  )}
-                  <div>
-                    {selectedProject.teammates.map((member) => (
-                      <span className={approvedUserIds.has(member.userId) ? 'is-approved' : ''} key={member.userId}>
-                        {member.name}
-                      </span>
-                    ))}
-                  </div>
-                </section>
-              )}
+              {completionRequest && !currentUserReviewDone && (
+                <>
+                  <section className="home-completion-card">
+                    {completionApproved ? (
+                      <em>모든 팀원이 종료에 동의했습니다</em>
+                    ) : currentUserCompletionDecision === 'APPROVE' ? (
+                      <em>팀 프로젝트 종료에 동의하셨습니다</em>
+                    ) : (
+                      <>
+                        <strong>팀 프로젝트를 종료하시겠습니까?</strong>
+                        <button type="button" onClick={() => decideProjectCompletion('APPROVE')}>동의</button>
+                      </>
+                    )}
+                    <div>
+                      {selectedProject.teammates.map((member) => (
+                        <span className={approvedUserIds.has(member.userId) ? 'is-approved' : ''} key={member.userId}>
+                          {member.name}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
 
-              {completionApproved && !currentUserReviewDone && (
-                <button className="home-exit-button" type="button" onClick={startPeerReview}>
-                  팀원 평가하기
-                </button>
+                  {completionApproved && (
+                    <button className="home-exit-button" type="button" onClick={startPeerReview}>
+                      팀원 평가하기
+                    </button>
+                  )}
+                </>
               )}
 
               {completionApproved && currentUserReviewDone && (
