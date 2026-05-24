@@ -23,9 +23,6 @@ const tabs = [
   { key: 'done', label: '진행 완료' },
 ]
 
-const currentUserName = '이승희'
-const currentUserId = 2
-
 const capstoneTeammates = [
   {
     userId: 1,
@@ -219,7 +216,7 @@ const normalizeChecklistItem = (item) => ({
   title: item.title,
   date: formatDueDate(item.dueDate ?? item.dueAt),
   dueAt: item.dueDate ?? item.dueAt ?? '9999-12-31',
-  assignee: item.manager?.nickname || item.assignee || currentUserName,
+  assignee: item.manager?.nickname || item.assignee || '',
   assigneeId: item.manager?.userId ?? item.managerId ?? item.assigneeId,
   done: item.status ? item.status === 'DONE' : Boolean(item.done),
 })
@@ -324,7 +321,10 @@ const Home = () => {
   const checklistPages = Math.max(1, Math.ceil(checklistItems.length / 4))
   const visibleChecklist = checklistItems.slice(checklistPage * 4, checklistPage * 4 + 4)
   const editingChecklistItem = checklistItems.find((item) => item.id === editingChecklistId)
-  const reviewTeammates = reviewProject?.teammates?.filter((member) => member.name !== currentUserName) || []
+  const currentProjectUser = selectedProject?.teammates?.[0] || reviewProject?.teammates?.[0]
+  const currentProjectUserName = currentProjectUser?.name || ''
+  const currentProjectUserId = currentProjectUser?.userId
+  const reviewTeammates = reviewProject?.teammates?.filter((member) => member.name !== currentProjectUserName) || []
   const reviewTeammate = reviewTeammates[reviewIndex]
 
   const updateProjectChecklist = (nextChecklist) => {
@@ -370,7 +370,7 @@ const Home = () => {
   }, [isDetailPage, currentTab, selectedProject?.id])
 
   const getManagerId = (assigneeName) => {
-    return selectedProject?.teammates?.find((member) => member.name === assigneeName)?.userId || currentUserId
+    return selectedProject?.teammates?.find((member) => member.name === assigneeName)?.userId || currentProjectUserId
   }
 
   const addChecklistItem = async () => {
@@ -378,9 +378,7 @@ const Home = () => {
       return
     }
 
-    const assignee = selectedProject.teammates.find((member) => member.name === currentUserName)?.name
-      || selectedProject.teammates[0]?.name
-      || currentUserName
+    const assignee = selectedProject.teammates[0]?.name || ''
     const managerId = getManagerId(assignee)
     const todayDate = getTodayDateValue()
 
@@ -649,9 +647,9 @@ const Home = () => {
                 </button>
                 <button
                   type="button"
-                  disabled={currentTab !== 'active' || item.assignee !== currentUserName}
+                  disabled={currentTab !== 'active' || item.assignee !== currentProjectUserName}
                   aria-label={
-                    item.assignee === currentUserName
+                    item.assignee === currentProjectUserName
                       ? '체크리스트 완료 상태 변경'
                       : `${item.assignee} 담당 할 일입니다`
                   }
