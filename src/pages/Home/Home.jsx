@@ -245,13 +245,6 @@ const normalizeCompletionRequest = (request) => {
   }
 }
 
-const getApprovedNames = (request) => {
-  return (request?.approvals || [])
-    .filter((approval) => approval.decision === 'APPROVE')
-    .map((approval) => approval.user?.nickname)
-    .filter(Boolean)
-}
-
 const getReviewProgress = (status, fallbackTotal = 0) => {
   const members = status?.members || []
   const completedCount = members.filter((member) => member.completed).length
@@ -372,11 +365,10 @@ const Home = () => {
   const currentProjectUserName = currentProjectUser?.name || ''
   const currentProjectUserId = currentProjectUser?.userId
   const completionRequest = selectedProject ? completionRequests[selectedProject.id] : null
-  const approvedNames = getApprovedNames(completionRequest)
   const currentUserCompletionDecision = (completionRequest?.approvals || [])
     .find((approval) => approval.user?.userId === currentProjectUserId)?.decision
   const completionApproved = completionRequest?.status === 'APPROVED'
-    || (selectedProject && approvedNames.length >= selectedProject.teammates.length)
+    || (selectedProject && (completionRequest?.approvals || []).filter((approval) => approval.decision === 'APPROVE').length >= selectedProject.teammates.length)
   const peerReviewStatus = selectedProject ? peerReviewStatuses[selectedProject.id] : null
   const reviewProgress = getReviewProgress(peerReviewStatus, selectedProject?.teammates?.length || 0)
   const currentUserReviewDone = (peerReviewStatus?.members || [])
@@ -957,13 +949,6 @@ const Home = () => {
                       <strong>팀 프로젝트를 종료하시겠습니까?</strong>
                       <button type="button" onClick={() => decideProjectCompletion('APPROVE')}>동의</button>
                     </>
-                  )}
-                  {currentUserCompletionDecision === 'APPROVE' && approvedNames.length > 0 && (
-                    <div>
-                      {approvedNames.map((name) => (
-                        <span key={name}>{name}</span>
-                      ))}
-                    </div>
                   )}
                 </section>
               )}
