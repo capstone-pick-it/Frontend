@@ -997,7 +997,7 @@ const Home = () => {
 
       {modal === 'completion-request' && (
         <ConfirmModal
-          title="팀원들에게 팀프로젝트 종료 요청을 보내시겠습니까?"
+          title="팀 프로젝트 종료 요청을 보내시겠습니까?"
           cancelText="취소"
           confirmText="보내기"
           onClose={() => setModal(null)}
