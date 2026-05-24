@@ -20,11 +20,16 @@ import {
   RECRUIT_CARD_LIST,
 } from '../data/mockData';
 
+const getMatchScore = (card) => {
+  // API 연동 시 백엔드가 내려주는 성향일치도 점수 필드를 그대로 사용
+  return typeof card.matchScore === 'number' ? card.matchScore : 0;
+};
+
 const SORT_OPTIONS = [
   { value: 'default', label: '최신순' },
   { value: 'importance', label: '중요도 높은순' },
   { value: 'level', label: '팀플레벨 높은순' },
-  { value: 'point', label: '포인트 높은순' },
+  { value: 'match', label: '성향일치도 높은순' },
 ];
 
 const Recruit = () => {
@@ -165,8 +170,10 @@ const Recruit = () => {
       sortedResult.sort((a, b) => b.user.level - a.user.level);
     }
 
-    if (sortType === 'point') {
-      sortedResult.sort((a, b) => b.user.points - a.user.points);
+    if (sortType === 'match') {
+      sortedResult.sort((a, b) => {
+        return getMatchScore(b) - getMatchScore(a);
+      });
     }
 
     return sortedResult;
