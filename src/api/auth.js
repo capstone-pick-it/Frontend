@@ -80,3 +80,26 @@ export const resetPassword = ({ email, newPassword }) => {
     body: JSON.stringify(createPasswordResetRequestBody({ email, newPassword })),
   })
 }
+
+export const getOnboardingStatus = () => {
+  return request('/api/users/onboarding/status', {
+    method: 'GET',
+    requireAuth: true,
+  })
+}
+
+export const saveOnboardingProfile = ({ school, major, grade, semester, courses }) => {
+  return request('/api/users/onboarding/profile',{
+    method: 'POST',
+    requireAuth: true,
+     body: JSON.stringify({ school, major, grade, semester, courses }),
+  })
+}
+
+export const saveOnboardingPersonality = (traits) => {
+  return request('/api/users/onboarding/personality',{
+    method: 'POST',
+    requireAuth: true,
+    body: JSON.stringify({ traits }),
+  })
+}

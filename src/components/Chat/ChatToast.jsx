@@ -1,31 +1,9 @@
 import React from 'react'
 import check from '../../assets/images/Chat/check.svg'
 import check_g from '../../assets/images/Chat/check_g.svg'
-import { TEAM_STATUS } from '../../data/mockData'
-import { useParams } from 'react-router-dom'
-import { useState } from 'react'
-import { useEffect } from 'react'
 
-const ChatToast = () => {
-    const { roomId } = useParams();
-    const status = TEAM_STATUS[roomId];
-
-    //status별로 상태값 변경 로직 (ACCEPTED 일떄, 토스트 사라짐)
-    const [hiddenAcceptedRoomId, setHiddenAcceptedRoomId] = useState(null);
-
-    useEffect(() => {
-        if(status === "ACCEPTED"){
-            const timer = setTimeout(() => {
-                setHiddenAcceptedRoomId(roomId);
-            }, 2000)
-        return () => clearTimeout(timer);
-        }
-    }, [roomId, status])
-
-    const visible = status !== "ACCEPTED" || hiddenAcceptedRoomId !== roomId;
-    
-    if(!status || !visible)
-        return null;
+const ChatToast = ({ status, onAccept }) => {
+    if (!status) return null;
 
   return (
     <div id="ChatToast_Wrap">
@@ -35,7 +13,7 @@ const ChatToast = () => {
             </button>
         )}
         {status === "REQUEST" && (
-            <button className="status_btn request">
+            <button className="status_btn request" onClick={onAccept}>
                 <img src={check} alt="" /> 팀원 요청
             </button>
         )}
