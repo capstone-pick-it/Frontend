@@ -1,6 +1,8 @@
 import { request } from './client'
 import {
+  completionDecisionRequestBody,
   createChecklistRequestBody,
+  peerReviewRequestBody,
   updateChecklistRequestBody,
   updateChecklistStatusRequestBody,
 } from './home.dto'
@@ -46,6 +48,60 @@ export const deleteChecklist = (checklistItemId) => {
 export const leaveProject = (projectTeamId) => {
   return request(`/projects/${projectTeamId}/leave`, {
     method: 'POST',
+    requireAuth: true,
+  })
+}
+
+export const createCompletionRequest = (projectTeamId) => {
+  return request(`/projects/${projectTeamId}/completion-requests`, {
+    method: 'POST',
+    requireAuth: true,
+  })
+}
+
+export const getCurrentCompletionRequest = (projectTeamId) => {
+  return request(`/projects/${projectTeamId}/completion-requests/current`, {
+    method: 'GET',
+    requireAuth: true,
+  })
+}
+
+export const decideCompletionRequest = (completionRequestId, { decision }) => {
+  return request(`/completion-requests/${completionRequestId}/decisions`, {
+    method: 'POST',
+    requireAuth: true,
+    body: JSON.stringify(completionDecisionRequestBody({ decision })),
+  })
+}
+
+export const getPeerReviewTargets = (projectTeamId) => {
+  return request(`/projects/${projectTeamId}/peer-reviews/targets`, {
+    method: 'GET',
+    requireAuth: true,
+  })
+}
+
+export const createPeerReview = (projectTeamId, {
+  revieweeUserId,
+  completionScore,
+  proactivityScore,
+  satisfactionScore,
+}) => {
+  return request(`/projects/${projectTeamId}/peer-reviews`, {
+    method: 'POST',
+    requireAuth: true,
+    body: JSON.stringify(peerReviewRequestBody({
+      revieweeUserId,
+      completionScore,
+      proactivityScore,
+      satisfactionScore,
+    })),
+  })
+}
+
+export const getPeerReviewStatus = (projectTeamId) => {
+  return request(`/projects/${projectTeamId}/peer-reviews/status`, {
+    method: 'GET',
     requireAuth: true,
   })
 }

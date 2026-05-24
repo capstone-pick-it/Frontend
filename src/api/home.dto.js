@@ -12,3 +12,19 @@ export const updateChecklistRequestBody = ({ title, dueDate }) => ({
 export const updateChecklistStatusRequestBody = ({ status }) => ({
   status,
 })
+
+export const completionDecisionRequestBody = ({ decision }) => ({
+  decision,
+})
+
+export const peerReviewRequestBody = ({
+  revieweeUserId,
+  completionScore,
+  proactivityScore,
+  satisfactionScore,
+}) => ({
+  revieweeUserId,
+  completionScore,
+  proactivityScore,
+  satisfactionScore,
+})
