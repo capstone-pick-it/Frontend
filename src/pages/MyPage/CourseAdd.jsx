@@ -14,6 +14,37 @@ import {
     USER_DEFAULT_TRAITS,
 } from '../../data/mockData';
 
+const getTraitPairTitles = (traitTitle) => {
+    const selectedTrait = PREFERENCE.find((trait) => trait.title === traitTitle);
+
+    if (!selectedTrait) return [];
+
+    const pairStartIndex = Math.floor((selectedTrait.id - 1) / 2) * 2;
+
+    return PREFERENCE
+        .slice(pairStartIndex, pairStartIndex + 2)
+        .map((trait) => trait.title);
+};
+
+const selectTraitInPair = (selectedTraits, traitTitle) => {
+    const currentPairTitles = getTraitPairTitles(traitTitle);
+    const filteredSelected = selectedTraits.filter(
+        (selectedTrait) => !currentPairTitles.includes(selectedTrait)
+    );
+
+    return [...filteredSelected, traitTitle];
+};
+
+const normalizeTraitSelectionByPair = (selectedTraits = []) => {
+    return selectedTraits.reduce((normalizedTraits, traitTitle) => {
+        if (!PREFERENCE.some((trait) => trait.title === traitTitle)) {
+            return normalizedTraits;
+        }
+
+        return selectTraitInPair(normalizedTraits, traitTitle);
+    }, []);
+};
+
 const CourseAdd = () => {
     const navigate = useNavigate();
 
@@ -23,15 +54,13 @@ const CourseAdd = () => {
     const [importance, setImportance] = useState('높음');
 
     // 기본 성향으로 초기값 세팅
-    const [selectedTraits, setSelectedTraits] = useState(USER_DEFAULT_TRAITS);
+    const [selectedTraits, setSelectedTraits] = useState(
+        normalizeTraitSelectionByPair(USER_DEFAULT_TRAITS)
+    );
 
     // 성향 선택 로직
     const handleTraitClick = (traitTitle) => {
-        setSelectedTraits((prev) =>
-            prev.includes(traitTitle)
-                ? prev.filter((trait) => trait !== traitTitle)
-                : [...prev, traitTitle]
-        );
+        setSelectedTraits((prev) => selectTraitInPair(prev, traitTitle));
     };
 
     // 제출

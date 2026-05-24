@@ -5,21 +5,39 @@ import Nav from '../../components/Nav';
 import TopBar from '../../components/TopBar';
 import CourseListItem from '../../components/MyPage/CourseListItem';
 
-import { COURSE_INFO } from '../../data/mockData';
+import { getCourseList, mapCourseListItem } from '../../api/mypage';
 
 // 강의 목록 페이지
 const CourseList = () => {
   const navigate = useNavigate();
 
-  // 초기값 mockData로 설정
-  // 진행중(ONGOING) 강의만 표시
-  const [courses, setCourses] = useState(
-    COURSE_INFO.filter((course) => course.projectStatus === 'ONGOING')
-  );
+  const [courses, setCourses] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // API 연동 (백엔드에서 데이터 연동)
   useEffect(() => {
-    // 추후 실제 로직 구현
+    let isMounted = true;
+
+    const loadCourses = async () => {
+      try {
+        const response = await getCourseList();
+
+        if (!isMounted) return;
+
+        setCourses((response.result || []).map(mapCourseListItem));
+      } catch (error) {
+        console.log('[강의 목록 조회 실패]', error.message);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadCourses();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleEditCourse = (courseId) => {
@@ -38,15 +56,19 @@ const CourseList = () => {
 
       {/* 강의 목록 */}
       <main className="course-list-page__content">
-        <ul className="course-list-page__list">
-          {courses.map((course) => (
-            <CourseListItem
-              key={course.id}
-              course={course}
-              onEdit={handleEditCourse}
-            />
-          ))}
-        </ul>
+        {isLoading ? (
+          <p className="course-list-page__empty">강의 목록을 불러오는 중입니다.</p>
+        ) : (
+          <ul className="course-list-page__list">
+            {courses.map((course) => (
+              <CourseListItem
+                key={course.id}
+                course={course}
+                onEdit={handleEditCourse}
+              />
+            ))}
+          </ul>
+        )}
       </main>
 
       {/* 하단 네비게이션 바 */}

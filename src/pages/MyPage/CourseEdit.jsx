@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import TopBar from '../../components/TopBar';
@@ -9,18 +9,121 @@ import Button from '../../components/Button';
 import Modal from '../../components/Modal';
 import Nav from '../../components/Nav';
 
-import { COURSE_INFO, PREFERENCE } from '../../data/mockData';
+import { PREFERENCE } from '../../data/mockData';
+import {
+  createTraitNameMap,
+  getCourseCards,
+  getTraitItems,
+  mapCourseCard,
+} from '../../api/mypage';
+
+const getTraitPairTitles = (traitTitle) => {
+  const selectedTrait = PREFERENCE.find((trait) => trait.title === traitTitle);
+
+  if (!selectedTrait) return [];
+
+  const pairStartIndex = Math.floor((selectedTrait.id - 1) / 2) * 2;
+
+  return PREFERENCE
+    .slice(pairStartIndex, pairStartIndex + 2)
+    .map((trait) => trait.title);
+};
+
+const selectTraitInPair = (selectedTraits, traitTitle) => {
+  const currentPairTitles = getTraitPairTitles(traitTitle);
+  const filteredSelected = selectedTraits.filter(
+    (selectedTrait) => !currentPairTitles.includes(selectedTrait)
+  );
+
+  return [...filteredSelected, traitTitle];
+};
+
+const normalizeTraitSelectionByPair = (selectedTraits = []) => {
+  return selectedTraits.reduce((normalizedTraits, traitTitle) => {
+    if (!PREFERENCE.some((trait) => trait.title === traitTitle)) {
+      return normalizedTraits;
+    }
+
+    return selectTraitInPair(normalizedTraits, traitTitle);
+  }, []);
+};
 
 const CourseEdit = () => {
   const navigate = useNavigate();
   const { courseId } = useParams();
 
-  // URL의 courseId와 일치하는 강의 데이터 조회
-  const course = COURSE_INFO.find((item) => item.id === courseId);
-
-  const [importance, setImportance] = useState(course?.importance || '높음');
-  const [selectedTraits, setSelectedTraits] = useState(course?.traits || []);
+  const [course, setCourse] = useState(null);
+  const [importance, setImportance] = useState('높음');
+  const [selectedTraits, setSelectedTraits] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCourse = async () => {
+      try {
+        const [courseCardsResult, traitItemsResult] = await Promise.allSettled([
+          getCourseCards(),
+          getTraitItems(),
+        ]);
+
+        if (courseCardsResult.status === 'rejected') {
+          throw courseCardsResult.reason;
+        }
+
+        if (traitItemsResult.status === 'rejected') {
+          console.log('[성향 항목 조회 실패]', traitItemsResult.reason.message);
+        }
+
+        const traitNameMap = traitItemsResult.status === 'fulfilled'
+          ? createTraitNameMap(traitItemsResult.value.result || [])
+          : undefined;
+
+        const apiCourse = (courseCardsResult.value.result || [])
+          .map((courseItem) => mapCourseCard(courseItem, traitNameMap))
+          .find((item) => String(item.id) === String(courseId));
+
+        if (!isMounted) return;
+
+        if (apiCourse) {
+          setCourse(apiCourse);
+          setImportance(apiCourse.importance || '높음');
+          setSelectedTraits(normalizeTraitSelectionByPair(apiCourse.traits));
+        } else {
+          setCourse(null);
+        }
+      } catch (error) {
+        console.log('[강의 상세 조회 실패]', error.message);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadCourse();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [courseId]);
+
+  if (isLoading && !course) {
+    return (
+      <div className="container has-topbar course-edit-page">
+        <TopBar
+          title="강의 수정"
+          variant="back"
+          onBack={() => navigate('/mypage/courses')}
+        />
+
+        <p className="course-edit-page__empty">강의 정보를 불러오는 중입니다.</p>
+
+        <Nav />
+      </div>
+    );
+  }
 
   // 존재하지 않는 courseId로 접근한 경우
   if (!course) {
@@ -40,11 +143,7 @@ const CourseEdit = () => {
   }
 
   const handleTraitClick = (traitTitle) => {
-    setSelectedTraits((prev) =>
-      prev.includes(traitTitle)
-        ? prev.filter((trait) => trait !== traitTitle)
-        : [...prev, traitTitle]
-    );
+    setSelectedTraits((prev) => selectTraitInPair(prev, traitTitle));
   };
 
   const handleSubmit = () => {

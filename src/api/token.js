@@ -6,6 +6,18 @@ export const getAccessToken = () => localStorage.getItem(ACCESS_TOKEN_KEY)
 
 export const getRefreshToken = () => localStorage.getItem(REFRESH_TOKEN_KEY)
 
+export const getSavedUser = () => {
+  const savedUser = localStorage.getItem(USER_KEY)
+
+  if (!savedUser) return null
+
+  try {
+    return JSON.parse(savedUser)
+  } catch {
+    return null
+  }
+}
+
 export const saveAuthTokens = ({ accessToken, refreshToken, userId, nickname }) => {
   if (accessToken) {
     localStorage.setItem(ACCESS_TOKEN_KEY, accessToken)

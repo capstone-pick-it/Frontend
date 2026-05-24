@@ -6,27 +6,91 @@ import Nav from '../../components/Nav';
 import Button from '../../components/Button';
 import PreferenceCard from '../../components/PreferenceCard';
 
+import { PREFERENCE } from '../../data/mockData';
 import {
-  PREFERENCE,
-  USER_DEFAULT_TRAITS,
-} from '../../data/mockData';
+  createTraitNameMap,
+  getDefaultTraits,
+  getTraitItems,
+  mapDefaultTraits,
+} from '../../api/mypage';
+
+const getTraitPairTitles = (traitTitle) => {
+  const selectedTrait = PREFERENCE.find((trait) => trait.title === traitTitle);
+
+  if (!selectedTrait) return [];
+
+  const pairStartIndex = Math.floor((selectedTrait.id - 1) / 2) * 2;
+
+  return PREFERENCE
+    .slice(pairStartIndex, pairStartIndex + 2)
+    .map((trait) => trait.title);
+};
+
+const selectTraitInPair = (selectedTraits, traitTitle) => {
+  const currentPairTitles = getTraitPairTitles(traitTitle);
+  const filteredSelected = selectedTraits.filter(
+    (selectedTrait) => !currentPairTitles.includes(selectedTrait)
+  );
+
+  return [...filteredSelected, traitTitle];
+};
+
+const normalizeTraitSelectionByPair = (selectedTraits = []) => {
+  return selectedTraits.reduce((normalizedTraits, traitTitle) => {
+    if (!PREFERENCE.some((trait) => trait.title === traitTitle)) {
+      return normalizedTraits;
+    }
+
+    return selectTraitInPair(normalizedTraits, traitTitle);
+  }, []);
+};
 
 const TraitsEdit = () => {
   const navigate = useNavigate();
 
-  // 초기값 mockData로 설정
-  const [selectedTraits, setSelectedTraits] = useState(USER_DEFAULT_TRAITS);
+  const [selectedTraits, setSelectedTraits] = useState([]);
 
   useEffect(() => {
-    // API 연동 예정
+    let isMounted = true;
+
+    const loadDefaultTraits = async () => {
+      try {
+        const [defaultTraitsResult, traitItemsResult] = await Promise.allSettled([
+          getDefaultTraits(),
+          getTraitItems(),
+        ]);
+
+        if (defaultTraitsResult.status === 'rejected') {
+          throw defaultTraitsResult.reason;
+        }
+
+        if (traitItemsResult.status === 'rejected') {
+          console.log('[성향 항목 조회 실패]', traitItemsResult.reason.message);
+        }
+
+        const traitNameMap = traitItemsResult.status === 'fulfilled'
+          ? createTraitNameMap(traitItemsResult.value.result || [])
+          : undefined;
+
+        const defaultTraits = mapDefaultTraits(defaultTraitsResult.value.result || [], traitNameMap);
+
+        if (isMounted) {
+          setSelectedTraits(normalizeTraitSelectionByPair(defaultTraits));
+        }
+      } catch (error) {
+        console.log('[기본 성향 조회 실패]', error.message);
+      }
+    };
+
+    loadDefaultTraits();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleToggleTrait = (traitTitle) => {
-    setSelectedTraits((prev) =>
-      prev.includes(traitTitle)
-        ? prev.filter((trait) => trait !== traitTitle)
-        : [...prev, traitTitle]
-    );
+    setSelectedTraits((prev) => selectTraitInPair(prev, traitTitle));
   };
 
   const handleSubmit = () => {
