@@ -280,10 +280,16 @@ const Home = () => {
     setModal('exit')
   }
 
-  const completeExit = () => {
+  const completeExit = async () => {
     if (!exitTarget) {
       setModal(null)
       return
+    }
+
+    try {
+      await leaveProject(exitTarget.projectId)
+    } catch (error) {
+      console.warn('프로젝트 나가기 실패:', error.message)
     }
 
     if (exitTarget.tabKey === 'recruiting') {
@@ -326,9 +332,61 @@ const Home = () => {
     ))
   }
 
-  const addChecklistItem = () => {
+  useEffect(() => {
+    if (!isDetailPage || currentTab !== 'active' || !selectedProject) {
+      return
+    }
+
+    let ignore = false
+
+    const fetchChecklists = async () => {
+      try {
+        const response = await getProjectChecklists(selectedProject.id)
+        const nextChecklist = (response.result?.checklists || []).map(normalizeChecklistItem)
+
+        if (!ignore) {
+          updateProjectChecklist(nextChecklist)
+          setChecklistPage(0)
+        }
+      } catch (error) {
+        console.warn('체크리스트 목록 조회 실패:', error.message)
+      }
+    }
+
+    fetchChecklists()
+
+    return () => {
+      ignore = true
+    }
+  }, [isDetailPage, currentTab, selectedProject?.id])
+
+  const getManagerId = (assigneeName) => {
+    return selectedProject?.teammates?.find((member) => member.name === assigneeName)?.userId || currentUserId
+  }
+
+  const addChecklistItem = async () => {
     if (!selectedProject) {
       return
+    }
+
+    const assignee = selectedProject.teammates[0]?.name || currentUserName
+    const managerId = getManagerId(assignee)
+
+    try {
+      const response = await createProjectChecklist(selectedProject.id, {
+        title: '새로운 할 일',
+        dueDate: '9999-12-31',
+        managerId,
+      })
+      const nextItem = normalizeChecklistItem(response.result)
+      const nextChecklist = [...(selectedProject?.checklist || []), nextItem]
+
+      updateProjectChecklist(nextChecklist)
+      setChecklistPage(Math.floor(sortChecklist(nextChecklist).findIndex((item) => item.id === nextItem.id) / 4))
+      setEditingChecklistId(nextItem.id)
+      return
+    } catch (error) {
+      console.warn('체크리스트 생성 실패:', error.message)
     }
 
     checklistIdRef.current += 1
@@ -337,8 +395,10 @@ const Home = () => {
       title: '새로운 할 일',
       date: '0000년 0월 00일 0요일',
       dueAt: '9999-12-31',
-      assignee: selectedProject.teammates[0]?.name || currentUserName,
+      assignee,
+      assigneeId: managerId,
       done: false,
+      isNew: true,
     }
     const nextChecklist = [...(selectedProject?.checklist || []), nextItem]
     updateProjectChecklist(nextChecklist)
@@ -346,20 +406,86 @@ const Home = () => {
     setEditingChecklistId(nextItem.id)
   }
 
-  const saveChecklistItem = (nextItem) => {
-    updateProjectChecklist((selectedProject?.checklist || []).map((item) => (
-      item.id === nextItem.id ? nextItem : item
-    )))
-    setEditingChecklistId(null)
+  const saveChecklistItem = async (nextItem) => {
+    const managerId = getManagerId(nextItem.assignee)
+
+    if (nextItem.isNew) {
+      try {
+        const response = await createProjectChecklist(selectedProject.id, {
+          title: nextItem.title,
+          dueDate: nextItem.dueAt,
+          managerId,
+        })
+        const savedItem = normalizeChecklistItem(response.result)
+
+        updateProjectChecklist((selectedProject?.checklist || []).map((item) => (
+          item.id === nextItem.id ? savedItem : item
+        )))
+      } catch (error) {
+        console.warn('체크리스트 생성 실패:', error.message)
+        updateProjectChecklist((selectedProject?.checklist || []).map((item) => (
+          item.id === nextItem.id ? { ...nextItem, assigneeId: managerId } : item
+        )))
+      } finally {
+        setEditingChecklistId(null)
+      }
+
+      return
+    }
+
+    try {
+      const response = await updateChecklist(nextItem.id, {
+        title: nextItem.title,
+        dueDate: nextItem.dueAt,
+      })
+      const savedItem = normalizeChecklistItem(response.result)
+
+      updateProjectChecklist((selectedProject?.checklist || []).map((item) => (
+        item.id === nextItem.id ? { ...nextItem, ...savedItem, assignee: nextItem.assignee, assigneeId: managerId } : item
+      )))
+    } catch (error) {
+      console.warn('체크리스트 수정 실패:', error.message)
+      updateProjectChecklist((selectedProject?.checklist || []).map((item) => (
+        item.id === nextItem.id ? { ...nextItem, assigneeId: managerId } : item
+      )))
+    } finally {
+      setEditingChecklistId(null)
+    }
   }
 
-  const toggleChecklistItem = (itemId) => {
+  const deleteChecklistItem = async (itemId) => {
     if (!selectedProject) {
       return
     }
 
+    try {
+      await deleteChecklist(itemId)
+    } catch (error) {
+      console.warn('체크리스트 삭제 실패:', error.message)
+    }
+
+    updateProjectChecklist((selectedProject?.checklist || []).filter((item) => item.id !== itemId))
+    setEditingChecklistId(null)
+  }
+
+  const toggleChecklistItem = async (itemId) => {
+    if (!selectedProject) {
+      return
+    }
+
+    const targetItem = selectedProject.checklist.find((item) => item.id === itemId)
+    const nextDone = !targetItem?.done
+
+    try {
+      await updateChecklistStatus(itemId, {
+        status: nextDone ? 'DONE' : 'TODO',
+      })
+    } catch (error) {
+      console.warn('체크리스트 완료 상태 변경 실패:', error.message)
+    }
+
     const nextChecklist = (selectedProject?.checklist || []).map((item) => (
-      item.id === itemId ? { ...item, done: !item.done } : item
+      item.id === itemId ? { ...item, done: nextDone } : item
     ))
     updateProjectChecklist(nextChecklist)
     const nextIndex = sortChecklist(nextChecklist).findIndex((item) => item.id === itemId)
@@ -596,6 +722,7 @@ const Home = () => {
           item={editingChecklistItem}
           members={selectedProject?.teammates || []}
           onClose={() => setEditingChecklistId(null)}
+          onDelete={deleteChecklistItem}
           onSave={saveChecklistItem}
         />
       )}

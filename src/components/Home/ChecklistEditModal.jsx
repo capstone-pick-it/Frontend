@@ -10,7 +10,7 @@ const getDueAtFromDateText = (dateText) => {
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
 }
 
-const ChecklistEditModal = ({ item, members, onClose, onSave }) => {
+const ChecklistEditModal = ({ item, members, onClose, onDelete, onSave }) => {
   const [title, setTitle] = useState(item.title)
   const [date, setDate] = useState(item.date)
   const [assignee, setAssignee] = useState(item.assignee || members[0]?.name || '')
@@ -38,6 +38,11 @@ const ChecklistEditModal = ({ item, members, onClose, onSave }) => {
           </select>
         </label>
         <div>
+          {!item.isNew && (
+            <button type="button" onClick={() => onDelete(item.id)}>
+              삭제
+            </button>
+          )}
           <button type="button" onClick={onClose}>취소</button>
           <button
             type="button"
