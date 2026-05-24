@@ -20,6 +20,7 @@ import {
   mapDefaultTraits,
   mapProfile,
   mapProjectHistorySummary,
+  sortCoursesByRegistrationOrder,
 } from '../../api/mypage';
 
 const getInitialUserInfo = () => {
@@ -107,7 +108,9 @@ const MyPage = () => {
       }
 
       if (courseCardsResult.status === 'fulfilled') {
-        setCourses((courseCardsResult.value.result || []).map(mapCourseCard));
+        setCourses(
+          sortCoursesByRegistrationOrder((courseCardsResult.value.result || []).map(mapCourseCard))
+        );
       } else {
         console.log('[강의 카드 조회 실패]', courseCardsResult.reason.message);
       }

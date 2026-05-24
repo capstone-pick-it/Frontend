@@ -12,9 +12,11 @@ import Nav from '../../components/Nav';
 import { PREFERENCE } from '../../data/mockData';
 import {
   createTraitNameMap,
+  deleteCourse,
   getCourseCards,
   getTraitItems,
   mapCourseCard,
+  updateCourse,
 } from '../../api/mypage';
 
 const getTraitPairTitles = (traitTitle) => {
@@ -35,7 +37,13 @@ const selectTraitInPair = (selectedTraits, traitTitle) => {
     (selectedTrait) => !currentPairTitles.includes(selectedTrait)
   );
 
-  return [...filteredSelected, traitTitle];
+  return sortTraitsByPreferenceOrder([...filteredSelected, traitTitle]);
+};
+
+const sortTraitsByPreferenceOrder = (traits = []) => {
+  return PREFERENCE
+    .map((preference) => preference.title)
+    .filter((traitTitle) => traits.includes(traitTitle));
 };
 
 const normalizeTraitSelectionByPair = (selectedTraits = []) => {
@@ -57,6 +65,8 @@ const CourseEdit = () => {
   const [selectedTraits, setSelectedTraits] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -146,27 +156,47 @@ const CourseEdit = () => {
     setSelectedTraits((prev) => selectTraitInPair(prev, traitTitle));
   };
 
-  const handleSubmit = () => {
-    const updatedCourse = {
-      id: course.id,
-      name: course.name,
-      semester: course.semester,
-      importance,
-      traits: selectedTraits,
-      projectStatus: course.projectStatus,
-    };
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
 
-    console.log('수정할 강의 데이터:', updatedCourse);
+    if (selectedTraits.length < 5) {
+      alert('각 성향 세트마다 하나씩 선택해주세요.');
+      return;
+    }
 
-    // 추후 PATCH /me/courses/{courseId} 연동 예정
-    navigate('/mypage/courses');
+    try {
+      setIsSubmitting(true);
+
+      await updateCourse(course.id, {
+        importance,
+        traits: selectedTraits,
+      });
+
+      navigate('/mypage/courses');
+    } catch (error) {
+      console.log('[강의 수정 실패]', error.message);
+      alert(error.message || '강의 수정에 실패했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDeleteConfirm = () => {
-    console.log('삭제할 강의 id:', course.id);
+  const handleDeleteConfirm = async () => {
+    if (isDeleting) return;
 
-    // 추후 삭제 가능 여부 확인 및 DELETE API 연동 예정
-    setIsDeleteModalOpen(false);
+    try {
+      setIsDeleting(true);
+
+      await deleteCourse(course.id);
+
+      setIsDeleteModalOpen(false);
+      navigate('/mypage/courses');
+    } catch (error) {
+      console.log('[강의 삭제 실패]', error.message);
+      alert(error.message || '강의 삭제에 실패했습니다.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -217,7 +247,7 @@ const CourseEdit = () => {
         </section>
 
         <Button
-          title="완료"
+          title={isSubmitting ? '저장 중' : '완료'}
           onClick={handleSubmit}
           className="course-edit-page__button"
         />
@@ -254,7 +284,7 @@ const CourseEdit = () => {
             </>
           }
           cancelText="취소"
-          confirmText="확인"
+          confirmText={isDeleting ? '삭제 중' : '확인'}
           onClose={() => setIsDeleteModalOpen(false)}
           onCancel={() => setIsDeleteModalOpen(false)}
           onConfirm={handleDeleteConfirm}

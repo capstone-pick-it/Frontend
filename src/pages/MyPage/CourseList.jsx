@@ -5,7 +5,11 @@ import Nav from '../../components/Nav';
 import TopBar from '../../components/TopBar';
 import CourseListItem from '../../components/MyPage/CourseListItem';
 
-import { getCourseList, mapCourseListItem } from '../../api/mypage';
+import {
+  getCourseList,
+  mapCourseListItem,
+  sortCoursesByRegistrationOrder,
+} from '../../api/mypage';
 
 // 강의 목록 페이지
 const CourseList = () => {
@@ -23,7 +27,9 @@ const CourseList = () => {
 
         if (!isMounted) return;
 
-        setCourses((response.result || []).map(mapCourseListItem));
+        setCourses(
+          sortCoursesByRegistrationOrder((response.result || []).map(mapCourseListItem))
+        );
       } catch (error) {
         console.log('[강의 목록 조회 실패]', error.message);
       } finally {

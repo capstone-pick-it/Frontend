@@ -12,6 +12,7 @@ import {
   getDefaultTraits,
   getTraitItems,
   mapDefaultTraits,
+  updateDefaultTraits,
 } from '../../api/mypage';
 
 const getTraitPairTitles = (traitTitle) => {
@@ -32,7 +33,13 @@ const selectTraitInPair = (selectedTraits, traitTitle) => {
     (selectedTrait) => !currentPairTitles.includes(selectedTrait)
   );
 
-  return [...filteredSelected, traitTitle];
+  return sortTraitsByPreferenceOrder([...filteredSelected, traitTitle]);
+};
+
+const sortTraitsByPreferenceOrder = (traits = []) => {
+  return PREFERENCE
+    .map((preference) => preference.title)
+    .filter((traitTitle) => traits.includes(traitTitle));
 };
 
 const normalizeTraitSelectionByPair = (selectedTraits = []) => {
@@ -49,6 +56,7 @@ const TraitsEdit = () => {
   const navigate = useNavigate();
 
   const [selectedTraits, setSelectedTraits] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -93,10 +101,26 @@ const TraitsEdit = () => {
     setSelectedTraits((prev) => selectTraitInPair(prev, traitTitle));
   };
 
-  const handleSubmit = () => {
-    // 추후 API 연동 예정
-    console.log('선택된 기본 성향:', selectedTraits);
-    navigate('/mypage');
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+
+    if (selectedTraits.length < 5) {
+      alert('각 성향 세트마다 하나씩 선택해주세요.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      await updateDefaultTraits(selectedTraits);
+
+      navigate('/mypage');
+    } catch (error) {
+      console.log('[기본 성향 수정 실패]', error.message);
+      alert(error.message || '기본 성향 수정에 실패했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -131,7 +155,11 @@ const TraitsEdit = () => {
         </section>
 
         <div className="traits-edit__button">
-          <Button title="완료" variant="primary" onClick={handleSubmit} />
+          <Button
+            title={isSubmitting ? '저장 중' : '완료'}
+            variant="primary"
+            onClick={handleSubmit}
+          />
         </div>
       </main>
 

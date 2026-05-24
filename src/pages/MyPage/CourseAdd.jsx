@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import TopBar from '../../components/TopBar';
@@ -11,8 +11,14 @@ import Nav from '../../components/Nav';
 import {
     ONBOARDING_INFO_OPTIONS,
     PREFERENCE,
-    USER_DEFAULT_TRAITS,
 } from '../../data/mockData';
+import {
+    createCourse,
+    createTraitNameMap,
+    getDefaultTraits,
+    getTraitItems,
+    mapDefaultTraits,
+} from '../../api/mypage';
 
 const getTraitPairTitles = (traitTitle) => {
     const selectedTrait = PREFERENCE.find((trait) => trait.title === traitTitle);
@@ -32,7 +38,13 @@ const selectTraitInPair = (selectedTraits, traitTitle) => {
         (selectedTrait) => !currentPairTitles.includes(selectedTrait)
     );
 
-    return [...filteredSelected, traitTitle];
+    return sortTraitsByPreferenceOrder([...filteredSelected, traitTitle]);
+};
+
+const sortTraitsByPreferenceOrder = (traits = []) => {
+    return PREFERENCE
+        .map((preference) => preference.title)
+        .filter((traitTitle) => traits.includes(traitTitle));
 };
 
 const normalizeTraitSelectionByPair = (selectedTraits = []) => {
@@ -53,10 +65,47 @@ const CourseAdd = () => {
     const [semester, setSemester] = useState(ONBOARDING_INFO_OPTIONS.SEMESTERS[0]);
     const [importance, setImportance] = useState('높음');
 
-    // 기본 성향으로 초기값 세팅
-    const [selectedTraits, setSelectedTraits] = useState(
-        normalizeTraitSelectionByPair(USER_DEFAULT_TRAITS)
-    );
+    const [selectedTraits, setSelectedTraits] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const loadDefaultTraits = async () => {
+            try {
+                const [defaultTraitsResult, traitItemsResult] = await Promise.allSettled([
+                    getDefaultTraits(),
+                    getTraitItems(),
+                ]);
+
+                if (defaultTraitsResult.status === 'rejected') {
+                    throw defaultTraitsResult.reason;
+                }
+
+                if (traitItemsResult.status === 'rejected') {
+                    console.log('[성향 항목 조회 실패]', traitItemsResult.reason.message);
+                }
+
+                const traitNameMap = traitItemsResult.status === 'fulfilled'
+                    ? createTraitNameMap(traitItemsResult.value.result || [])
+                    : undefined;
+
+                const defaultTraits = mapDefaultTraits(defaultTraitsResult.value.result || [], traitNameMap);
+
+                if (isMounted) {
+                    setSelectedTraits(normalizeTraitSelectionByPair(defaultTraits));
+                }
+            } catch (error) {
+                console.log('[기본 성향 조회 실패]', error.message);
+            }
+        };
+
+        loadDefaultTraits();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     // 성향 선택 로직
     const handleTraitClick = (traitTitle) => {
@@ -64,20 +113,36 @@ const CourseAdd = () => {
     };
 
     // 제출
-    const handleSubmit = () => {
-        const newCourse = {
-            name: courseName,
-            semester,
-            importance,
-            traits: selectedTraits,
-        };
+    const handleSubmit = async () => {
+        if (isSubmitting) return;
 
-        console.log('추가될 강의:', newCourse);
+        if (!courseName.trim()) {
+            alert('강의명을 입력해주세요.');
+            return;
+        }
 
-        // API 연동 (백엔드에서 데이터 연동)
-        // await createCourse(newCourse)
+        if (selectedTraits.length < 5) {
+            alert('각 성향 세트마다 하나씩 선택해주세요.');
+            return;
+        }
 
-        navigate('/mypage/courses');
+        try {
+            setIsSubmitting(true);
+
+            await createCourse({
+                courseName: courseName.trim(),
+                semester,
+                importance,
+                traits: selectedTraits,
+            });
+
+            navigate('/mypage/courses');
+        } catch (error) {
+            console.log('[강의 추가 실패]', error.message);
+            alert(error.message || '강의 추가에 실패했습니다.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -131,7 +196,7 @@ const CourseAdd = () => {
 
                 {/* 완료 버튼 */}
                 <Button
-                    title="완료"
+                    title={isSubmitting ? '저장 중' : '완료'}
                     onClick={handleSubmit}
                     className="course-add-page__button"
                 />
