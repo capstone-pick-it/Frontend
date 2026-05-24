@@ -820,12 +820,13 @@
 }
 
 .home-review-modal__buttons {
-  display: grid;
-  grid-template-columns: 1fr 78px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 18px;
+  gap: 10px;
 
   button {
+    width: 78px;
     height: 40px;
     border-radius: 7px;
     background-color: var(--gray-100);

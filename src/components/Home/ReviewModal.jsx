@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 const scoreItems = [
   { key: 'completionScore', label: '완수율' },
@@ -6,15 +6,22 @@ const scoreItems = [
   { key: 'satisfactionScore', label: '팀원만족도' },
 ]
 
+const initialScores = {
+  completionScore: 0,
+  proactivityScore: 0,
+  satisfactionScore: 0,
+}
+
 const ReviewModal = ({ teammate, currentIndex, totalCount, onNext }) => {
-  const [scores, setScores] = useState({
-    completionScore: 0,
-    proactivityScore: 0,
-    satisfactionScore: 0,
-  })
+  const [scores, setScores] = useState(initialScores)
   const [showConfirm, setShowConfirm] = useState(false)
   const isLastReview = currentIndex === totalCount - 1
   const isComplete = Object.values(scores).every((score) => score > 0)
+
+  useEffect(() => {
+    setScores(initialScores)
+    setShowConfirm(false)
+  }, [teammate.userId])
 
   const selectScore = (key, value) => {
     setScores((prevScores) => ({
