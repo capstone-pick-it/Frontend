@@ -20,6 +20,11 @@ export const saveAuthTokens = ({ accessToken, refreshToken, userId, nickname }) 
   }
 }
 
+export const getUser = () => {
+  const raw = localStorage.getItem(USER_KEY)
+  return raw ? JSON.parse(raw) : null
+}
+
 export const clearAuthTokens = () => {
   localStorage.removeItem(ACCESS_TOKEN_KEY)
   localStorage.removeItem(REFRESH_TOKEN_KEY)
