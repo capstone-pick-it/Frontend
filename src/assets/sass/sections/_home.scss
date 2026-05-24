@@ -505,6 +505,17 @@
     }
   }
 
+  em {
+    display: block;
+    padding: 13px 12px;
+    border-radius: 7px;
+    background-color: var(--white);
+    color: var(--gray-700);
+    font-style: normal;
+    text-align: center;
+    @include body4;
+  }
+
   p {
     display: flex;
     flex-wrap: wrap;

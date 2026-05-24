@@ -2,6 +2,7 @@ import { request } from './client'
 import {
   completionDecisionRequestBody,
   createChecklistRequestBody,
+  leaveProjectRequestBody,
   peerReviewRequestBody,
   updateChecklistRequestBody,
   updateChecklistStatusRequestBody,
@@ -45,10 +46,11 @@ export const deleteChecklist = (checklistItemId) => {
   })
 }
 
-export const leaveProject = (projectTeamId) => {
+export const leaveProject = (projectTeamId, { agreed }) => {
   return request(`/projects/${projectTeamId}/leave`, {
     method: 'POST',
     requireAuth: true,
+    body: JSON.stringify(leaveProjectRequestBody({ agreed })),
   })
 }
 

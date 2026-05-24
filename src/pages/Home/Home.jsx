@@ -29,6 +29,8 @@ const tabs = [
   { key: 'done', label: '진행 완료' },
 ]
 
+const demoCurrentUserName = '이승희'
+
 const capstoneTeammates = [
   {
     userId: 1,
@@ -224,6 +226,8 @@ const normalizeChecklistItem = (item) => ({
   dueAt: item.dueDate ?? item.dueAt ?? '9999-12-31',
   assignee: item.manager?.nickname || item.assignee || '',
   assigneeId: item.manager?.userId ?? item.managerId ?? item.assigneeId,
+  creatorName: item.createdBy?.nickname || item.creatorName || item.assignee || '',
+  creatorId: item.createdBy?.userId ?? item.creatorId,
   done: item.status ? item.status === 'DONE' : Boolean(item.done),
 })
 
@@ -326,14 +330,14 @@ const Home = () => {
     setModal('exit')
   }
 
-  const completeExit = async () => {
+  const completeExit = async (agreed) => {
     if (!exitTarget) {
       setModal(null)
       return
     }
 
     try {
-      await leaveProject(exitTarget.projectId)
+      await leaveProject(exitTarget.projectId, { agreed })
     } catch (error) {
       console.warn('프로젝트 나가기 실패:', error.message)
     }
@@ -361,11 +365,16 @@ const Home = () => {
   const checklistPages = Math.max(1, Math.ceil(checklistItems.length / 4))
   const visibleChecklist = checklistItems.slice(checklistPage * 4, checklistPage * 4 + 4)
   const editingChecklistItem = checklistItems.find((item) => item.id === editingChecklistId)
-  const currentProjectUser = selectedProject?.teammates?.[0] || reviewProject?.teammates?.[0]
+  const currentProjectUser = selectedProject?.teammates?.find((member) => member.name === demoCurrentUserName)
+    || reviewProject?.teammates?.find((member) => member.name === demoCurrentUserName)
+    || selectedProject?.teammates?.[0]
+    || reviewProject?.teammates?.[0]
   const currentProjectUserName = currentProjectUser?.name || ''
   const currentProjectUserId = currentProjectUser?.userId
   const completionRequest = selectedProject ? completionRequests[selectedProject.id] : null
   const approvedNames = getApprovedNames(completionRequest)
+  const currentUserCompletionDecision = (completionRequest?.approvals || [])
+    .find((approval) => approval.user?.userId === currentProjectUserId)?.decision
   const completionApproved = completionRequest?.status === 'APPROVED'
     || (selectedProject && approvedNames.length >= selectedProject.teammates.length)
   const peerReviewStatus = selectedProject ? peerReviewStatuses[selectedProject.id] : null
@@ -500,6 +509,8 @@ const Home = () => {
       dueAt: todayDate,
       assignee,
       assigneeId: managerId,
+      creatorName: currentProjectUserName,
+      creatorId: currentProjectUserId,
       done: false,
       isNew: true,
     }
@@ -894,17 +905,13 @@ const Home = () => {
                 </button>
                 <button
                   type="button"
-                  disabled={currentTab !== 'active'}
+                  disabled={currentTab !== 'active' || item.creatorName !== currentProjectUserName}
                   aria-label={
-                    item.assignee === currentProjectUserName
+                    item.creatorName === currentProjectUserName
                       ? '체크리스트 완료 상태 변경'
-                      : `${item.assignee} 담당 할 일입니다`
+                      : `${item.creatorName || item.assignee} 작성 할 일입니다`
                   }
-                  onClick={() => (
-                    item.assignee === currentProjectUserName
-                      ? toggleChecklistItem(item.id)
-                      : setEditingChecklistId(item.id)
-                  )}
+                  onClick={() => toggleChecklistItem(item.id)}
                 >
                   {item.done ? '✓' : ''}
                 </button>
@@ -953,10 +960,14 @@ const Home = () => {
               {completionRequest && !completionApproved && (
                 <section className="home-completion-card">
                   <strong>팀 프로젝트를 종료하시겠습니까?</strong>
-                  <div>
-                    <button type="button" onClick={() => decideProjectCompletion('REJECT')}>거부</button>
-                    <button type="button" onClick={() => decideProjectCompletion('APPROVE')}>동의</button>
-                  </div>
+                  {currentUserCompletionDecision === 'APPROVE' ? (
+                    <em>팀 프로젝트 종료에 동의하셨습니다</em>
+                  ) : (
+                    <div>
+                      <button type="button" onClick={() => decideProjectCompletion('REJECT')}>거부</button>
+                      <button type="button" onClick={() => decideProjectCompletion('APPROVE')}>동의</button>
+                    </div>
+                  )}
                   {approvedNames.length > 0 && (
                     <p>
                       {approvedNames.map((name) => (
@@ -991,8 +1002,8 @@ const Home = () => {
           description={'미리 사정을 이야기하셨다면 네 를,\n아무 말도 없으셨다면 아니오 를 눌러주세요.\n아니오를 고를 시 무단 탈주로 간주되며,\n포인트를 돌려받으실 수 없습니다.'}
           cancelText="아니오"
           confirmText="네"
-          onClose={completeExit}
-          onConfirm={completeExit}
+          onCancel={() => completeExit(false)}
+          onConfirm={() => completeExit(true)}
         />
       )}
 
@@ -1011,7 +1022,7 @@ const Home = () => {
 
       {modal === 'completion-request' && (
         <ConfirmModal
-          title="팀 프로젝트 종료요청을 팀원에게 보내시겠습니까?"
+          title="팀원들에게 팀프로젝트 종료 요청을 보내시겠습니까?"
           cancelText="취소"
           confirmText="보내기"
           onClose={() => setModal(null)}
