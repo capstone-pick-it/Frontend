@@ -1,6 +1,6 @@
 import { getAccessToken } from './token'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
+const API_BASE_URL = ''
 
 export const request = async (path, options = {}) => {
   const { auth = false, headers, ...fetchOptions } = options

@@ -4,6 +4,9 @@ import {
   createEmailSendRequestBody,
   createEmailVerifyRequestBody,
   createLoginRequestBody,
+  createPasswordResetRequestBody,
+  createPasswordResetSendRequestBody,
+  createPasswordResetVerifyRequestBody,
   createSignupRequestBody,
   createTokenRefreshRequestBody,
 } from './auth.dto'
@@ -54,5 +57,26 @@ export const verifySignupEmailCode = ({ email, code }) => {
   return request('/api/users/email/verify', {
     method: 'POST',
     body: JSON.stringify(createEmailVerifyRequestBody({ email, code })),
+  })
+}
+
+export const sendPasswordResetEmailCode = ({ email }) => {
+  return request('/api/users/password/reset/send', {
+    method: 'POST',
+    body: JSON.stringify(createPasswordResetSendRequestBody({ email })),
+  })
+}
+
+export const verifyPasswordResetEmailCode = ({ email, code }) => {
+  return request('/api/users/password/reset/verify', {
+    method: 'POST',
+    body: JSON.stringify(createPasswordResetVerifyRequestBody({ email, code })),
+  })
+}
+
+export const resetPassword = ({ email, newPassword }) => {
+  return request('/api/users/password/reset', {
+    method: 'PUT',
+    body: JSON.stringify(createPasswordResetRequestBody({ email, newPassword })),
   })
 }

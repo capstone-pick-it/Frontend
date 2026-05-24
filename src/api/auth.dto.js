@@ -21,3 +21,17 @@ export const createEmailVerifyRequestBody = ({ email, code }) => ({
   email,
   code,
 })
+
+export const createPasswordResetSendRequestBody = ({ email }) => ({
+  email,
+})
+
+export const createPasswordResetVerifyRequestBody = ({ email, code }) => ({
+  email,
+  code,
+})
+
+export const createPasswordResetRequestBody = ({ email, newPassword }) => ({
+  email,
+  newPassword,
+})
