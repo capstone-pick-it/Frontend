@@ -959,21 +959,20 @@ const Home = () => {
 
               {completionRequest && !completionApproved && (
                 <section className="home-completion-card">
-                  <strong>팀 프로젝트를 종료하시겠습니까?</strong>
                   {currentUserCompletionDecision === 'APPROVE' ? (
                     <em>팀 프로젝트 종료에 동의하셨습니다</em>
                   ) : (
-                    <div>
-                      <button type="button" onClick={() => decideProjectCompletion('REJECT')}>거부</button>
+                    <>
+                      <strong>팀 프로젝트를 종료하시겠습니까?</strong>
                       <button type="button" onClick={() => decideProjectCompletion('APPROVE')}>동의</button>
-                    </div>
+                    </>
                   )}
-                  {approvedNames.length > 0 && (
-                    <p>
+                  {currentUserCompletionDecision === 'APPROVE' && approvedNames.length > 0 && (
+                    <div>
                       {approvedNames.map((name) => (
                         <span key={name}>{name}</span>
                       ))}
-                    </p>
+                    </div>
                   )}
                 </section>
               )}
