@@ -795,7 +795,8 @@
     gap: 18px;
   }
 
-  span {
+  button {
+    background-color: transparent;
     color: var(--gray-200);
     font-size: 43px;
     line-height: 0.8;
@@ -820,14 +821,15 @@
     color: var(--gray-500);
     @include body4;
 
-    &:disabled {
-      color: var(--gray-300);
-      cursor: default;
-    }
-
     &:last-child {
       background-color: var(--primary-700);
       color: var(--white);
+    }
+
+    &:disabled {
+      background-color: var(--gray-100);
+      color: var(--gray-300);
+      cursor: default;
     }
   }
 
@@ -835,5 +837,25 @@
     text-align: center;
     color: var(--black);
     @include caption;
+  }
+}
+
+.home-review-modal__confirm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 32px;
+
+  button {
+    height: 46px;
+    border-radius: 7px;
+    background-color: var(--gray-100);
+    color: var(--gray-500);
+    @include body2;
+
+    &:last-child {
+      background-color: var(--primary-700);
+      color: var(--white);
+    }
   }
 }

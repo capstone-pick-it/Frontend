@@ -264,6 +264,12 @@ const getReviewProgress = (status, fallbackTotal = 0) => {
   }
 }
 
+const isPeerReviewCompleted = (status) => {
+  const members = status?.members || []
+
+  return members.length > 0 && members.every((member) => member.completed)
+}
+
 const Home = () => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -401,6 +407,59 @@ const Home = () => {
       ))
     ))
   }
+
+  useEffect(() => {
+    if (activeItems.length === 0) {
+      return
+    }
+
+    let ignore = false
+
+    const fetchPeerReviewStatuses = async () => {
+      const completedProjects = []
+
+      await Promise.all(activeItems.map(async (project) => {
+        try {
+          const response = await getPeerReviewStatus(project.id)
+          const nextStatus = response.result
+
+          if (ignore || !nextStatus) {
+            return
+          }
+
+          setPeerReviewStatuses((statuses) => ({
+            ...statuses,
+            [project.id]: nextStatus,
+          }))
+
+          if (isPeerReviewCompleted(nextStatus)) {
+            completedProjects.push({
+              ...project,
+              status: '진행 완료',
+              progress: 100,
+            })
+          }
+        } catch (error) {
+          console.warn('프로젝트 평가 진행 상황 조회 실패:', error.message)
+        }
+      }))
+
+      if (!ignore && completedProjects.length > 0) {
+        const completedIds = new Set(completedProjects.map((project) => project.id))
+        setActiveItems((items) => items.filter((project) => !completedIds.has(project.id)))
+        setDoneItems((items) => [
+          ...completedProjects.filter((project) => !items.some((item) => item.id === project.id)),
+          ...items,
+        ])
+      }
+    }
+
+    fetchPeerReviewStatuses()
+
+    return () => {
+      ignore = true
+    }
+  }, [activeItems.map((project) => project.id).join(',')])
 
   useEffect(() => {
     if (!isDetailPage || currentTab !== 'active' || !selectedProject) {
@@ -619,6 +678,21 @@ const Home = () => {
     approvals: [],
   })
 
+  const createFallbackApprovals = (project, decision) => {
+    const members = decision === 'APPROVE'
+      ? project.teammates
+      : project.teammates.filter((member) => member.userId === currentProjectUserId)
+
+    return members.map((member) => ({
+      completionApprovalId: Date.now() + member.userId,
+      user: {
+        userId: member.userId,
+        nickname: member.name,
+      },
+      decision,
+    }))
+  }
+
   const requestProjectCompletion = async () => {
     if (!selectedProject) {
       return
@@ -658,24 +732,14 @@ const Home = () => {
       }))
     } catch (error) {
       console.warn('프로젝트 종료 요청 응답 실패:', error.message)
-      const nextApprovals = [
-        ...(completionRequest.approvals || []).filter((approval) => approval.user?.userId !== currentProjectUserId),
-        {
-          completionApprovalId: Date.now(),
-          user: {
-            userId: currentProjectUserId,
-            nickname: currentProjectUserName,
-          },
-          decision,
-        },
-      ]
+      const nextApprovals = createFallbackApprovals(selectedProject, decision)
 
       setCompletionRequests((requests) => ({
         ...requests,
         [selectedProject.id]: {
           ...completionRequest,
           approvals: nextApprovals,
-          status: decision === 'REJECT' ? 'REJECTED' : completionRequest.status,
+          status: decision === 'APPROVE' ? 'APPROVED' : 'REJECTED',
         },
       }))
     }
@@ -730,7 +794,7 @@ const Home = () => {
     navigate('/home')
   }
 
-  const handleReviewNext = async () => {
+  const handleReviewNext = async (scores) => {
     if (!reviewProject || !reviewTeammate) {
       setModal(null)
       return
@@ -739,9 +803,9 @@ const Home = () => {
     try {
       await createPeerReview(reviewProject.id, {
         revieweeUserId: reviewTeammate.userId,
-        completionScore: 3,
-        proactivityScore: 4,
-        satisfactionScore: 2,
+        completionScore: scores.completionScore,
+        proactivityScore: scores.proactivityScore,
+        satisfactionScore: scores.satisfactionScore,
       })
     } catch (error) {
       console.warn('팀원 평가 등록 실패:', error.message)
@@ -974,7 +1038,7 @@ const Home = () => {
 
                   {completionApproved && (
                     <button className="home-exit-button" type="button" onClick={startPeerReview}>
-                      팀원 평가하기
+                      팀원 평가 시작하기
                     </button>
                   )}
                 </>
