@@ -35,14 +35,14 @@ export const refreshToken = (refreshToken = getRefreshToken()) => {
 export const logoutUser = () => {
   return request('/api/users/logout', {
     method: 'POST',
-    auth: true,
+    requireAuth: true,
   })
 }
 
 export const deleteUser = () => {
   return request('/api/users/delete', {
     method: 'DELETE',
-    auth: true,
+    requireAuth: true,
   })
 }
 
