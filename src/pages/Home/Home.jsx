@@ -606,7 +606,7 @@ const Home = () => {
     setChecklistPage(Math.max(0, Math.floor(nextIndex / 4)))
   }
 
-  const createFallbackCompletionRequest = (project, decision = 'APPROVE') => ({
+  const createFallbackCompletionRequest = (project) => ({
     id: Date.now(),
     projectTeamId: project.id,
     status: 'PENDING',
@@ -614,16 +614,7 @@ const Home = () => {
       userId: currentProjectUserId,
       nickname: currentProjectUserName,
     },
-    approvals: [
-      {
-        completionApprovalId: Date.now(),
-        user: {
-          userId: currentProjectUserId,
-          nickname: currentProjectUserName,
-        },
-        decision,
-      },
-    ],
+    approvals: [],
   })
 
   const requestProjectCompletion = async () => {
