@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Nav from '../../components/Nav'
 import TopBar from '../../components/TopBar'
@@ -8,6 +8,14 @@ import DoorIcon from '../../components/Home/DoorIcon'
 import HomeProjectCard from '../../components/Home/HomeProjectCard'
 import MemberCard from '../../components/Home/MemberCard'
 import ReviewModal from '../../components/Home/ReviewModal'
+import {
+  createProjectChecklist,
+  deleteChecklist,
+  getProjectChecklists,
+  leaveProject,
+  updateChecklist,
+  updateChecklistStatus,
+} from '../../api/home'
 
 const tabs = [
   { key: 'recruiting', label: '모집 중' },
@@ -16,9 +24,11 @@ const tabs = [
 ]
 
 const currentUserName = '이승희'
+const currentUserId = 2
 
 const capstoneTeammates = [
   {
+    userId: 1,
     name: '문채이',
     school: '컴퓨터공학과 4학년',
     tags: ['빠른소통', '꼼꼼함', '비대면선호'],
@@ -27,6 +37,7 @@ const capstoneTeammates = [
     priority: '보통',
   },
   {
+    userId: 2,
     name: '이승희',
     school: '컴퓨터공학과 4학년',
     tags: ['미리준비', '완벽주의', '대면선호'],
@@ -35,6 +46,7 @@ const capstoneTeammates = [
     priority: '높음',
   },
   {
+    userId: 3,
     name: '김성연',
     school: '컴퓨터공학과 4학년',
     tags: ['적극참여', '자료조사', '대면선호'],
@@ -43,6 +55,7 @@ const capstoneTeammates = [
     priority: '높음',
   },
   {
+    userId: 4,
     name: '이은우',
     school: '컴퓨터공학과 4학년',
     tags: ['자료조사', '꼼꼼함', '비대면선호'],
@@ -51,6 +64,7 @@ const capstoneTeammates = [
     priority: '보통',
   },
   {
+    userId: 5,
     name: '김지희',
     school: '컴퓨터공학과 4학년',
     tags: ['일정관리', '빠른소통', '대면선호'],
@@ -59,6 +73,7 @@ const capstoneTeammates = [
     priority: '높음',
   },
   {
+    userId: 6,
     name: '김예린',
     school: '컴퓨터공학과 4학년',
     tags: ['디자인', '꼼꼼함', '완벽주의'],
@@ -67,6 +82,7 @@ const capstoneTeammates = [
     priority: '높음',
   },
   {
+    userId: 7,
     name: '김채원',
     school: '컴퓨터공학과 4학년',
     tags: ['일정관리', '디자인', '빠른소통'],
@@ -109,6 +125,7 @@ const activeProjects = [
     progress: 45,
     teammates: [
       {
+        userId: 2,
         name: '이승희',
         school: '컴퓨터공학과 4학년',
         tags: ['미리준비', '완벽주의', '대면선호'],
@@ -117,6 +134,7 @@ const activeProjects = [
         priority: '높음',
       },
       {
+        userId: 1,
         name: '문채이',
         school: '컴퓨터공학과 4학년',
         tags: ['빠른소통', '꼼꼼함', '비대면선호'],
@@ -171,6 +189,31 @@ const sortChecklist = (items) => {
     return new Date(a.dueAt) - new Date(b.dueAt)
   })
 }
+
+const formatDueDate = (dueDate) => {
+  const date = new Date(dueDate)
+
+  if (!dueDate || Number.isNaN(date.getTime())) {
+    return '0000년 0월 00일 0요일'
+  }
+
+  return new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long',
+  }).format(date)
+}
+
+const normalizeChecklistItem = (item) => ({
+  id: item.checklistItemId ?? item.id,
+  title: item.title,
+  date: formatDueDate(item.dueDate ?? item.dueAt),
+  dueAt: item.dueDate ?? item.dueAt ?? '9999-12-31',
+  assignee: item.manager?.nickname || item.assignee || currentUserName,
+  assigneeId: item.manager?.userId ?? item.managerId ?? item.assigneeId,
+  done: item.status ? item.status === 'DONE' : Boolean(item.done),
+})
 
 const Home = () => {
   const navigate = useNavigate()
