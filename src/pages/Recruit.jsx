@@ -15,16 +15,15 @@ import checkDefault from '../assets/images/Recruit/icon-check.svg';
 import checkActive from '../assets/images/Recruit/icon-check_pri.svg';
 
 import {
-  getRecruitProfile,
-  getRecruitProfiles,
+  getRecruitCourses,
   getTraitItems,
-  toRecruitCourse,
   toTraitFilters,
 } from '../api/recruit';
 
 const getMatchScore = (card) => {
-  // API 연동 시 백엔드가 내려주는 성향일치도 점수 필드를 그대로 사용
-  return typeof card.matchScore === 'number' ? card.matchScore : 0;
+  const score = card.matchScore ?? card.similarityScore ?? card.matchingScore;
+
+  return typeof score === 'number' ? score : 0;
 };
 
 const SORT_OPTIONS = [
@@ -35,13 +34,13 @@ const SORT_OPTIONS = [
 ];
 
 const fetchRecruitPageData = async () => {
-  const [profiles, traitItems] = await Promise.all([
-    getRecruitProfiles(),
+  const [courses, traitItems] = await Promise.all([
+    getRecruitCourses(),
     getTraitItems(),
   ]);
 
   return {
-    recruitCourses: profiles.map(toRecruitCourse),
+    recruitCourses: courses,
     traitFilters: toTraitFilters(traitItems),
   };
 };
@@ -50,7 +49,7 @@ const Recruit = () => {
   const [courses, setCourses] = useState([]);
   const [cards, setCards] = useState([]);
   const [traitFilters, setTraitFilters] = useState([]);
-  const [isProfilesLoading, setIsProfilesLoading] = useState(true);
+  const [isRecruitLoading, setIsRecruitLoading] = useState(true);
 
   const [selectedCourseId, setSelectedCourseId] = useState('');
 
@@ -76,7 +75,7 @@ const Recruit = () => {
 
     const loadRecruitPage = async () => {
       try {
-        setIsProfilesLoading(true);
+        setIsRecruitLoading(true);
 
         const pageData = await fetchRecruitPageData();
         if (ignore) return;
@@ -102,7 +101,7 @@ const Recruit = () => {
         }
       } finally {
         if (!ignore) {
-          setIsProfilesLoading(false);
+          setIsRecruitLoading(false);
         }
       }
     };
@@ -120,34 +119,6 @@ const Recruit = () => {
   }, [courses]);
 
   const selectedCourse = recruitCourses.find((course) => course.id === selectedCourseId);
-
-  useEffect(() => {
-    if (!selectedCourse?.profileId) return undefined;
-
-    let ignore = false;
-
-    const loadRecruitProfile = async () => {
-      try {
-        const profile = await getRecruitProfile(selectedCourse.profileId);
-        if (ignore || !profile) return;
-
-        const nextCourse = toRecruitCourse(profile);
-        setCourses((prev) =>
-          prev.map((course) =>
-            course.profileId === nextCourse.profileId ? { ...course, ...nextCourse } : course
-          )
-        );
-      } catch (error) {
-        console.error('[모집 프로필 상세 조회 실패]', error.message);
-      }
-    };
-
-    loadRecruitProfile();
-
-    return () => {
-      ignore = true;
-    };
-  }, [selectedCourse?.profileId]);
 
   const handleSearch = () => {
     setSearchKeyword(searchInput.trim());
@@ -338,7 +309,7 @@ const Recruit = () => {
             ))
           ) : (
             <p className="recruit-card-list__empty">
-              {isProfilesLoading ? '모집 프로필을 불러오는 중입니다.' : '모집 중인 팀원을 찾을 수 없습니다.'}
+              {isRecruitLoading ? '모집 페이지 정보를 불러오는 중입니다.' : '모집 중인 팀원을 찾을 수 없습니다.'}
             </p>
           )}
         </div>

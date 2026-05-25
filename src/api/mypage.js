@@ -268,16 +268,10 @@ export const mapCourseListItem = (course) => ({
   projectStatus: 'ONGOING',
 })
 
-const getCourseOrderValue = (course) => {
-  if (typeof course.id === 'number') return course.id
-
-  const match = String(course.id ?? '').match(/\d+/)
-
-  return match ? Number(match[0]) : Number.MAX_SAFE_INTEGER
-}
-
-export const sortCoursesByRegistrationOrder = (courses = []) => {
-  return [...courses].sort((a, b) => getCourseOrderValue(a) - getCourseOrderValue(b))
+export const sortCoursesByCourseNameAsc = (courses = []) => {
+  return [...courses].sort((a, b) =>
+    String(a.name || '').localeCompare(String(b.name || ''), 'ko')
+  )
 }
 
 export const mapProjectHistorySummary = (summary) => ({
