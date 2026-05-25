@@ -25,7 +25,6 @@ const navItems = [
     icon: recruit,
     activeIcon: recruit_b,
     className: 'recruit',
-    imageClassName: 'img_recruit',
   },
   {
     to: '/chat',
@@ -55,7 +54,7 @@ const Nav = () => {
           {({ isActive }) => (
             <>
               <img
-                className={item.imageClassName}
+                className="nav__icon"
                 src={isActive ? item.activeIcon : item.icon}
                 alt=""
               />
