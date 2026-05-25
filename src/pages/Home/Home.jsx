@@ -680,24 +680,6 @@ const Home = () => {
     const assignee = selectedProject.teammates[0]?.name || ''
     const managerId = getManagerId(assignee)
     const todayDate = getTodayDateValue()
-
-    try {
-      const response = await createProjectChecklist(selectedProject.id, {
-        title: '새로운 할 일',
-        dueDate: todayDate,
-        managerId,
-      })
-      const nextItem = normalizeChecklistItem(response.result)
-      const nextChecklist = [...(selectedProject?.checklist || []), nextItem]
-
-      updateProjectChecklist(nextChecklist)
-      setChecklistPage(Math.floor(sortChecklist(nextChecklist).findIndex((item) => item.id === nextItem.id) / 4))
-      setEditingChecklistId(nextItem.id)
-      return
-    } catch (error) {
-      console.warn('체크리스트 생성 실패:', error.message)
-    }
-
     checklistIdRef.current += 1
     const nextItem = {
       id: checklistIdRef.current,
@@ -1228,7 +1210,7 @@ const Home = () => {
 
       {editingChecklistItem && (
         <ChecklistEditModal
-          canEdit={editingChecklistItem.assignee === currentProjectUserName}
+          canEdit={editingChecklistItem.isNew || editingChecklistItem.assignee === currentProjectUserName}
           item={editingChecklistItem}
           members={selectedProject?.teammates || []}
           onClose={() => setEditingChecklistId(null)}

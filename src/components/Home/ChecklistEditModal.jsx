@@ -165,7 +165,7 @@ const ChecklistEditModal = ({ canEdit, item, members, onClose, onDelete, onSave 
                 assignee,
               })}
             >
-              수정
+              {item.isNew ? '생성하기' : '수정'}
             </button>
           </div>
         )}
