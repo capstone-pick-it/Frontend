@@ -20,6 +20,7 @@ import {
   getProjectChecklists,
   getProjectDetail,
   getProjectMembers,
+  getProjects,
   leaveProject,
   updateChecklist,
   updateChecklistStatus,
@@ -32,6 +33,12 @@ const tabs = [
 ]
 
 const demoCurrentUserName = '이승희'
+
+const projectStatusLabel = {
+  RECRUITING: '모집 중',
+  IN_PROGRESS: '진행 중',
+  DONE: '진행 완료',
+}
 
 const capstoneTeammates = [
   {
@@ -261,6 +268,33 @@ const normalizeProjectDetail = (detail, fallbackProject) => {
   }
 }
 
+const normalizeProjectSummary = (project, fallbackStatus) => {
+  const status = project.projectStatus || project.status || fallbackStatus
+  const memberNames = project.memberNames || project.members || []
+  const title = project.projectName || project.courseName || project.title || '프로젝트'
+
+  return {
+    id: project.projectTeamId ?? project.projectId ?? project.id,
+    title,
+    members: Array.isArray(memberNames) ? memberNames.join(' ') : memberNames,
+    status: projectStatusLabel[status] || project.status || projectStatusLabel[fallbackStatus] || '진행 중',
+    action: project.action || '확정 대기',
+    progress: Math.round(project.progressRate ?? project.progress ?? (status === 'DONE' ? 100 : 0)),
+    teammates: Array.isArray(memberNames)
+      ? memberNames.map((name, index) => ({
+        userId: project.memberIds?.[index] ?? index + 1,
+        name,
+        school: '',
+        tags: [],
+        level: 'LV.1',
+        point: '0p',
+        priority: '보통',
+      }))
+      : [],
+    checklist: [],
+  }
+}
+
 const normalizeCompletionRequest = (request) => {
   if (!request) {
     return null
@@ -452,6 +486,42 @@ const Home = () => {
 
     setActiveItems(updateItems)
   }
+
+  useEffect(() => {
+    let ignore = false
+
+    const fetchProjects = async () => {
+      try {
+        const [recruitingResponse, activeResponse, doneResponse] = await Promise.all([
+          getProjects('RECRUITING'),
+          getProjects('IN_PROGRESS'),
+          getProjects('DONE'),
+        ])
+
+        if (ignore) {
+          return
+        }
+
+        setRecruitingItems((recruitingResponse.result || []).map((project) => (
+          normalizeProjectSummary(project, 'RECRUITING')
+        )))
+        setActiveItems((activeResponse.result || []).map((project) => (
+          normalizeProjectSummary(project, 'IN_PROGRESS')
+        )))
+        setDoneItems((doneResponse.result || []).map((project) => (
+          normalizeProjectSummary(project, 'DONE')
+        )))
+      } catch (error) {
+        console.warn('프로젝트 목록 조회 실패:', error.message)
+      }
+    }
+
+    fetchProjects()
+
+    return () => {
+      ignore = true
+    }
+  }, [])
 
   useEffect(() => {
     if (activeItems.length === 0) {
