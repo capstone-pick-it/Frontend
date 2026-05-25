@@ -126,12 +126,6 @@
             flex: 1;
         }
 
-        // 스탯 클릭이 가능한 경우, 본인 마이페이지에서만 cursor 적용
-        &.clickable {
-            > div {
-                cursor: pointer;
-            }
-        }
     }
 
     // 모집 페이지: TripleStatBox 2개와 채팅 버튼 묶음

@@ -151,7 +151,6 @@ const MyPage = () => {
                 year={userInfo.year}
                 level={userInfo.level}
                 points={userInfo.points}
-                enableStatModal
               />
             </div>
 
