@@ -4,15 +4,7 @@ import {
   mapCourseCard,
   sortCoursesByCourseNameAsc,
 } from './mypage'
-
-const TRAIT_NAME_ALIASES = {
-  '대면 선호': '대면선호',
-  '비대면 선호': '비대면선호',
-  '협업 선호': '협업선호',
-  '분담 선호': '분담선호',
-  '아침형 인간': '아침형',
-  '새벽형 인간': '새벽형',
-}
+import { TRAIT_NAME_ALIASES } from '../constants/commonOptions'
 
 const normalizeTraitName = (traitName) => {
   if (!traitName) return ''

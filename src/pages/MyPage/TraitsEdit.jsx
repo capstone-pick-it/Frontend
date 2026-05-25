@@ -6,7 +6,7 @@ import Nav from '../../components/Nav';
 import Button from '../../components/Button';
 import PreferenceCard from '../../components/PreferenceCard';
 
-import { PREFERENCE } from '../../data/mockData';
+import { TRAIT_OPTIONS } from '../../constants/commonOptions';
 import {
   createTraitNameMap,
   getDefaultTraits,
@@ -16,13 +16,13 @@ import {
 } from '../../api/mypage';
 
 const getTraitPairTitles = (traitTitle) => {
-  const selectedTrait = PREFERENCE.find((trait) => trait.title === traitTitle);
+  const selectedTrait = TRAIT_OPTIONS.find((trait) => trait.title === traitTitle);
 
   if (!selectedTrait) return [];
 
   const pairStartIndex = Math.floor((selectedTrait.id - 1) / 2) * 2;
 
-  return PREFERENCE
+  return TRAIT_OPTIONS
     .slice(pairStartIndex, pairStartIndex + 2)
     .map((trait) => trait.title);
 };
@@ -37,14 +37,14 @@ const selectTraitInPair = (selectedTraits, traitTitle) => {
 };
 
 const sortTraitsByPreferenceOrder = (traits = []) => {
-  return PREFERENCE
+  return TRAIT_OPTIONS
     .map((preference) => preference.title)
     .filter((traitTitle) => traits.includes(traitTitle));
 };
 
 const normalizeTraitSelectionByPair = (selectedTraits = []) => {
   return selectedTraits.reduce((normalizedTraits, traitTitle) => {
-    if (!PREFERENCE.some((trait) => trait.title === traitTitle)) {
+    if (!TRAIT_OPTIONS.some((trait) => trait.title === traitTitle)) {
       return normalizedTraits;
     }
 
@@ -142,7 +142,7 @@ const TraitsEdit = () => {
           </div>
 
           <div className="traits-edit__grid">
-            {PREFERENCE.map((trait) => (
+            {TRAIT_OPTIONS.map((trait) => (
               <PreferenceCard
                 key={trait.id}
                 title={trait.title}

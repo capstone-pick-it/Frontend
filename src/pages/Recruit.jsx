@@ -20,26 +20,15 @@ import {
   toTraitFilters,
 } from '../api/recruit';
 import { isActiveProjectStatus } from '../api/mypage';
+import {
+  IMPORTANCE_LABEL_BY_VALUE,
+  IMPORTANCE_SCORE_BY_VALUE,
+} from '../constants/commonOptions';
 
 const getMatchScore = (card) => {
   const score = card.matchScore ?? card.similarityScore ?? card.matchingScore;
 
   return typeof score === 'number' ? score : 0;
-};
-
-const IMPORTANCE_SCORE = {
-  HIGH: 3,
-  MEDIUM: 2,
-  LOW: 1,
-  '높음': 3,
-  '보통': 2,
-  '낮음': 1,
-};
-
-const IMPORTANCE_LABELS = {
-  HIGH: '높음',
-  MEDIUM: '보통',
-  LOW: '낮음',
 };
 
 const SORT_OPTIONS = [
@@ -83,7 +72,7 @@ const getRecruitCardTraits = (card) => card.traits || card.defaultTraits || []
 const getRecruitCardImportance = (card) => {
   const importance = card.importance
 
-  return IMPORTANCE_LABELS[importance] || importance || ''
+  return IMPORTANCE_LABEL_BY_VALUE[importance] || importance || ''
 }
 
 const getRecruitCardStatus = (card) => {
@@ -278,7 +267,7 @@ const Recruit = () => {
 
     if (sortType === 'importance') {
       sortedResult.sort(
-        (a, b) => (IMPORTANCE_SCORE[b.importance] || 0) - (IMPORTANCE_SCORE[a.importance] || 0)
+        (a, b) => (IMPORTANCE_SCORE_BY_VALUE[b.importance] || 0) - (IMPORTANCE_SCORE_BY_VALUE[a.importance] || 0)
       );
     }
 

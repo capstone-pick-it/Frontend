@@ -1,4 +1,11 @@
 import { request } from './client'
+import {
+  IMPORTANCE_LABEL_BY_VALUE,
+  IMPORTANCE_OPTIONS,
+  IMPORTANCE_VALUE_BY_LABEL,
+  TRAIT_NAME_ALIASES,
+  TRAIT_NAME_BY_ITEM_ID,
+} from '../constants/commonOptions'
 
 export const getMyProfile = () => {
   return request('/api/users/me/profile', {
@@ -103,13 +110,7 @@ export const updateDefaultTraits = (traits) => {
 }
 
 export const toDisplayImportance = (importance) => {
-  const importanceMap = {
-    HIGH: '높음',
-    MEDIUM: '보통',
-    LOW: '낮음',
-  }
-
-  return importanceMap[importance] || importance || '보통'
+  return IMPORTANCE_LABEL_BY_VALUE[importance] || importance || IMPORTANCE_OPTIONS[1]
 }
 
 export const toDisplaySemester = (semester) => {
@@ -123,13 +124,7 @@ export const toDisplaySemester = (semester) => {
 }
 
 export const toApiImportance = (importance) => {
-  const importanceMap = {
-    높음: 'HIGH',
-    보통: 'MEDIUM',
-    낮음: 'LOW',
-  }
-
-  return importanceMap[importance] || importance || 'MEDIUM'
+  return IMPORTANCE_VALUE_BY_LABEL[importance] || importance || 'MEDIUM'
 }
 
 export const toApiSemester = (semester) => {
@@ -148,14 +143,6 @@ export const toApiSemester = (semester) => {
   return `${match[1]}-${match[2]}`
 }
 
-const TRAIT_NAME_BY_ITEM_ID = {
-  1: { A: '미리미리', B: '벼락치기' },
-  2: { A: '효율주의', B: '완벽주의' },
-  3: { A: '대면선호', B: '비대면선호' },
-  4: { A: '협업선호', B: '분담선호' },
-  5: { A: '아침형', B: '새벽형' },
-}
-
 const TRAIT_REQUEST_BY_NAME = Object.entries(TRAIT_NAME_BY_ITEM_ID).reduce(
   (traitRequestMap, [traitItemId, sides]) => {
     Object.entries(sides).forEach(([selectedType, traitName]) => {
@@ -169,15 +156,6 @@ const TRAIT_REQUEST_BY_NAME = Object.entries(TRAIT_NAME_BY_ITEM_ID).reduce(
   },
   {}
 )
-
-const TRAIT_NAME_ALIASES = {
-  '대면 선호': '대면선호',
-  '비대면 선호': '비대면선호',
-  '협업 선호': '협업선호',
-  '분담 선호': '분담선호',
-  '아침형 인간': '아침형',
-  '새벽형 인간': '새벽형',
-}
 
 export const normalizeTraitName = (traitName) => {
   if (!traitName) return ''
