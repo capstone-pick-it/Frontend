@@ -1,10 +1,18 @@
-import React from 'react'
-import Dropdown from '../Dropdown'
-import { useState } from 'react'
-import { ONBOARDING_INFO_OPTIONS } from '../../data/mockData'
 import ModalDropDown from '../../components/Chat/ModalDropDown'
 
-const ConfirmModal = ({ title, description, cancelText, confirmText, hasDropdown, isModalOpen, onConfirm, dropdownList, onCourseChange }) => {
+const ConfirmModal = ({
+  title,
+  description,
+  cancelText,
+  confirmText,
+  hasDropdown,
+  onCancel,
+  onClose,
+  onConfirm,
+  dropdownList,
+  onCourseChange,
+}) => {
+  const handleCancel = onCancel || onClose
 
   return (
     <div className="home-modal-backdrop">
@@ -17,7 +25,7 @@ const ConfirmModal = ({ title, description, cancelText, confirmText, hasDropdown
        )}
        </div>
         <div>
-          <button type="button" onClick={isModalOpen} >{cancelText}</button>
+          <button type="button" onClick={handleCancel}>{cancelText}</button>
           <button type="button" onClick={onConfirm}>{confirmText}</button>
         </div>
       </section>
