@@ -3,8 +3,6 @@ import StatBox from './StatBox';
 import TripleStatBox from './TripleStatBox';
 import Tag from './Tag';
 import Button from './Button';
-import Modal from './Modal';
-import { POINT_HISTORY } from '../data/mockData';
 
 import moreIcon from '../assets/images/more1.svg';
 
@@ -34,9 +32,6 @@ const ProfileCard = ({
     memberIndex = 1,
     memberTotal = 1,
 
-    // 마이페이지에서만 본인 스탯 상세 모달 사용
-    enableStatModal = false,
-
     // 모집 페이지에서 카드 기본 펼침 여부
     defaultExpanded = false,
 
@@ -45,8 +40,6 @@ const ProfileCard = ({
     onReportClick,
 }) => {
     const [isExpanded, setIsExpanded] = useState(defaultExpanded);
-    const [isLevelModalOpen, setIsLevelModalOpen] = useState(false);
-    const [isPointModalOpen, setIsPointModalOpen] = useState(false);
 
     const isMypage = variant === 'mypage';
     const isOnboarding = variant === 'onboarding';
@@ -59,6 +52,10 @@ const ProfileCard = ({
     const displayYear = user?.year ?? year;
     const displayLevel = user?.level ?? level;
     const displayPoints = user?.points ?? points;
+    const profileMetaText = [
+        displayMajor,
+        displayYear ? `${displayYear}학년` : '',
+    ].filter(Boolean).join(' ');
 
     // 페이지별 노출 여부
     const showRecruitStatus = !isMypage;
@@ -70,16 +67,6 @@ const ProfileCard = ({
 
     // 모집 페이지에서는 모집상태 태그 스타일만 다르게 사용
     const recruitTagVariant = isRecruitPage ? 'recruit-page' : 'recruit-default';
-
-    const handleLevelClick = () => {
-        if (!enableStatModal) return;
-        setIsLevelModalOpen(true);
-    };
-
-    const handlePointClick = () => {
-        if (!enableStatModal) return;
-        setIsPointModalOpen(true);
-    };
 
     const profileStats = [
         { label: '팀플레벨', value: `LV.${displayLevel}` },
@@ -100,6 +87,19 @@ const ProfileCard = ({
 
     const workspaceDots = Array.from({ length: memberTotal }, (_, index) => index + 1);
 
+    const MAX_VISIBLE_RECRUIT_TRAITS = 4;
+
+    const shouldCollapseTraits = isRecruitPage && !isExpanded;
+
+    const visibleTraits = shouldCollapseTraits
+        ? traits.slice(0, MAX_VISIBLE_RECRUIT_TRAITS)
+        : traits;
+
+    const hiddenTraitCount =
+        shouldCollapseTraits && traits.length > MAX_VISIBLE_RECRUIT_TRAITS
+            ? traits.length - MAX_VISIBLE_RECRUIT_TRAITS
+            : 0;
+    
     return (
         <>
             <div className={`profile-card profile-card--${variant} ${isExpanded ? 'is-expanded' : ''}`}>
@@ -123,16 +123,22 @@ const ProfileCard = ({
                             </div>
 
                             {/* 학과 & 학년 텍스트 필드 */}
-                            <p className="profile-card__major">
-                                {displayMajor} {displayYear}학년
-                            </p>
+                            {profileMetaText && (
+                                <p className="profile-card__major">
+                                    {profileMetaText}
+                                </p>
+                            )}
 
                             {/* 성향 태그 */}
                             {showTraits && (
                                 <div className="profile-card__traits">
-                                    {traits.map((trait) => (
+                                    {visibleTraits.map((trait) => (
                                         <Tag key={trait} label={trait} />
                                     ))}
+
+                                    {hiddenTraitCount > 0 && (
+                                        <Tag label={`+${hiddenTraitCount}`} />
+                                    )}
                                 </div>
                             )}
 
@@ -188,10 +194,10 @@ const ProfileCard = ({
                             />
                         </div>
                     ) : (
-                        <div className={`profile-card__stats ${enableStatModal ? 'clickable' : ''}`}>
+                        <div className="profile-card__stats">
 
                             {/* 팀플레벨 */}
-                            <div onClick={handleLevelClick}>
+                            <div>
                                 <StatBox
                                     label="팀플레벨"
                                     value={`LV.${displayLevel}`}
@@ -199,7 +205,7 @@ const ProfileCard = ({
                             </div>
 
                             {/* 포인트 */}
-                            <div onClick={handlePointClick}>
+                            <div>
                                 <StatBox
                                     label="포인트"
                                     value={`${displayPoints}p`}
@@ -249,59 +255,6 @@ const ProfileCard = ({
 
                 </div>
             </div>
-
-            {/* 팀플레벨 모달 */}
-            {enableStatModal && isLevelModalOpen && (
-                <Modal
-                    title="팀플레벨"
-                    titleColor="black"
-                    onClose={() => setIsLevelModalOpen(false)}
-                    onConfirm={() => setIsLevelModalOpen(false)}
-                >
-                    <div className="modal__level-info">
-                        <span className="modal__level-name">Lv.{displayLevel}</span>
-                        <span className="modal__level-score">0/20</span>
-                    </div>
-                </Modal>
-            )}
-
-            {/* 포인트 모달 */}
-            {enableStatModal && isPointModalOpen && (
-                <Modal
-                    title="포인트"
-                    titleColor="black"
-                    onClose={() => setIsPointModalOpen(false)}
-                    onConfirm={() => setIsPointModalOpen(false)}
-                >
-                    <div className="modal__point">
-
-                        {/* 현재 포인트 */}
-                        <div className="modal__point-row">
-                            <span className="modal__point-label">현재 보유 포인트</span>
-                            <span className="modal__point-value">{displayPoints}p</span>
-                        </div>
-
-                        <div className="modal__divider" />
-
-                        {/* 스크롤 영역 */}
-                        <div className="modal__point-history">
-                            <span className="modal__point-history-title">내역</span>
-
-                            {POINT_HISTORY.map((item) => (
-                                <div key={item.id} className="modal__point-history-row">
-                                    <span className="modal__point-history-label">{item.label}</span>
-                                    <span className="modal__point-history-value">
-                                        {item.type === 'EARNED'
-                                            ? `+${item.value}p`
-                                            : `-${item.value}p`}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-
-                    </div>
-                </Modal>
-            )}
         </>
     );
 };

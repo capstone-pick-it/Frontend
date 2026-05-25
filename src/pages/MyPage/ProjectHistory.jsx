@@ -9,6 +9,12 @@ import {
     PROJECT_HISTORY_SUMMARY,
     PROJECT_HISTORY,
 } from '../../data/mockData';
+import {
+    getProjectHistoryDetail,
+    getProjectHistorySummary,
+    mapProjectHistoryDetail,
+    mapProjectHistorySummary,
+} from '../../api/mypage';
 
 const ProjectHistoryHeaderStats = ({ summary }) => {
     const stats = [
@@ -46,7 +52,6 @@ const ProjectHistoryHeaderStats = ({ summary }) => {
 };
 
 const ProjectHistoryItem = ({ project }) => {
-    // PROJECT_HISTORY에는 courseId만 있으므로 COURSE_INFO에서 강의 정보를 찾아옴
     const course = COURSE_INFO.find(
         (course) => course.id === project.courseId
     );
@@ -72,7 +77,7 @@ const ProjectHistoryItem = ({ project }) => {
         <article className="project-history__item">
             <div className="project-history__course-header">
                 <h2 className="project-history__course-name">
-                    {course?.name ?? '알 수 없는 강의'}
+                    {project.courseName ?? course?.name ?? '알 수 없는 강의'}
                 </h2>
 
                 <div className="project-history__completion">
@@ -107,9 +112,34 @@ const ProjectHistory = () => {
     );
 
     useEffect(() => {
-        // 추후 실제 API 연동
-        // GET /me/project-history/summary
-        // GET /me/project-history
+        let isMounted = true;
+
+        const loadProjectHistory = async () => {
+            const [summaryResult, detailResult] = await Promise.allSettled([
+                getProjectHistorySummary(),
+                getProjectHistoryDetail(),
+            ]);
+
+            if (!isMounted) return;
+
+            if (summaryResult.status === 'fulfilled') {
+                setSummary(mapProjectHistorySummary(summaryResult.value.result));
+            } else {
+                console.log('[프로젝트 이력 요약 조회 실패]', summaryResult.reason.message);
+            }
+
+            if (detailResult.status === 'fulfilled') {
+                setProjects(mapProjectHistoryDetail(detailResult.value.result));
+            } else {
+                console.log('[프로젝트 이력 상세 조회 실패]', detailResult.reason.message);
+            }
+        };
+
+        loadProjectHistory();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     return (

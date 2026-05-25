@@ -12,4 +12,11 @@
     .section-project-history-summary {
         margin-bottom: 16px;
     }
+
+    .mypage-loading {
+        margin: 24px 0 0;
+        color: var(--gray-500);
+        text-align: center;
+        @include body3;
+    }
 }
