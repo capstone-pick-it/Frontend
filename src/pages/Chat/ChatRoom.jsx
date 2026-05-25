@@ -29,11 +29,13 @@ const ChatRoom = () => {
         const fetchMessages = async () => {
             try {
                 const result = await getChatMessages(roomId)
-                const normalized = (result.messages ?? []).map((msg) => ({
-                    ...msg,
-                    senderId: msg.senderId ?? msg.sender?.userId,
-                    senderNickname: msg.senderNickname ?? msg.sender?.nickname,
-                }))
+                const normalized = (result.messages ?? [])
+                    .map((msg) => ({
+                        ...msg,
+                        senderId: msg.senderId ?? msg.sender?.userId,
+                        senderNickname: msg.senderNickname ?? msg.sender?.nickname,
+                    }))
+                    .reverse()
                 setPrevMessages(normalized)
             } catch (e) {
                 console.error('메시지 조회 실패', e)
@@ -44,9 +46,12 @@ const ChatRoom = () => {
 
     // 새 메시지 오면 스크롤 아래로
     useEffect(() => {
-        if (chatContentRef.current) {
-            chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight
-        }
+        const el = chatContentRef.current
+        if (!el) return
+        const raf = requestAnimationFrame(() => {
+            el.scrollTop = el.scrollHeight
+        })
+        return () => cancelAnimationFrame(raf)
     }, [prevMessages, messages])
 
     const allMessages = [...prevMessages, ...messages]
