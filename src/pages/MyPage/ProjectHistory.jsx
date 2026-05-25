@@ -144,12 +144,18 @@ const ProjectHistory = () => {
                 <ProjectHistoryHeaderStats summary={summary} />
 
                 <div className="project-history__list">
-                    {projects.map((project) => (
-                        <ProjectHistoryItem
-                            key={project.id}
-                            project={project}
-                        />
-                    ))}
+                    {projects.length > 0 ? (
+                        projects.map((project) => (
+                            <ProjectHistoryItem
+                                key={project.id}
+                                project={project}
+                            />
+                        ))
+                    ) : (
+                        <p className="project-history__empty">
+                            프로젝트 이력이 없습니다.
+                        </p>
+                    )}
                 </div>
             </div>
 

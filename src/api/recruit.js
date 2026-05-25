@@ -81,7 +81,7 @@ export const getRecruitCourses = async () => {
   const response = await getCourseCards()
   const courseCards = response.result || []
 
-  return sortCoursesByCourseNameAsc(courseCards.map(mapCourseCard)).map((course) => ({
+  return sortCoursesByCourseNameAsc(courseCards.map((course) => mapCourseCard(course))).map((course) => ({
     ...course,
     id: String(course.id),
   }))

@@ -27,6 +27,21 @@ const getMatchScore = (card) => {
   return typeof score === 'number' ? score : 0;
 };
 
+const IMPORTANCE_SCORE = {
+  HIGH: 3,
+  MEDIUM: 2,
+  LOW: 1,
+  '높음': 3,
+  '보통': 2,
+  '낮음': 1,
+};
+
+const IMPORTANCE_LABELS = {
+  HIGH: '높음',
+  MEDIUM: '보통',
+  LOW: '낮음',
+};
+
 const SORT_OPTIONS = [
   { value: 'match', label: '성향 유사순' },
   { value: 'importance', label: '중요도 높은순' },
@@ -50,6 +65,26 @@ const RECRUIT_STATUS_LABELS = {
 }
 
 const isSelectableCourse = (course) => isActiveProjectStatus(course.projectStatus)
+
+const getRecruitCardUser = (card) => {
+  if (card.user) return card.user
+
+  return {
+    name: card.userName ?? card.nickname ?? card.name,
+    major: card.major,
+    year: card.grade ?? card.year,
+    level: card.teamLevel ?? card.level,
+    points: card.points,
+  }
+}
+
+const getRecruitCardTraits = (card) => card.traits || card.defaultTraits || []
+
+const getRecruitCardImportance = (card) => {
+  const importance = card.importance
+
+  return IMPORTANCE_LABELS[importance] || importance || ''
+}
 
 const getRecruitCardStatus = (card) => {
   const status = card.recruitmentStatus || card.status
@@ -225,32 +260,35 @@ const Recruit = () => {
 
     // 사용자 이름 검색
     if (searchKeyword) {
-      result = result.filter((card) => card.user.name.includes(searchKeyword));
+      result = result.filter((card) => {
+        const userName = getRecruitCardUser(card).name || ''
+
+        return userName.includes(searchKeyword)
+      });
     }
 
     // 선택한 성향을 모두 가진 카드만 표시
     if (selectedTraits.length > 0) {
       result = result.filter((card) =>
-        selectedTraits.every((trait) => card.traits.includes(trait))
+        selectedTraits.every((trait) => getRecruitCardTraits(card).includes(trait))
       );
     }
-
-    const importanceScore = {
-      높음: 3,
-      보통: 2,
-      낮음: 1,
-    };
 
     const sortedResult = [...result];
 
     if (sortType === 'importance') {
       sortedResult.sort(
-        (a, b) => importanceScore[b.importance] - importanceScore[a.importance]
+        (a, b) => (IMPORTANCE_SCORE[b.importance] || 0) - (IMPORTANCE_SCORE[a.importance] || 0)
       );
     }
 
     if (sortType === 'level') {
-      sortedResult.sort((a, b) => b.user.level - a.user.level);
+      sortedResult.sort((a, b) => {
+        const aLevel = getRecruitCardUser(a).level ?? 0
+        const bLevel = getRecruitCardUser(b).level ?? 0
+
+        return bLevel - aLevel
+      });
     }
 
     if (sortType === 'match') {
@@ -336,12 +374,12 @@ const Recruit = () => {
               <ProfileCard
                 key={card.id}
                 variant="recruit"
-                user={card.user}
+                user={getRecruitCardUser(card)}
                 status={getRecruitCardStatusLabel(card)}
-                traits={card.traits}
-                importance={card.importance}
+                traits={getRecruitCardTraits(card)}
+                importance={getRecruitCardImportance(card)}
                 projectSummary={card.projectSummary}
-                onChatClick={() => console.log(`${card.user.name} 채팅`)}
+                onChatClick={() => console.log(`${getRecruitCardUser(card).name || '사용자'} 채팅`)}
               />
             ))
           ) : (

@@ -271,8 +271,8 @@ export const isActiveProjectStatus = (projectStatus) => {
 }
 
 export const mapCourseCard = (course, traitNameMap) => ({
-  id: course.courseId,
-  name: course.courseName,
+  id: course.courseId ?? course.id,
+  name: course.courseName ?? course.name,
   semester: toDisplaySemester(course.semester),
   importance: toDisplayImportance(course.importance),
   traits: mapTraitNames(course.traits, traitNameMap),
@@ -280,8 +280,8 @@ export const mapCourseCard = (course, traitNameMap) => ({
 })
 
 export const mapCourseListItem = (course) => ({
-  id: course.courseId,
-  name: course.courseName,
+  id: course.courseId ?? course.id,
+  name: course.courseName ?? course.name,
   projectStatus: normalizeProjectStatus(course.projectStatus ?? course.status),
 })
 
@@ -300,8 +300,8 @@ export const mapProjectHistorySummary = (summary) => ({
 
 export const mapProjectHistoryDetail = (detail) => {
   return (detail?.projects || []).map((project, index) => ({
-    id: `${project.projectName || 'project'}-${index}`,
-    courseName: project.projectName,
+    id: project.projectId ?? project.id ?? `${project.projectName || 'project'}-${index}`,
+    courseName: project.projectName ?? project.courseName,
     completionRate: project.completionRate ?? 0,
     status: normalizeProjectStatus(project.projectStatus ?? project.status, 'DONE'),
     peerReview: {
@@ -319,6 +319,7 @@ export const mapProfile = (profile = {}) => {
     major: profile.major,
     year: profile.grade ?? profile.year,
     level: profile.teamLevel ?? profile.level,
+    points: profile.point ?? profile.points,
   }
 
   return Object.fromEntries(
