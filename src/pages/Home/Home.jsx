@@ -25,7 +25,12 @@ import {
   updateChecklist,
   updateChecklistStatus,
 } from '../../api/Home/home'
-import { IMPORTANCE_OPTIONS, TRAIT_OPTIONS } from '../../constants/commonOptions'
+import {
+  IMPORTANCE_OPTIONS,
+  mapTraitNames,
+  normalizeTraitName,
+  toDisplayImportance,
+} from '../../constants/commonOptions'
 
 const tabs = [
   { key: 'recruiting', label: '모집 중' },
@@ -34,7 +39,21 @@ const tabs = [
 ]
 
 const demoCurrentUserName = '이승희'
-const getTraitTitle = (title) => TRAIT_OPTIONS.find((trait) => trait.title === title)?.title || title
+const getDisplayImportance = (...importanceValues) => {
+  const importance = importanceValues.find((value) => value)
+
+  return toDisplayImportance(importance)
+}
+
+const getDisplayTraits = (traits, fallbackTraits = []) => {
+  const mappedTraits = mapTraitNames(Array.isArray(traits) ? traits : [])
+
+  if (mappedTraits.length > 0) {
+    return mappedTraits
+  }
+
+  return fallbackTraits.map((trait) => normalizeTraitName(trait)).filter(Boolean)
+}
 
 const projectStatusLabel = {
   RECRUITING: '모집 중',
@@ -47,7 +66,7 @@ const capstoneTeammates = [
     userId: 1,
     name: '문채이',
     school: '컴퓨터공학과 4학년',
-    tags: ['빠른소통', '꼼꼼함', getTraitTitle('비대면선호')],
+    tags: ['빠른소통', '꼼꼼함', normalizeTraitName('비대면선호')],
     level: 'LV.2',
     point: '140p',
     priority: IMPORTANCE_OPTIONS[1],
@@ -56,7 +75,7 @@ const capstoneTeammates = [
     userId: 2,
     name: '이승희',
     school: '컴퓨터공학과 4학년',
-    tags: ['미리준비', getTraitTitle('완벽주의'), getTraitTitle('대면선호')],
+    tags: ['미리준비', normalizeTraitName('완벽주의'), normalizeTraitName('대면선호')],
     level: 'LV.1',
     point: '100p',
     priority: IMPORTANCE_OPTIONS[0],
@@ -65,7 +84,7 @@ const capstoneTeammates = [
     userId: 3,
     name: '김성연',
     school: '컴퓨터공학과 4학년',
-    tags: ['적극참여', '자료조사', getTraitTitle('대면선호')],
+    tags: ['적극참여', '자료조사', normalizeTraitName('대면선호')],
     level: 'LV.3',
     point: '220p',
     priority: IMPORTANCE_OPTIONS[0],
@@ -74,7 +93,7 @@ const capstoneTeammates = [
     userId: 4,
     name: '이은우',
     school: '컴퓨터공학과 4학년',
-    tags: ['자료조사', '꼼꼼함', getTraitTitle('비대면선호')],
+    tags: ['자료조사', '꼼꼼함', normalizeTraitName('비대면선호')],
     level: 'LV.2',
     point: '130p',
     priority: IMPORTANCE_OPTIONS[1],
@@ -83,7 +102,7 @@ const capstoneTeammates = [
     userId: 5,
     name: '김지희',
     school: '컴퓨터공학과 4학년',
-    tags: ['일정관리', '빠른소통', getTraitTitle('대면선호')],
+    tags: ['일정관리', '빠른소통', normalizeTraitName('대면선호')],
     level: 'LV.2',
     point: '150p',
     priority: IMPORTANCE_OPTIONS[0],
@@ -92,7 +111,7 @@ const capstoneTeammates = [
     userId: 6,
     name: '김예린',
     school: '컴퓨터공학과 4학년',
-    tags: ['디자인', '꼼꼼함', getTraitTitle('완벽주의')],
+    tags: ['디자인', '꼼꼼함', normalizeTraitName('완벽주의')],
     level: 'LV.3',
     point: '210p',
     priority: IMPORTANCE_OPTIONS[0],
@@ -144,7 +163,7 @@ const activeProjects = [
         userId: 2,
         name: '이승희',
         school: '컴퓨터공학과 4학년',
-        tags: ['미리준비', getTraitTitle('완벽주의'), getTraitTitle('대면선호')],
+        tags: ['미리준비', normalizeTraitName('완벽주의'), normalizeTraitName('대면선호')],
         level: 'LV.1',
         point: '100p',
         priority: IMPORTANCE_OPTIONS[0],
@@ -153,7 +172,7 @@ const activeProjects = [
         userId: 1,
         name: '문채이',
         school: '컴퓨터공학과 4학년',
-        tags: ['빠른소통', '꼼꼼함', getTraitTitle('비대면선호')],
+        tags: ['빠른소통', '꼼꼼함', normalizeTraitName('비대면선호')],
         level: 'LV.2',
         point: '140p',
         priority: IMPORTANCE_OPTIONS[1],
@@ -250,10 +269,10 @@ const normalizeProjectMember = (member, fallbackMember = {}) => ({
   school: member.major || fallbackMember.school || '',
   role: member.role,
   activeMember: member.activeMember,
-  tags: fallbackMember.tags || [],
+  tags: getDisplayTraits(member.traits || member.defaultTraits, fallbackMember.tags || []),
   level: fallbackMember.level || 'LV.1',
   point: fallbackMember.point || '0p',
-  priority: fallbackMember.priority || '보통',
+  priority: getDisplayImportance(member.importance, member.priority, fallbackMember.priority),
 })
 
 const normalizeProjectDetail = (detail, fallbackProject) => {
@@ -287,10 +306,10 @@ const normalizeProjectSummary = (project, fallbackStatus) => {
         userId: project.memberIds?.[index] ?? index + 1,
         name,
         school: '',
-        tags: [],
+        tags: getDisplayTraits(project.traits || project.defaultTraits),
         level: 'LV.1',
         point: '0p',
-        priority: IMPORTANCE_OPTIONS[1],
+        priority: getDisplayImportance(project.importance, project.priority),
       }))
       : [],
     checklist: [],

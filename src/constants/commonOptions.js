@@ -107,3 +107,44 @@ export const TRAIT_NAME_ALIASES = {
   '아침형 인간': '아침형',
   '새벽형 인간': '새벽형',
 }
+
+export const toDisplayImportance = (importance) => {
+  return IMPORTANCE_LABEL_BY_VALUE[importance] || importance || IMPORTANCE_OPTIONS[1]
+}
+
+export const normalizeTraitName = (traitName) => {
+  if (!traitName) return ''
+
+  const trimmedTraitName = String(traitName).trim()
+
+  return TRAIT_NAME_ALIASES[trimmedTraitName] || trimmedTraitName
+}
+
+const getTraitNameByItemId = (traitItemId, selectedSide) => {
+  if (!traitItemId || !selectedSide) return ''
+
+  return normalizeTraitName(TRAIT_NAME_BY_ITEM_ID[traitItemId]?.[selectedSide] || '')
+}
+
+export const toDisplayTraitName = (trait = {}) => {
+  if (!trait) return ''
+  if (typeof trait === 'string') return normalizeTraitName(trait)
+  if (trait.selectedName) return normalizeTraitName(trait.selectedName)
+
+  const selectedSide = trait.selectedSide || trait.selectedType
+  const traitItemId = trait.traitItemId ?? trait.traitItemsId
+
+  if (selectedSide === 'A') {
+    return normalizeTraitName(trait.nameA || getTraitNameByItemId(traitItemId, selectedSide))
+  }
+
+  if (selectedSide === 'B') {
+    return normalizeTraitName(trait.nameB || getTraitNameByItemId(traitItemId, selectedSide))
+  }
+
+  return normalizeTraitName(trait.name || trait.title || trait.nameA || trait.nameB || '')
+}
+
+export const mapTraitNames = (traits = []) => {
+  return traits.map((trait) => toDisplayTraitName(trait)).filter(Boolean)
+}
