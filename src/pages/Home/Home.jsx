@@ -443,6 +443,13 @@ const Home = () => {
     || reviewProject?.teammates?.[0]
   const currentProjectUserName = currentProjectUser?.name || ''
   const currentProjectUserId = currentProjectUser?.userId
+  const isChecklistAssignee = (item) => {
+    if (item.assigneeId && currentProjectUserId) {
+      return item.assigneeId === currentProjectUserId
+    }
+
+    return item.assignee === currentProjectUserName
+  }
   const completionRequest = selectedProject ? completionRequests[selectedProject.id] : null
   const approvedUserIds = getApprovedUserIds(completionRequest)
   const currentUserCompletionDecision = (completionRequest?.approvals || [])
@@ -767,6 +774,11 @@ const Home = () => {
     }
 
     const targetItem = selectedProject.checklist.find((item) => item.id === itemId)
+
+    if (!targetItem || !isChecklistAssignee(targetItem)) {
+      return
+    }
+
     const nextDone = !targetItem?.done
 
     try {
@@ -1080,11 +1092,11 @@ const Home = () => {
                 </button>
                 <button
                   type="button"
-                  disabled={currentTab !== 'active' || item.creatorName !== currentProjectUserName}
+                  disabled={currentTab !== 'active' || !isChecklistAssignee(item)}
                   aria-label={
-                    item.creatorName === currentProjectUserName
+                    isChecklistAssignee(item)
                       ? '체크리스트 완료 상태 변경'
-                      : `${item.creatorName || item.assignee} 작성 할 일입니다`
+                      : `${item.assignee} 담당 할 일입니다`
                   }
                   onClick={() => toggleChecklistItem(item.id)}
                 >
@@ -1210,7 +1222,7 @@ const Home = () => {
 
       {editingChecklistItem && (
         <ChecklistEditModal
-          canEdit={editingChecklistItem.isNew || editingChecklistItem.assignee === currentProjectUserName}
+          canEdit={editingChecklistItem.isNew || isChecklistAssignee(editingChecklistItem)}
           item={editingChecklistItem}
           members={selectedProject?.teammates || []}
           onClose={() => setEditingChecklistId(null)}
