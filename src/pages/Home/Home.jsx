@@ -25,6 +25,7 @@ import {
   updateChecklist,
   updateChecklistStatus,
 } from '../../api/Home/home'
+import { IMPORTANCE_OPTIONS, TRAIT_OPTIONS } from '../../constants/commonOptions'
 
 const tabs = [
   { key: 'recruiting', label: '모집 중' },
@@ -33,6 +34,7 @@ const tabs = [
 ]
 
 const demoCurrentUserName = '이승희'
+const getTraitTitle = (title) => TRAIT_OPTIONS.find((trait) => trait.title === title)?.title || title
 
 const projectStatusLabel = {
   RECRUITING: '모집 중',
@@ -45,55 +47,55 @@ const capstoneTeammates = [
     userId: 1,
     name: '문채이',
     school: '컴퓨터공학과 4학년',
-    tags: ['빠른소통', '꼼꼼함', '비대면선호'],
+    tags: ['빠른소통', '꼼꼼함', getTraitTitle('비대면선호')],
     level: 'LV.2',
     point: '140p',
-    priority: '보통',
+    priority: IMPORTANCE_OPTIONS[1],
   },
   {
     userId: 2,
     name: '이승희',
     school: '컴퓨터공학과 4학년',
-    tags: ['미리준비', '완벽주의', '대면선호'],
+    tags: ['미리준비', getTraitTitle('완벽주의'), getTraitTitle('대면선호')],
     level: 'LV.1',
     point: '100p',
-    priority: '높음',
+    priority: IMPORTANCE_OPTIONS[0],
   },
   {
     userId: 3,
     name: '김성연',
     school: '컴퓨터공학과 4학년',
-    tags: ['적극참여', '자료조사', '대면선호'],
+    tags: ['적극참여', '자료조사', getTraitTitle('대면선호')],
     level: 'LV.3',
     point: '220p',
-    priority: '높음',
+    priority: IMPORTANCE_OPTIONS[0],
   },
   {
     userId: 4,
     name: '이은우',
     school: '컴퓨터공학과 4학년',
-    tags: ['자료조사', '꼼꼼함', '비대면선호'],
+    tags: ['자료조사', '꼼꼼함', getTraitTitle('비대면선호')],
     level: 'LV.2',
     point: '130p',
-    priority: '보통',
+    priority: IMPORTANCE_OPTIONS[1],
   },
   {
     userId: 5,
     name: '김지희',
     school: '컴퓨터공학과 4학년',
-    tags: ['일정관리', '빠른소통', '대면선호'],
+    tags: ['일정관리', '빠른소통', getTraitTitle('대면선호')],
     level: 'LV.2',
     point: '150p',
-    priority: '높음',
+    priority: IMPORTANCE_OPTIONS[0],
   },
   {
     userId: 6,
     name: '김예린',
     school: '컴퓨터공학과 4학년',
-    tags: ['디자인', '꼼꼼함', '완벽주의'],
+    tags: ['디자인', '꼼꼼함', getTraitTitle('완벽주의')],
     level: 'LV.3',
     point: '210p',
-    priority: '높음',
+    priority: IMPORTANCE_OPTIONS[0],
   },
   {
     userId: 7,
@@ -102,7 +104,7 @@ const capstoneTeammates = [
     tags: ['일정관리', '디자인', '빠른소통'],
     level: 'LV.2',
     point: '160p',
-    priority: '보통',
+    priority: IMPORTANCE_OPTIONS[1],
   },
 ]
 
@@ -142,19 +144,19 @@ const activeProjects = [
         userId: 2,
         name: '이승희',
         school: '컴퓨터공학과 4학년',
-        tags: ['미리준비', '완벽주의', '대면선호'],
+        tags: ['미리준비', getTraitTitle('완벽주의'), getTraitTitle('대면선호')],
         level: 'LV.1',
         point: '100p',
-        priority: '높음',
+        priority: IMPORTANCE_OPTIONS[0],
       },
       {
         userId: 1,
         name: '문채이',
         school: '컴퓨터공학과 4학년',
-        tags: ['빠른소통', '꼼꼼함', '비대면선호'],
+        tags: ['빠른소통', '꼼꼼함', getTraitTitle('비대면선호')],
         level: 'LV.2',
         point: '140p',
-        priority: '보통',
+        priority: IMPORTANCE_OPTIONS[1],
       },
     ],
     checklist: [
@@ -288,7 +290,7 @@ const normalizeProjectSummary = (project, fallbackStatus) => {
         tags: [],
         level: 'LV.1',
         point: '0p',
-        priority: '보통',
+        priority: IMPORTANCE_OPTIONS[1],
       }))
       : [],
     checklist: [],

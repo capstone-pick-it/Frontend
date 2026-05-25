@@ -9,9 +9,10 @@ import Button from '../../components/Button';
 import Nav from '../../components/Nav';
 
 import {
-    ONBOARDING_INFO_OPTIONS,
-    PREFERENCE,
-} from '../../data/mockData';
+    IMPORTANCE_OPTIONS,
+    SEMESTER_OPTIONS,
+    TRAIT_OPTIONS,
+} from '../../constants/commonOptions';
 import {
     createCourse,
     createTraitNameMap,
@@ -21,13 +22,13 @@ import {
 } from '../../api/mypage';
 
 const getTraitPairTitles = (traitTitle) => {
-    const selectedTrait = PREFERENCE.find((trait) => trait.title === traitTitle);
+    const selectedTrait = TRAIT_OPTIONS.find((trait) => trait.title === traitTitle);
 
     if (!selectedTrait) return [];
 
     const pairStartIndex = Math.floor((selectedTrait.id - 1) / 2) * 2;
 
-    return PREFERENCE
+    return TRAIT_OPTIONS
         .slice(pairStartIndex, pairStartIndex + 2)
         .map((trait) => trait.title);
 };
@@ -42,14 +43,14 @@ const selectTraitInPair = (selectedTraits, traitTitle) => {
 };
 
 const sortTraitsByPreferenceOrder = (traits = []) => {
-    return PREFERENCE
+    return TRAIT_OPTIONS
         .map((preference) => preference.title)
         .filter((traitTitle) => traits.includes(traitTitle));
 };
 
 const normalizeTraitSelectionByPair = (selectedTraits = []) => {
     return selectedTraits.reduce((normalizedTraits, traitTitle) => {
-        if (!PREFERENCE.some((trait) => trait.title === traitTitle)) {
+        if (!TRAIT_OPTIONS.some((trait) => trait.title === traitTitle)) {
             return normalizedTraits;
         }
 
@@ -62,8 +63,8 @@ const CourseAdd = () => {
 
     // 상태 관리
     const [courseName, setCourseName] = useState('');
-    const [semester, setSemester] = useState(ONBOARDING_INFO_OPTIONS.SEMESTERS[0]);
-    const [importance, setImportance] = useState('높음');
+    const [semester, setSemester] = useState(SEMESTER_OPTIONS[0]);
+    const [importance, setImportance] = useState(IMPORTANCE_OPTIONS[0]);
 
     const [selectedTraits, setSelectedTraits] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -164,7 +165,7 @@ const CourseAdd = () => {
                 {/* 수강학기 */}
                 <Dropdown
                     title="수강학기"
-                    list={ONBOARDING_INFO_OPTIONS.SEMESTERS}
+                    list={SEMESTER_OPTIONS}
                     value={semester}
                     onChange={setSemester}
                 />
@@ -172,7 +173,7 @@ const CourseAdd = () => {
                 {/* 중요도 */}
                 <Dropdown
                     title="중요도"
-                    list={['높음', '보통', '낮음']}
+                    list={IMPORTANCE_OPTIONS}
                     value={importance}
                     onChange={setImportance}
                 />
@@ -182,7 +183,7 @@ const CourseAdd = () => {
                     <h2 className="course-add-page__title">팀플 성향</h2>
 
                     <div className="course-add-page__grid">
-                        {PREFERENCE.map((item) => (
+                        {TRAIT_OPTIONS.map((item) => (
                             <PreferenceCard
                                 key={item.id}
                                 title={item.title}

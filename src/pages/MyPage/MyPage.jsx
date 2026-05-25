@@ -20,7 +20,7 @@ import {
   mapDefaultTraits,
   mapProfile,
   mapProjectHistorySummary,
-  sortCoursesByRegistrationOrder,
+  sortCoursesByCourseNameAsc,
 } from '../../api/mypage';
 
 const getInitialUserInfo = () => {
@@ -84,9 +84,14 @@ const MyPage = () => {
 
       if (teamLevelResult.status === 'fulfilled') {
         const teamLevel = teamLevelResult.value.result;
+        const nextTeamLevel =
+          typeof teamLevel === 'number'
+            ? teamLevel
+            : teamLevel?.teamLevel ?? teamLevel?.level;
+
         setUserInfo((prev) => ({
           ...prev,
-          level: teamLevel?.teamLevel ?? teamLevel?.level ?? prev.level,
+          level: nextTeamLevel ?? prev.level,
         }));
       } else {
         console.log('[팀플 레벨 조회 실패]', teamLevelResult.reason.message);
@@ -109,7 +114,9 @@ const MyPage = () => {
 
       if (courseCardsResult.status === 'fulfilled') {
         setCourses(
-          sortCoursesByRegistrationOrder((courseCardsResult.value.result || []).map(mapCourseCard))
+          sortCoursesByCourseNameAsc(
+            (courseCardsResult.value.result || []).map((course) => mapCourseCard(course))
+          )
         );
       } else {
         console.log('[강의 카드 조회 실패]', courseCardsResult.reason.message);

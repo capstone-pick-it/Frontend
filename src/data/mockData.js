@@ -79,7 +79,7 @@ export const USER_INFO = {
     points: 100,
 };
 
-// 기본 팀플 성향 데이터
+// (사용X) 기본 팀플 성향 데이터
 export const USER_DEFAULT_TRAITS = [
     "미리미리",
     "효율주의",
@@ -96,7 +96,7 @@ export const COURSE_INFO = [
         semester: "2026년도 1학기",
         importance: "높음",
         traits: ["미리미리", "완벽주의", "대면선호", "협업선호", "새벽형"],
-        projectStatus: "ONGOING",
+        projectStatus: "RECRUITING",
     },
     {
         id: "course_002",
@@ -104,7 +104,7 @@ export const COURSE_INFO = [
         semester: "2026년도 1학기",
         importance: "보통",
         traits: ["미리미리", "완벽주의", "비대면선호", "협업선호", "아침형"],
-        projectStatus: "ONGOING",
+        projectStatus: "IN_PROGRESS",
     },
     {
         id: "course_003",
@@ -112,7 +112,7 @@ export const COURSE_INFO = [
         semester: "2026년도 1학기",
         importance: "낮음",
         traits: ["벼락치기", "효율주의", "비대면선호", "분담선호", "새벽형"],
-        projectStatus: "ONGOING",
+        projectStatus: "RECRUITING",
     },
     {
         id: "course_004",
@@ -120,7 +120,7 @@ export const COURSE_INFO = [
         semester: "2025년도 1학기",
         importance: "높음",
         traits: ["미리미리", "완벽주의", "대면선호", "협업선호", "새벽형"],
-        projectStatus: "COMPLETED",
+        projectStatus: "DONE",
     },
     {
         id: "course_005",
@@ -128,7 +128,7 @@ export const COURSE_INFO = [
         semester: "2024년도 2학기",
         importance: "보통",
         traits: ["미리미리", "효율주의", "비대면선호", "분담선호", "아침형"],
-        projectStatus: "COMPLETED",
+        projectStatus: "DONE",
     },
     {
         id: "course_006",
@@ -136,11 +136,11 @@ export const COURSE_INFO = [
         semester: "2024년도 1학기",
         importance: "보통",
         traits: ["벼락치기", "효율주의", "대면선호", "협업선호", "새벽형"],
-        projectStatus: "COMPLETED",
+        projectStatus: "DONE",
     },
 ];
 
-// 프로젝트 이력 요약 데이터
+// (사용X) 프로젝트 이력 요약 데이터
 export const PROJECT_HISTORY_SUMMARY = {
     projectCount: 3,
     completionRate: 100,
@@ -148,13 +148,13 @@ export const PROJECT_HISTORY_SUMMARY = {
     maxPeerReviewScore: 5,
 };
 
-// 프로젝트 이력 상세 데이터
+// (사용X) 프로젝트 이력 상세 데이터
 export const PROJECT_HISTORY = [
     {
         id: "project_001",
         courseId: "course_004", //소프트웨어분석및설계
         completionRate: 100,
-        status: "COMPLETED",
+        status: "DONE",
         peerReview: {
             completion: 4,
             participation: 4,
@@ -166,7 +166,7 @@ export const PROJECT_HISTORY = [
         id: "project_002",
         courseId: "course_005", // 컴퓨터네트워크
         completionRate: 100,
-        status: "COMPLETED",
+        status: "DONE",
         peerReview: {
             completion: 4,
             participation: 4,
@@ -178,7 +178,7 @@ export const PROJECT_HISTORY = [
         id: "project_003",
         courseId: "course_006", // 자바프로그래밍
         completionRate: 100,
-        status: "COMPLETED",
+        status: "DONE",
         peerReview: {
             completion: 4,
             participation: 4,
@@ -209,7 +209,7 @@ export const PREFERENCE =[
     { id: 10, title: "새벽형", content: "새벽 시간을 선호해요, 새벽 시간대에 주로 활동하고 집중이 잘돼요"}
 ]
 
-// 모집 페이지 유저 데이터 (김성연, 김예린, 김지희, 김채원, 문채이, 이승희, 이은우)
+// (사용X) 모집 페이지 유저 데이터 (김성연, 김예린, 김지희, 김채원, 문채이, 이승희, 이은우)
 export const RECRUIT_USERS = [
     {
         id: "user_001",
@@ -269,7 +269,7 @@ export const RECRUIT_USERS = [
     },
 ];
 
-// 모집 페이지 카드 목록 데이터
+// (사용X) 모집 페이지 카드 목록 데이터
 export const RECRUIT_CARDS = [
     // 캡스톤디자인
     {
@@ -578,7 +578,7 @@ export const RECRUIT_CARDS = [
     },
 ];
 
-// 카드 목록 조회용 데이터 （카드와 유저 정보를 합쳐서 사용）
+// (사용X) 카드 목록 조회용 데이터 （카드와 유저 정보를 합쳐서 사용）
 export const RECRUIT_CARD_LIST = RECRUIT_CARDS.map((card) => {
     const user = RECRUIT_USERS.find((item) => item.id === card.userId);
 
@@ -598,12 +598,12 @@ export const RECRUIT_CARD_LIST = RECRUIT_CARDS.map((card) => {
     };
 });
 
-// 강의별 카드 목록 조회
+// (사용X) 강의별 카드 목록 조회
 export const getRecruitCardsByCourseId = (courseId) => {
     return RECRUIT_CARD_LIST.filter((card) => card.courseId === courseId);
 };
 
-// 카드 상세 조회
+// (사용X) 카드 상세 조회
 export const getRecruitCardById = (cardId) => {
     return RECRUIT_CARD_LIST.find((card) => card.id === cardId);
 };

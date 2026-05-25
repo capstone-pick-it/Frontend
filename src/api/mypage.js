@@ -1,4 +1,11 @@
 import { request } from './client'
+import {
+  IMPORTANCE_LABEL_BY_VALUE,
+  IMPORTANCE_OPTIONS,
+  IMPORTANCE_VALUE_BY_LABEL,
+  TRAIT_NAME_ALIASES,
+  TRAIT_NAME_BY_ITEM_ID,
+} from '../constants/commonOptions'
 
 export const getMyProfile = () => {
   return request('/api/users/me/profile', {
@@ -103,13 +110,7 @@ export const updateDefaultTraits = (traits) => {
 }
 
 export const toDisplayImportance = (importance) => {
-  const importanceMap = {
-    HIGH: '높음',
-    MEDIUM: '보통',
-    LOW: '낮음',
-  }
-
-  return importanceMap[importance] || importance || '보통'
+  return IMPORTANCE_LABEL_BY_VALUE[importance] || importance || IMPORTANCE_OPTIONS[1]
 }
 
 export const toDisplaySemester = (semester) => {
@@ -123,13 +124,7 @@ export const toDisplaySemester = (semester) => {
 }
 
 export const toApiImportance = (importance) => {
-  const importanceMap = {
-    높음: 'HIGH',
-    보통: 'MEDIUM',
-    낮음: 'LOW',
-  }
-
-  return importanceMap[importance] || importance || 'MEDIUM'
+  return IMPORTANCE_VALUE_BY_LABEL[importance] || importance || 'MEDIUM'
 }
 
 export const toApiSemester = (semester) => {
@@ -148,14 +143,6 @@ export const toApiSemester = (semester) => {
   return `${match[1]}-${match[2]}`
 }
 
-const TRAIT_NAME_BY_ITEM_ID = {
-  1: { A: '미리미리', B: '벼락치기' },
-  2: { A: '효율주의', B: '완벽주의' },
-  3: { A: '대면선호', B: '비대면선호' },
-  4: { A: '협업선호', B: '분담선호' },
-  5: { A: '아침형', B: '새벽형' },
-}
-
 const TRAIT_REQUEST_BY_NAME = Object.entries(TRAIT_NAME_BY_ITEM_ID).reduce(
   (traitRequestMap, [traitItemId, sides]) => {
     Object.entries(sides).forEach(([selectedType, traitName]) => {
@@ -169,15 +156,6 @@ const TRAIT_REQUEST_BY_NAME = Object.entries(TRAIT_NAME_BY_ITEM_ID).reduce(
   },
   {}
 )
-
-const TRAIT_NAME_ALIASES = {
-  '대면 선호': '대면선호',
-  '비대면 선호': '비대면선호',
-  '협업 선호': '협업선호',
-  '분담 선호': '분담선호',
-  '아침형 인간': '아침형',
-  '새벽형 인간': '새벽형',
-}
 
 export const normalizeTraitName = (traitName) => {
   if (!traitName) return ''
@@ -253,31 +231,42 @@ export const mapDefaultTraits = (traits = [], traitNameMap) => {
   return mapTraitNames(traits, traitNameMap)
 }
 
+const LEGACY_PROJECT_STATUS_MAP = {
+  ONGOING: 'RECRUITING',
+  COMPLETED: 'DONE',
+}
+
+export const normalizeProjectStatus = (projectStatus, fallbackStatus = 'RECRUITING') => {
+  const status = projectStatus || fallbackStatus
+
+  return LEGACY_PROJECT_STATUS_MAP[status] || status
+}
+
+export const isActiveProjectStatus = (projectStatus) => {
+  const status = normalizeProjectStatus(projectStatus, '')
+
+  return status === 'RECRUITING' || status === 'IN_PROGRESS'
+}
+
 export const mapCourseCard = (course, traitNameMap) => ({
-  id: course.courseId,
-  name: course.courseName,
+  id: course.courseId ?? course.id,
+  name: course.courseName ?? course.name,
   semester: toDisplaySemester(course.semester),
   importance: toDisplayImportance(course.importance),
   traits: mapTraitNames(course.traits, traitNameMap),
-  projectStatus: 'ONGOING',
+  projectStatus: normalizeProjectStatus(course.projectStatus ?? course.status),
 })
 
 export const mapCourseListItem = (course) => ({
-  id: course.courseId,
-  name: course.courseName,
-  projectStatus: 'ONGOING',
+  id: course.courseId ?? course.id,
+  name: course.courseName ?? course.name,
+  projectStatus: normalizeProjectStatus(course.projectStatus ?? course.status),
 })
 
-const getCourseOrderValue = (course) => {
-  if (typeof course.id === 'number') return course.id
-
-  const match = String(course.id ?? '').match(/\d+/)
-
-  return match ? Number(match[0]) : Number.MAX_SAFE_INTEGER
-}
-
-export const sortCoursesByRegistrationOrder = (courses = []) => {
-  return [...courses].sort((a, b) => getCourseOrderValue(a) - getCourseOrderValue(b))
+export const sortCoursesByCourseNameAsc = (courses = []) => {
+  return [...courses].sort((a, b) =>
+    String(a.name || '').localeCompare(String(b.name || ''), 'ko')
+  )
 }
 
 export const mapProjectHistorySummary = (summary) => ({
@@ -289,10 +278,10 @@ export const mapProjectHistorySummary = (summary) => ({
 
 export const mapProjectHistoryDetail = (detail) => {
   return (detail?.projects || []).map((project, index) => ({
-    id: `${project.projectName || 'project'}-${index}`,
-    courseName: project.projectName,
+    id: project.projectId ?? project.id ?? `${project.projectName || 'project'}-${index}`,
+    courseName: project.projectName ?? project.courseName,
     completionRate: project.completionRate ?? 0,
-    status: 'COMPLETED',
+    status: normalizeProjectStatus(project.projectStatus ?? project.status, 'DONE'),
     peerReview: {
       completion: project.teamEvaluation?.completion ?? 0,
       participation: project.teamEvaluation?.activeness ?? 0,
@@ -308,6 +297,7 @@ export const mapProfile = (profile = {}) => {
     major: profile.major,
     year: profile.grade ?? profile.year,
     level: profile.teamLevel ?? profile.level,
+    points: profile.point ?? profile.points,
   }
 
   return Object.fromEntries(

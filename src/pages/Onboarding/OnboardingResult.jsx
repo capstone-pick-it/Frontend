@@ -3,6 +3,11 @@ import ProfileCard from '../../components/ProfileCard'
 import Button from '../../components/Button'
 import { useNavigate } from 'react-router-dom'
 import { USER_INFO } from '../../data/mockData'
+import {
+  IMPORTANCE_OPTIONS,
+  MAJOR_OPTIONS,
+  TRAIT_OPTIONS,
+} from '../../constants/commonOptions'
 
 const OnboardingResult = () => {
   const navigate = useNavigate();
@@ -18,13 +23,17 @@ const OnboardingResult = () => {
         <ProfileCard
           variant="onboarding"
           name={USER_INFO.name}
-          major="컴퓨터공학과"
+          major={MAJOR_OPTIONS[0]}
           year={4}
           level={1}
           points={100}
           status="모집 중"
-          traits={["미리준비", "완벽주의", "대면선호"]}
-          importance="높음"
+          traits={[
+            TRAIT_OPTIONS[0].title,
+            TRAIT_OPTIONS[3].title,
+            TRAIT_OPTIONS[4].title,
+          ]}
+          importance={IMPORTANCE_OPTIONS[0]}
         />
       </main>
       <Button title={"완료"} onClick={() => navigate('/home')}/>

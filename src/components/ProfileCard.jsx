@@ -17,20 +17,20 @@ const ProfileCard = ({
     level,
     points,
 
-    // 목업데이터 user 객체
+    // 모집 페이지에서 내려받는 사용자 객체
     user,
 
     // 모집 상태, 성향 태그, 중요도
-    status = '모집 중',
+    status,
     traits = [],
-    importance = '높음',
+    importance,
 
     // 프로젝트 이력 요약
     projectSummary,
 
     // 홈 프로젝트 워크스페이스용 팀원 순서
-    memberIndex = 1,
-    memberTotal = 1,
+    memberIndex,
+    memberTotal,
 
     // 모집 페이지에서 카드 기본 펼침 여부
     defaultExpanded = false,
@@ -58,10 +58,15 @@ const ProfileCard = ({
     ].filter(Boolean).join(' ');
 
     // 페이지별 노출 여부
-    const showRecruitStatus = !isMypage;
-    const showTraits = !isMypage;
-    const showImportance = !isMypage;
-    const showMemberCount = isWorkspace;
+    const showRecruitStatus = (isOnboarding || isRecruitPage) && Boolean(status);
+    const showTraits = !isMypage && traits.length > 0;
+    const showImportance = !isMypage && Boolean(importance);
+    const showMemberCount =
+        isWorkspace &&
+        memberIndex !== undefined &&
+        memberIndex !== null &&
+        memberTotal !== undefined &&
+        memberTotal !== null;
     const showActions = isWorkspace;
     const showToggle = isRecruitPage;
 
@@ -69,10 +74,16 @@ const ProfileCard = ({
     const recruitTagVariant = isRecruitPage ? 'recruit-page' : 'recruit-default';
 
     const profileStats = [
-        { label: '팀플레벨', value: `LV.${displayLevel}` },
-        { label: '포인트', value: `${displayPoints}p` },
-        { label: '중요도', value: importance },
-    ];
+        displayLevel !== undefined && displayLevel !== null
+            ? { label: '팀플레벨', value: `LV.${displayLevel}` }
+            : null,
+        displayPoints !== undefined && displayPoints !== null
+            ? { label: '포인트', value: `${displayPoints}p` }
+            : null,
+        showImportance
+            ? { label: '중요도', value: importance }
+            : null,
+    ].filter(Boolean);
 
     const projectStats = projectSummary
         ? [
@@ -85,7 +96,10 @@ const ProfileCard = ({
         ]
         : [];
 
-    const workspaceDots = Array.from({ length: memberTotal }, (_, index) => index + 1);
+    const workspaceDots = showMemberCount
+        ? Array.from({ length: memberTotal }, (_, index) => index + 1)
+        : [];
+    const showStats = profileStats.length > 0;
 
     const MAX_VISIBLE_RECRUIT_TRAITS = 4;
 
@@ -182,7 +196,9 @@ const ProfileCard = ({
                             className={`profile-card__recruit-detail ${isExpanded ? 'is-open' : ''}`}
                             aria-hidden={!isExpanded}
                         >
-                            <TripleStatBox stats={profileStats} />
+                            {profileStats.length > 0 && (
+                                <TripleStatBox stats={profileStats} />
+                            )}
 
                             {projectStats.length > 0 && (
                                 <TripleStatBox stats={projectStats} />
@@ -194,35 +210,18 @@ const ProfileCard = ({
                             />
                         </div>
                     ) : (
-                        <div className="profile-card__stats">
-
-                            {/* 팀플레벨 */}
-                            <div>
-                                <StatBox
-                                    label="팀플레벨"
-                                    value={`LV.${displayLevel}`}
-                                />
+                        showStats && (
+                            <div className="profile-card__stats">
+                                {profileStats.map((stat) => (
+                                    <div key={stat.label}>
+                                        <StatBox
+                                            label={stat.label}
+                                            value={stat.value}
+                                        />
+                                    </div>
+                                ))}
                             </div>
-
-                            {/* 포인트 */}
-                            <div>
-                                <StatBox
-                                    label="포인트"
-                                    value={`${displayPoints}p`}
-                                />
-                            </div>
-
-                            {/* 온보딩, 홈에서 사용하는 중요도 */}
-                            {showImportance && (
-                                <div>
-                                    <StatBox
-                                        label="중요도"
-                                        value={importance}
-                                    />
-                                </div>
-                            )}
-
-                        </div>
+                        )
                     )}
 
                     {/* 3. 홈 프로젝트 워크스페이스: 채팅 / 신고 버튼 */}
