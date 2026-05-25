@@ -71,3 +71,10 @@
         }
     }
 }
+
+.course-card-loading {
+    margin: 24px 0 0;
+    color: var(--gray-500);
+    text-align: center;
+    @include body3;
+}

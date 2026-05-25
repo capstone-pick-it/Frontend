@@ -52,6 +52,13 @@
         
     }
 
+    &__empty {
+        margin: 24px 0 0;
+        color: var(--gray-500);
+        text-align: center;
+        @include body3;
+    }
+
     // 프로젝트 카드 (강의 하나)
     &__item {
         display: flex;
