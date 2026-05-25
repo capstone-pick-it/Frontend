@@ -22,6 +22,40 @@ const normalizeTraitName = (traitName) => {
   return TRAIT_NAME_ALIASES[trimmedTraitName] || trimmedTraitName
 }
 
+export const DEFAULT_RECRUITING_MEMBERS_PAGE = 0
+export const DEFAULT_RECRUITING_MEMBERS_SIZE = 20
+
+export const toRecruitingMemberQuery = ({
+  keyword = '',
+  traits = [],
+  includeCompleted = false,
+  sort,
+  page = DEFAULT_RECRUITING_MEMBERS_PAGE,
+  size = DEFAULT_RECRUITING_MEMBERS_SIZE,
+} = {}) => {
+  const traitValues = Array.isArray(traits) ? traits : [traits].filter(Boolean)
+  const query = {
+    includeCompleted,
+    page,
+    size,
+  }
+
+  const trimmedKeyword = String(keyword).trim()
+  if (trimmedKeyword) {
+    query.keyword = trimmedKeyword
+  }
+
+  if (traitValues.length > 0) {
+    query.traits = traitValues.join(',')
+  }
+
+  if (sort) {
+    query.sort = sort
+  }
+
+  return query
+}
+
 export const toTraitFilters = (traitItems = []) => {
   return traitItems.flatMap((traitItem) => {
     const traitItemsId = traitItem?.traitItemsId

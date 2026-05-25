@@ -19,6 +19,7 @@ import {
   getTraitItems,
   toTraitFilters,
 } from '../api/recruit';
+import { isActiveProjectStatus } from '../api/mypage';
 
 const getMatchScore = (card) => {
   const score = card.matchScore ?? card.similarityScore ?? card.matchingScore;
@@ -32,6 +33,45 @@ const SORT_OPTIONS = [
   { value: 'level', label: '팀플레벨 높은순' },
   { value: 'default', label: '최신순' },
 ];
+
+const RECRUIT_STATUS = {
+  RECRUITING: 'RECRUITING',
+  RECRUITMENT_COMPLETED: 'RECRUITMENT_COMPLETED',
+}
+
+const LEGACY_RECRUIT_STATUS_MAP = {
+  '모집 중': RECRUIT_STATUS.RECRUITING,
+  '모집 완료': RECRUIT_STATUS.RECRUITMENT_COMPLETED,
+}
+
+const RECRUIT_STATUS_LABELS = {
+  [RECRUIT_STATUS.RECRUITING]: '모집 중',
+  [RECRUIT_STATUS.RECRUITMENT_COMPLETED]: '모집 완료',
+}
+
+const isSelectableCourse = (course) => isActiveProjectStatus(course.projectStatus)
+
+const getRecruitCardStatus = (card) => {
+  const status = card.recruitmentStatus || card.status
+
+  return LEGACY_RECRUIT_STATUS_MAP[status] || status
+}
+
+const getRecruitCardStatusLabel = (card) => {
+  const status = getRecruitCardStatus(card)
+
+  return RECRUIT_STATUS_LABELS[status] || card.status || ''
+}
+
+const isVisibleRecruitCard = (card, includeCompleted) => {
+  const status = getRecruitCardStatus(card)
+
+  if (includeCompleted) {
+    return status === RECRUIT_STATUS.RECRUITING || status === RECRUIT_STATUS.RECRUITMENT_COMPLETED
+  }
+
+  return status === RECRUIT_STATUS.RECRUITING
+}
 
 const fetchRecruitPageData = async () => {
   const [courses, traitItems] = await Promise.all([
@@ -80,17 +120,15 @@ const Recruit = () => {
         const pageData = await fetchRecruitPageData();
         if (ignore) return;
 
-        const ongoingRecruitCourses = pageData.recruitCourses.filter(
-          (course) => course.projectStatus === 'ONGOING'
-        );
+        const selectableRecruitCourses = pageData.recruitCourses.filter(isSelectableCourse);
 
         setCourses(pageData.recruitCourses);
         setCards([]);
         setTraitFilters(pageData.traitFilters);
         setSelectedCourseId((prev) => {
-          if (ongoingRecruitCourses.some((course) => course.id === prev)) return prev;
+          if (selectableRecruitCourses.some((course) => course.id === prev)) return prev;
 
-          return ongoingRecruitCourses[0]?.id || '';
+          return selectableRecruitCourses[0]?.id || '';
         });
       } catch (error) {
         console.error('[모집 페이지 조회 실패]', error.message);
@@ -115,7 +153,7 @@ const Recruit = () => {
 
   // 모집 가능한 강의만 드롭다운에 노출
   const recruitCourses = useMemo(() => {
-    return courses.filter((course) => course.projectStatus === 'ONGOING');
+    return courses.filter(isSelectableCourse);
   }, [courses]);
 
   const selectedCourse = recruitCourses.find((course) => course.id === selectedCourseId);
@@ -181,10 +219,9 @@ const Recruit = () => {
       result = result.filter((card) => String(card.courseId) === selectedCourseId);
     }
 
-    // 모집 완료 포함 여부
-    if (!includeCompleted) {
-      result = result.filter((card) => card.status !== '모집 완료');
-    }
+    // 모집 완료 포함 체크 해제: RECRUITING만 노출
+    // 모집 완료 포함 체크: RECRUITING, RECRUITMENT_COMPLETED 노출
+    result = result.filter((card) => isVisibleRecruitCard(card, includeCompleted));
 
     // 사용자 이름 검색
     if (searchKeyword) {
@@ -300,7 +337,7 @@ const Recruit = () => {
                 key={card.id}
                 variant="recruit"
                 user={card.user}
-                status={card.status}
+                status={getRecruitCardStatusLabel(card)}
                 traits={card.traits}
                 importance={card.importance}
                 projectSummary={card.projectSummary}

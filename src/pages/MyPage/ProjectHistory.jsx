@@ -5,16 +5,18 @@ import TopBar from '../../components/TopBar';
 import TripleStatBox from '../../components/TripleStatBox';
 
 import {
-    COURSE_INFO,
-    PROJECT_HISTORY_SUMMARY,
-    PROJECT_HISTORY,
-} from '../../data/mockData';
-import {
     getProjectHistoryDetail,
     getProjectHistorySummary,
     mapProjectHistoryDetail,
     mapProjectHistorySummary,
 } from '../../api/mypage';
+
+const EMPTY_PROJECT_HISTORY_SUMMARY = {
+    projectCount: 0,
+    completionRate: 0,
+    averagePeerReview: 0,
+    maxPeerReviewScore: 5,
+};
 
 const ProjectHistoryHeaderStats = ({ summary }) => {
     const stats = [
@@ -52,10 +54,6 @@ const ProjectHistoryHeaderStats = ({ summary }) => {
 };
 
 const ProjectHistoryItem = ({ project }) => {
-    const course = COURSE_INFO.find(
-        (course) => course.id === project.courseId
-    );
-
     const maxScore = project?.peerReview?.maxScore ?? 5;
 
     const peerReviewStats = [
@@ -77,7 +75,7 @@ const ProjectHistoryItem = ({ project }) => {
         <article className="project-history__item">
             <div className="project-history__course-header">
                 <h2 className="project-history__course-name">
-                    {project.courseName ?? course?.name ?? '알 수 없는 강의'}
+                    {project.courseName ?? '알 수 없는 강의'}
                 </h2>
 
                 <div className="project-history__completion">
@@ -104,12 +102,8 @@ const ProjectHistoryItem = ({ project }) => {
 };
 
 const ProjectHistory = () => {
-    const [summary, setSummary] = useState(PROJECT_HISTORY_SUMMARY);
-
-    // PROJECT_HISTORY 중에서 완료된(COMPLETED) 프로젝트만 필터링
-    const [projects, setProjects] = useState(
-        PROJECT_HISTORY.filter((project) => project.status === 'COMPLETED')
-    );
+    const [summary, setSummary] = useState(EMPTY_PROJECT_HISTORY_SUMMARY);
+    const [projects, setProjects] = useState([]);
 
     useEffect(() => {
         let isMounted = true;

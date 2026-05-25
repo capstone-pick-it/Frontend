@@ -253,19 +253,36 @@ export const mapDefaultTraits = (traits = [], traitNameMap) => {
   return mapTraitNames(traits, traitNameMap)
 }
 
+const LEGACY_PROJECT_STATUS_MAP = {
+  ONGOING: 'RECRUITING',
+  COMPLETED: 'DONE',
+}
+
+export const normalizeProjectStatus = (projectStatus, fallbackStatus = 'RECRUITING') => {
+  const status = projectStatus || fallbackStatus
+
+  return LEGACY_PROJECT_STATUS_MAP[status] || status
+}
+
+export const isActiveProjectStatus = (projectStatus) => {
+  const status = normalizeProjectStatus(projectStatus, '')
+
+  return status === 'RECRUITING' || status === 'IN_PROGRESS'
+}
+
 export const mapCourseCard = (course, traitNameMap) => ({
   id: course.courseId,
   name: course.courseName,
   semester: toDisplaySemester(course.semester),
   importance: toDisplayImportance(course.importance),
   traits: mapTraitNames(course.traits, traitNameMap),
-  projectStatus: 'ONGOING',
+  projectStatus: normalizeProjectStatus(course.projectStatus ?? course.status),
 })
 
 export const mapCourseListItem = (course) => ({
   id: course.courseId,
   name: course.courseName,
-  projectStatus: 'ONGOING',
+  projectStatus: normalizeProjectStatus(course.projectStatus ?? course.status),
 })
 
 export const sortCoursesByCourseNameAsc = (courses = []) => {
@@ -286,7 +303,7 @@ export const mapProjectHistoryDetail = (detail) => {
     id: `${project.projectName || 'project'}-${index}`,
     courseName: project.projectName,
     completionRate: project.completionRate ?? 0,
-    status: 'COMPLETED',
+    status: normalizeProjectStatus(project.projectStatus ?? project.status, 'DONE'),
     peerReview: {
       completion: project.teamEvaluation?.completion ?? 0,
       participation: project.teamEvaluation?.activeness ?? 0,
