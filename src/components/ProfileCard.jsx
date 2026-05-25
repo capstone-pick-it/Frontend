@@ -58,7 +58,7 @@ const ProfileCard = ({
     ].filter(Boolean).join(' ');
 
     // 페이지별 노출 여부
-    const showRecruitStatus = !isMypage;
+    const showRecruitStatus = isOnboarding || isRecruitPage;
     const showTraits = !isMypage;
     const showImportance = !isMypage;
     const showMemberCount = isWorkspace;
