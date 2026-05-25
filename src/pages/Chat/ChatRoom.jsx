@@ -1,73 +1,90 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ChatMessage from '../../components/Chat/ChatMessage'
-import { useParams } from 'react-router-dom'
-import { CHAT_MESSAGES, TEAM_STATUS, GROUP_USERS, COURSE_INFO } from '../../data/mockData'
+import { useParams, useLocation } from 'react-router-dom'
+import { COURSE_INFO } from '../../data/mockData'
 import Nav from '../../components/Nav'
-import ChatToast from '../../components/Chat/ChatToast'
 import ConfirmModal from '../../components/Home/ConfirmModal'
 import ChatRoomHeader from '../../components/Chat/ChatRoomHeader'
 import ChatRoomInput from '../../components/Chat/ChatRoomInput'
+import useChatSocket from '../../hooks/useChatSocket'
+import { getSavedUser } from '../../api/token'
+import { getChatMessages } from '../../api/chat'
 
 const ChatRoom = () => {
-    const { roomId } = useParams();
+    const { roomId } = useParams()
+    const { state } = useLocation()
+    const opponent = state?.opponent
 
-    const currentRoom = GROUP_USERS.find((group) => group.courseName === roomId);
-    const total = currentRoom?.total || "0";
-    const message = CHAT_MESSAGES[roomId] || [];
+    const [isModal, setIsModal] = useState(false)
+    const [selectedCourse, setSelectedCourse] = useState(COURSE_INFO[0]?.name || '')
+    const [prevMessages, setPrevMessages] = useState([])
+    const chatContentRef = useRef(null)
 
-    const [status, setStatus] = useState(TEAM_STATUS[roomId] || null);
-    const [selectedCourse, setSelectedCourse] = useState(COURSE_INFO[0]?.name || '');
-    const [isModal, setIsModal] = useState(false);
+    const { messages, sendMessage } = useChatSocket(roomId)
+    const myUser = getSavedUser()
 
-    // ACCEPTED 상태 2초 후 토스트 제거
+    // 이전 메시지 조회
     useEffect(() => {
-        if (status !== "ACCEPTED") return;
-        const timer = setTimeout(() => setStatus(null), 2000);
-        return () => clearTimeout(timer);
-    }, [status]);
+        if (!roomId) return
+        const fetchMessages = async () => {
+            try {
+                const result = await getChatMessages(roomId)
+                const normalized = (result.messages ?? []).map((msg) => ({
+                    ...msg,
+                    senderId: msg.senderId ?? msg.sender?.userId,
+                    senderNickname: msg.senderNickname ?? msg.sender?.nickname,
+                }))
+                setPrevMessages(normalized)
+            } catch (e) {
+                console.error('메시지 조회 실패', e)
+            }
+        }
+        fetchMessages()
+    }, [roomId])
 
-    const handleConfirm = () => {
-        // API 연동 시: sendTeamRequest(roomId, selectedCourse)
-        setStatus("WAITING");
-        setIsModal(false);
-    };
+    // 새 메시지 오면 스크롤 아래로
+    useEffect(() => {
+        if (chatContentRef.current) {
+            chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight
+        }
+    }, [prevMessages, messages])
 
-    const handleAccept = () => {
-        // API 연동 시: acceptTeamRequest(roomId)
-        setStatus("ACCEPTED");
-    };
+    const allMessages = [...prevMessages, ...messages]
 
-  return (
-    <div id="ChatRoom_Wrap" className="container">
-       <ChatRoomHeader roomId={roomId} isModalOpen={() => setIsModal((prev) => !prev)} total={total} />
-        <div id="ChatContent_Wrap">
-            {message?.map((msg) => (
-                <ChatMessage
-                    key={msg.id}
-                    text={msg.text}
-                    isMe={msg.isMe}
-                    sender={msg.senderName ?? roomId}
-                />
-            ))}
-        </div>
-        <ChatRoomInput total={total}/>
-        {!currentRoom && <ChatToast status={status} onAccept={handleAccept} />}
-        {isModal && (
-            <ConfirmModal
-                title="팀원 요청을 보내시겠습니까?"
-                description="팀원 요청을 보내고자 하는 과목명을 선택해주세요"
-                cancelText="아니오"
-                confirmText="네"
-                isModalOpen={() => setIsModal(false)}
-                onConfirm={handleConfirm}
-                dropdownList={COURSE_INFO.map((c) => c.name)}
-                onCourseChange={setSelectedCourse}
-                hasDropdown={true}
+    return (
+        <div id="ChatRoom_Wrap" className="container">
+            <ChatRoomHeader
+                roomId={opponent?.nickname ?? roomId}
+                isModalOpen={() => setIsModal((prev) => !prev)}
+                total={2}
             />
-        )}
-        <Nav/>
-    </div>
-  )
+            <div id="ChatContent_Wrap" ref={chatContentRef}>
+                {allMessages.map((msg, i) => (
+                    <ChatMessage
+                        key={i}
+                        text={msg.content}
+                        isMe={msg.senderId === myUser?.userId}
+                        sender={msg.senderNickname}
+                    />
+                ))}
+            </div>
+            <ChatRoomInput sendMessage={sendMessage} />
+            {isModal && (
+                <ConfirmModal
+                    title="팀원 요청을 보내시겠습니까?"
+                    description="팀원 요청을 보내고자 하는 과목명을 선택해주세요"
+                    cancelText="아니오"
+                    confirmText="네"
+                    isModalOpen={() => setIsModal(false)}
+                    onConfirm={() => setIsModal(false)}
+                    dropdownList={COURSE_INFO.map((c) => c.name)}
+                    onCourseChange={setSelectedCourse}
+                    hasDropdown={true}
+                />
+            )}
+            <Nav />
+        </div>
+    )
 }
 
 export default ChatRoom

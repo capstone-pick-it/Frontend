@@ -1,9 +1,9 @@
-import React from 'react'
+const ChatBadge = ({ count }) => {
+  if (!count || count === 0) return null
 
-const ChatBadge = () => {
   return (
     <div id="ChatBadge_Wrap">
-        <p>1</p>
+        <p>{count}</p>
     </div>
   )
 }
