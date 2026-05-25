@@ -808,19 +808,19 @@ const Home = () => {
     approvals: [],
   })
 
-  const createFallbackApprovals = (project, decision) => {
-    const members = decision === 'APPROVE'
-      ? project.teammates
-      : project.teammates.filter((member) => member.userId === currentProjectUserId)
-
-    return members.map((member) => ({
-      completionApprovalId: Date.now() + member.userId,
+  const createFallbackApprovals = (decision) => {
+    const currentApproval = {
+      completionApprovalId: Date.now() + currentProjectUserId,
       user: {
-        userId: member.userId,
-        nickname: member.name,
+        userId: currentProjectUserId,
+        nickname: currentProjectUserName,
       },
       decision,
-    }))
+    }
+    const nextApprovals = (completionRequest.approvals || [])
+      .filter((approval) => approval.user?.userId !== currentProjectUserId)
+
+    return [...nextApprovals, currentApproval]
   }
 
   const requestProjectCompletion = async () => {
@@ -862,14 +862,16 @@ const Home = () => {
       }))
     } catch (error) {
       console.warn('프로젝트 종료 요청 응답 실패:', error.message)
-      const nextApprovals = createFallbackApprovals(selectedProject, decision)
+      const nextApprovals = createFallbackApprovals(decision)
+      const approvedCount = nextApprovals.filter((approval) => approval.decision === 'APPROVE').length
+      const isApprovedByAll = approvedCount >= selectedProject.teammates.length
 
       setCompletionRequests((requests) => ({
         ...requests,
         [selectedProject.id]: {
           ...completionRequest,
           approvals: nextApprovals,
-          status: decision === 'APPROVE' ? 'APPROVED' : 'REJECTED',
+          status: isApprovedByAll ? 'APPROVED' : 'PENDING',
         },
       }))
     }
