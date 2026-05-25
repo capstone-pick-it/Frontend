@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import TopBar from '../../components/TopBar';
@@ -9,18 +9,131 @@ import Button from '../../components/Button';
 import Modal from '../../components/Modal';
 import Nav from '../../components/Nav';
 
-import { COURSE_INFO, PREFERENCE } from '../../data/mockData';
+import { PREFERENCE } from '../../data/mockData';
+import {
+  createTraitNameMap,
+  deleteCourse,
+  getCourseCards,
+  getTraitItems,
+  mapCourseCard,
+  updateCourse,
+} from '../../api/mypage';
+
+const getTraitPairTitles = (traitTitle) => {
+  const selectedTrait = PREFERENCE.find((trait) => trait.title === traitTitle);
+
+  if (!selectedTrait) return [];
+
+  const pairStartIndex = Math.floor((selectedTrait.id - 1) / 2) * 2;
+
+  return PREFERENCE
+    .slice(pairStartIndex, pairStartIndex + 2)
+    .map((trait) => trait.title);
+};
+
+const selectTraitInPair = (selectedTraits, traitTitle) => {
+  const currentPairTitles = getTraitPairTitles(traitTitle);
+  const filteredSelected = selectedTraits.filter(
+    (selectedTrait) => !currentPairTitles.includes(selectedTrait)
+  );
+
+  return sortTraitsByPreferenceOrder([...filteredSelected, traitTitle]);
+};
+
+const sortTraitsByPreferenceOrder = (traits = []) => {
+  return PREFERENCE
+    .map((preference) => preference.title)
+    .filter((traitTitle) => traits.includes(traitTitle));
+};
+
+const normalizeTraitSelectionByPair = (selectedTraits = []) => {
+  return selectedTraits.reduce((normalizedTraits, traitTitle) => {
+    if (!PREFERENCE.some((trait) => trait.title === traitTitle)) {
+      return normalizedTraits;
+    }
+
+    return selectTraitInPair(normalizedTraits, traitTitle);
+  }, []);
+};
 
 const CourseEdit = () => {
   const navigate = useNavigate();
   const { courseId } = useParams();
 
-  // URL의 courseId와 일치하는 강의 데이터 조회
-  const course = COURSE_INFO.find((item) => item.id === courseId);
-
-  const [importance, setImportance] = useState(course?.importance || '높음');
-  const [selectedTraits, setSelectedTraits] = useState(course?.traits || []);
+  const [course, setCourse] = useState(null);
+  const [importance, setImportance] = useState('높음');
+  const [selectedTraits, setSelectedTraits] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCourse = async () => {
+      try {
+        const [courseCardsResult, traitItemsResult] = await Promise.allSettled([
+          getCourseCards(),
+          getTraitItems(),
+        ]);
+
+        if (courseCardsResult.status === 'rejected') {
+          throw courseCardsResult.reason;
+        }
+
+        if (traitItemsResult.status === 'rejected') {
+          console.log('[성향 항목 조회 실패]', traitItemsResult.reason.message);
+        }
+
+        const traitNameMap = traitItemsResult.status === 'fulfilled'
+          ? createTraitNameMap(traitItemsResult.value.result || [])
+          : undefined;
+
+        const apiCourse = (courseCardsResult.value.result || [])
+          .map((courseItem) => mapCourseCard(courseItem, traitNameMap))
+          .find((item) => String(item.id) === String(courseId));
+
+        if (!isMounted) return;
+
+        if (apiCourse) {
+          setCourse(apiCourse);
+          setImportance(apiCourse.importance || '높음');
+          setSelectedTraits(normalizeTraitSelectionByPair(apiCourse.traits));
+        } else {
+          setCourse(null);
+        }
+      } catch (error) {
+        console.log('[강의 상세 조회 실패]', error.message);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadCourse();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [courseId]);
+
+  if (isLoading && !course) {
+    return (
+      <div className="container has-topbar course-edit-page">
+        <TopBar
+          title="강의 수정"
+          variant="back"
+          onBack={() => navigate('/mypage/courses')}
+        />
+
+        <p className="course-edit-page__empty">강의 정보를 불러오는 중입니다.</p>
+
+        <Nav />
+      </div>
+    );
+  }
 
   // 존재하지 않는 courseId로 접근한 경우
   if (!course) {
@@ -40,34 +153,50 @@ const CourseEdit = () => {
   }
 
   const handleTraitClick = (traitTitle) => {
-    setSelectedTraits((prev) =>
-      prev.includes(traitTitle)
-        ? prev.filter((trait) => trait !== traitTitle)
-        : [...prev, traitTitle]
-    );
+    setSelectedTraits((prev) => selectTraitInPair(prev, traitTitle));
   };
 
-  const handleSubmit = () => {
-    const updatedCourse = {
-      id: course.id,
-      name: course.name,
-      semester: course.semester,
-      importance,
-      traits: selectedTraits,
-      projectStatus: course.projectStatus,
-    };
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
 
-    console.log('수정할 강의 데이터:', updatedCourse);
+    if (selectedTraits.length < 5) {
+      alert('각 성향 세트마다 하나씩 선택해주세요.');
+      return;
+    }
 
-    // 추후 PATCH /me/courses/{courseId} 연동 예정
-    navigate('/mypage/courses');
+    try {
+      setIsSubmitting(true);
+
+      await updateCourse(course.id, {
+        importance,
+        traits: selectedTraits,
+      });
+
+      navigate('/mypage/courses');
+    } catch (error) {
+      console.log('[강의 수정 실패]', error.message);
+      alert(error.message || '강의 수정에 실패했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDeleteConfirm = () => {
-    console.log('삭제할 강의 id:', course.id);
+  const handleDeleteConfirm = async () => {
+    if (isDeleting) return;
 
-    // 추후 삭제 가능 여부 확인 및 DELETE API 연동 예정
-    setIsDeleteModalOpen(false);
+    try {
+      setIsDeleting(true);
+
+      await deleteCourse(course.id);
+
+      setIsDeleteModalOpen(false);
+      navigate('/mypage/courses');
+    } catch (error) {
+      console.log('[강의 삭제 실패]', error.message);
+      alert(error.message || '강의 삭제에 실패했습니다.');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -118,7 +247,7 @@ const CourseEdit = () => {
         </section>
 
         <Button
-          title="완료"
+          title={isSubmitting ? '저장 중' : '완료'}
           onClick={handleSubmit}
           className="course-edit-page__button"
         />
@@ -155,7 +284,7 @@ const CourseEdit = () => {
             </>
           }
           cancelText="취소"
-          confirmText="확인"
+          confirmText={isDeleting ? '삭제 중' : '확인'}
           onClose={() => setIsDeleteModalOpen(false)}
           onCancel={() => setIsDeleteModalOpen(false)}
           onConfirm={handleDeleteConfirm}

@@ -59,6 +59,10 @@ const ProfileCard = ({
     const displayYear = user?.year ?? year;
     const displayLevel = user?.level ?? level;
     const displayPoints = user?.points ?? points;
+    const profileMetaText = [
+        displayMajor,
+        displayYear ? `${displayYear}학년` : '',
+    ].filter(Boolean).join(' ');
 
     // 페이지별 노출 여부
     const showRecruitStatus = !isMypage;
@@ -100,6 +104,19 @@ const ProfileCard = ({
 
     const workspaceDots = Array.from({ length: memberTotal }, (_, index) => index + 1);
 
+    const MAX_VISIBLE_RECRUIT_TRAITS = 4;
+
+    const shouldCollapseTraits = isRecruitPage && !isExpanded;
+
+    const visibleTraits = shouldCollapseTraits
+        ? traits.slice(0, MAX_VISIBLE_RECRUIT_TRAITS)
+        : traits;
+
+    const hiddenTraitCount =
+        shouldCollapseTraits && traits.length > MAX_VISIBLE_RECRUIT_TRAITS
+            ? traits.length - MAX_VISIBLE_RECRUIT_TRAITS
+            : 0;
+    
     return (
         <>
             <div className={`profile-card profile-card--${variant} ${isExpanded ? 'is-expanded' : ''}`}>
@@ -123,16 +140,22 @@ const ProfileCard = ({
                             </div>
 
                             {/* 학과 & 학년 텍스트 필드 */}
-                            <p className="profile-card__major">
-                                {displayMajor} {displayYear}학년
-                            </p>
+                            {profileMetaText && (
+                                <p className="profile-card__major">
+                                    {profileMetaText}
+                                </p>
+                            )}
 
                             {/* 성향 태그 */}
                             {showTraits && (
                                 <div className="profile-card__traits">
-                                    {traits.map((trait) => (
+                                    {visibleTraits.map((trait) => (
                                         <Tag key={trait} label={trait} />
                                     ))}
+
+                                    {hiddenTraitCount > 0 && (
+                                        <Tag label={`+${hiddenTraitCount}`} />
+                                    )}
                                 </div>
                             )}
 

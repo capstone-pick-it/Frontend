@@ -10,4 +10,11 @@
         padding: 0;
         list-style: none;
     }
+
+    &__empty {
+        margin: 24px 16px 0;
+        color: var(--gray-500);
+        text-align: center;
+        @include body3;
+    }
 }
