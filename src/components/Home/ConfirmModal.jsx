@@ -1,7 +1,4 @@
 import React from 'react'
-import Dropdown from '../Dropdown'
-import { useState } from 'react'
-import { ONBOARDING_INFO_OPTIONS } from '../../data/mockData'
 import ModalDropDown from '../../components/Chat/ModalDropDown'
 
 const ConfirmModal = ({ title, description, cancelText, confirmText, hasDropdown, isModalOpen, onConfirm, dropdownList, onCourseChange }) => {
