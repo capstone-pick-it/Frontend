@@ -59,6 +59,10 @@ const ProfileCard = ({
     const displayYear = user?.year ?? year;
     const displayLevel = user?.level ?? level;
     const displayPoints = user?.points ?? points;
+    const profileMetaText = [
+        displayMajor,
+        displayYear ? `${displayYear}학년` : '',
+    ].filter(Boolean).join(' ');
 
     // 페이지별 노출 여부
     const showRecruitStatus = !isMypage;
@@ -136,9 +140,11 @@ const ProfileCard = ({
                             </div>
 
                             {/* 학과 & 학년 텍스트 필드 */}
-                            <p className="profile-card__major">
-                                {displayMajor} {displayYear}학년
-                            </p>
+                            {profileMetaText && (
+                                <p className="profile-card__major">
+                                    {profileMetaText}
+                                </p>
+                            )}
 
                             {/* 성향 태그 */}
                             {showTraits && (
