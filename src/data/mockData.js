@@ -79,16 +79,6 @@ export const USER_INFO = {
     points: 100,
 };
 
-// 포인트 내역 데이터
-export const POINT_HISTORY = [
-    {
-        id: "point_001",
-        label: "신규가입 포인트",
-        value: 100,
-        type: "EARNED",
-    },
-];
-
 // 기본 팀플 성향 데이터
 export const USER_DEFAULT_TRAITS = [
     "미리미리",
