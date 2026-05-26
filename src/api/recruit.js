@@ -1,5 +1,6 @@
 import { request } from './client'
 import {
+  filterActiveProjectCourses,
   getCourseCards,
   mapCourseCard,
   sortCoursesByCourseNameAsc,
@@ -16,12 +17,26 @@ const normalizeTraitName = (traitName) => {
 
 export const DEFAULT_RECRUITING_MEMBERS_PAGE = 0
 export const DEFAULT_RECRUITING_MEMBERS_SIZE = 20
+export const DEFAULT_RECRUITING_MEMBERS_SORT = 'TRAIT_SIMILARITY_DESC'
+
+const RECRUITING_MEMBER_SORT_BY_UI_VALUE = {
+  match: 'TRAIT_SIMILARITY_DESC',
+  importance: 'IMPORTANCE_DESC',
+  level: 'TEAM_LEVEL_DESC',
+  default: 'LATEST',
+}
+
+export const toRecruitingMemberSort = (sort) => {
+  if (!sort) return DEFAULT_RECRUITING_MEMBERS_SORT
+
+  return RECRUITING_MEMBER_SORT_BY_UI_VALUE[sort] || sort
+}
 
 export const toRecruitingMemberQuery = ({
   keyword = '',
   traits = [],
   includeCompleted = false,
-  sort,
+  sort = DEFAULT_RECRUITING_MEMBERS_SORT,
   page = DEFAULT_RECRUITING_MEMBERS_PAGE,
   size = DEFAULT_RECRUITING_MEMBERS_SIZE,
 } = {}) => {
@@ -42,10 +57,18 @@ export const toRecruitingMemberQuery = ({
   }
 
   if (sort) {
-    query.sort = sort
+    query.sort = toRecruitingMemberSort(sort)
   }
 
   return query
+}
+
+export const getRecruitingMembers = (courseId, filters = {}) => {
+  return request(`/api/courses/${courseId}/recruiting-members`, {
+    method: 'GET',
+    requireAuth: true,
+    params: toRecruitingMemberQuery(filters),
+  })
 }
 
 export const toTraitFilters = (traitItems = []) => {
@@ -73,7 +96,9 @@ export const getRecruitCourses = async () => {
   const response = await getCourseCards()
   const courseCards = response.result || []
 
-  return sortCoursesByCourseNameAsc(courseCards.map((course) => mapCourseCard(course))).map((course) => ({
+  return sortCoursesByCourseNameAsc(
+    filterActiveProjectCourses(courseCards.map((course) => mapCourseCard(course)))
+  ).map((course) => ({
     ...course,
     id: String(course.id),
   }))
