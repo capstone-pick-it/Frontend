@@ -12,12 +12,7 @@ const ChatList = () => {
         const fetchChatRooms = async () => {
             try {
                 const result = await getChatRooms()
-                const rooms = result.chatRooms.map((room) =>
-                    sessionStorage.getItem(`read_${room.chatRoomId}`)
-                        ? { ...room, unreadCount: 0 }
-                        : room
-                )
-                setChatRooms(rooms)
+                setChatRooms(result.chatRooms ?? [])
             } catch (e) {
                 console.error('채팅 목록 조회 실패', e)
             }
@@ -26,10 +21,10 @@ const ChatList = () => {
     }, [])
 
     const handleClick = async (targetUserId, opponent, chatRoomId) => {
-        sessionStorage.setItem(`read_${chatRoomId}`, 'true')
+        // 낙관적 업데이트: 입장 즉시 배지 제거
         setChatRooms((prev) =>
-            prev.map((room) =>
-                room.chatRoomId === chatRoomId ? { ...room, unreadCount: 0 } : room
+            prev.map((r) =>
+                r.chatRoomId === chatRoomId ? { ...r, unreadCount: 0 } : r
             )
         )
         try {

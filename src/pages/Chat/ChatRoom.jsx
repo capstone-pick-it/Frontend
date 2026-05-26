@@ -8,7 +8,7 @@ import ChatRoomHeader from '../../components/Chat/ChatRoomHeader'
 import ChatRoomInput from '../../components/Chat/ChatRoomInput'
 import useChatSocket from '../../hooks/useChatSocket'
 import { getSavedUser } from '../../api/token'
-import { getChatMessages } from '../../api/chat'
+import { getChatMessages, markChatAsRead } from '../../api/chat'
 
 const ChatRoom = () => {
     const { roomId } = useParams()
@@ -37,12 +37,31 @@ const ChatRoom = () => {
                     }))
                     .reverse()
                 setPrevMessages(normalized)
+                const lastMsg = normalized[normalized.length - 1]
+                const lastMsgId = lastMsg?.messageId ?? lastMsg?.id ?? lastMsg?.chatMessageId
+                if (lastMsgId) {
+                    markChatAsRead(roomId, lastMsgId).catch((e) => console.error('읽음 처리 실패', e))
+                } else if (lastMsg) {
+                    console.warn('[markChatAsRead] 메시지 ID 필드를 찾을 수 없습니다:', lastMsg)
+                }
             } catch (e) {
                 console.error('메시지 조회 실패', e)
             }
         }
         fetchMessages()
     }, [roomId])
+
+    // 실시간 메시지 수신 시 읽음 처리 (수신자/송신자 모두 읽음 처리하여 배지 제거)
+    useEffect(() => {
+        if (messages.length === 0) return
+        const lastMsg = messages[messages.length - 1]
+        const lastMsgId = lastMsg?.messageId ?? lastMsg?.id ?? lastMsg?.chatMessageId
+        if (lastMsgId) {
+            markChatAsRead(roomId, lastMsgId).catch((e) => console.error('읽음 처리 실패', e))
+        } else if (lastMsg) {
+            console.warn('[markChatAsRead] 메시지 ID 필드를 찾을 수 없습니다:', lastMsg)
+        }
+    }, [messages])
 
     // 새 메시지 오면 스크롤 아래로
     useEffect(() => {

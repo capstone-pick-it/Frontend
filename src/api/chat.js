@@ -24,3 +24,12 @@ export const getChatMessages = async (chatRoomId) => {
     })
     return response.result
 }
+
+export const markChatAsRead = async (chatRoomId, lastReadMessageId) => {
+    const response = await request(`/api/chats/${chatRoomId}/read`, {
+        method: 'PATCH',
+        auth: true,
+        data: { lastReadMessageId },
+    })
+    return response.result
+}
