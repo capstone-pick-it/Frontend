@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'; 
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Nav from '../../components/Nav';
 import TopBar from '../../components/TopBar';
+import Modal from '../../components/Modal';
 import CourseListItem from '../../components/MyPage/CourseListItem';
 
 import {
@@ -15,8 +16,12 @@ import {
 // 강의 목록 페이지
 const CourseList = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [courses, setCourses] = useState([]);
+  const [deletedCourseName, setDeletedCourseName] = useState(
+    () => location.state?.deletedCourseName || ''
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -53,6 +58,11 @@ const CourseList = () => {
     navigate(`/mypage/courses/${courseId}/edit`);
   };
 
+  const handleCloseDeleteCompleteModal = () => {
+    setDeletedCourseName('');
+    navigate('/mypage/courses', { replace: true });
+  };
+
   return (
     <div className="container has-topbar course-list-page">
       {/* 상단 헤더 */}
@@ -84,6 +94,20 @@ const CourseList = () => {
 
       {/* 하단 네비게이션 바 */}
       <Nav />
+
+      {deletedCourseName && (
+        <Modal
+          type="info"
+          title="강의 삭제 완료"
+          confirmText="확인"
+          onClose={handleCloseDeleteCompleteModal}
+          onConfirm={handleCloseDeleteCompleteModal}
+        >
+          <p className="modal__description">
+            '{deletedCourseName}' 강의가 삭제되었어요.
+          </p>
+        </Modal>
+      )}
     </div>
   );
 };
