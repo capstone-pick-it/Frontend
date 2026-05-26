@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import ChatMessage from '../../components/Chat/ChatMessage'
 import { useParams, useLocation } from 'react-router-dom'
-import { COURSE_INFO } from '../../data/mockData'
+
 import Nav from '../../components/Nav'
 import ConfirmModal from '../../components/Home/ConfirmModal'
 import ChatRoomHeader from '../../components/Chat/ChatRoomHeader'
@@ -9,6 +9,7 @@ import ChatRoomInput from '../../components/Chat/ChatRoomInput'
 import useChatSocket from '../../hooks/useChatSocket'
 import { getSavedUser } from '../../api/token'
 import { getChatMessages, markChatAsRead } from '../../api/chat'
+import { commonCourses } from '../../api/chat'
 
 const ChatRoom = () => {
     const { roomId } = useParams()
@@ -16,12 +17,14 @@ const ChatRoom = () => {
     const opponent = state?.opponent
 
     const [isModal, setIsModal] = useState(false)
-    const [selectedCourse, setSelectedCourse] = useState(COURSE_INFO[0]?.name || '')
+    const [selectedCourse, setSelectedCourse] = useState('')
     const [prevMessages, setPrevMessages] = useState([])
     const chatContentRef = useRef(null)
 
     const { messages, sendMessage } = useChatSocket(roomId)
     const myUser = getSavedUser()
+
+    const [courseList, setCourseList] = useState([])
 
     // 이전 메시지 조회
     useEffect(() => {
@@ -63,6 +66,17 @@ const ChatRoom = () => {
         }
     }, [messages])
 
+    //공통 과목 조회
+    useEffect(() => {
+    if (!roomId) return
+    commonCourses(roomId)
+        .then((data) => {
+            const list = data?.courses ?? []
+            setCourseList(list.map((c) => c.courseName))
+        })
+        .catch((e) => console.error('공통과목 조회 실패', e))
+    }, [roomId])
+
     // 새 메시지 오면 스크롤 아래로
     useEffect(() => {
         const el = chatContentRef.current
@@ -101,7 +115,7 @@ const ChatRoom = () => {
                     confirmText="네"
                     isModalOpen={() => setIsModal(false)}
                     onConfirm={() => setIsModal(false)}
-                    dropdownList={COURSE_INFO.map((c) => c.name)}
+                    dropdownList={courseList}
                     onCourseChange={setSelectedCourse}
                     hasDropdown={true}
                 />

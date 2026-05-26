@@ -33,3 +33,11 @@ export const markChatAsRead = async (chatRoomId, lastReadMessageId) => {
     })
     return response.result
 }
+
+export const commonCourses = async (chatRoomId) => {
+    const response = await request(`/api/chats/${chatRoomId}/common-courses`, {
+        method: 'GET',
+        auth: true,
+    })
+    return response.result
+}
