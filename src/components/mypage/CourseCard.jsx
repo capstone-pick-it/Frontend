@@ -3,15 +3,12 @@ import React, { useMemo, useState } from 'react';
 import StatBox from '../StatBox';
 import Tag from '../Tag';
 import Dropdown from '../Dropdown';
-import { isActiveProjectStatus } from '../../api/mypage';
+import { filterActiveProjectCourses } from '../../api/mypage';
 
 // 강의 정보(배열)와 수정 버튼 이벤트를 부모에서 받아옴
 const CourseCard = ({ courses = [], onEdit }) => {
-  const activeCourses = useMemo(
-    () => courses.filter((course) => isActiveProjectStatus(course.projectStatus)),
-    [courses]
-  );
-
+  const hasProjectStatus = courses.some((course) => course.projectStatus);
+  const activeCourses = useMemo(() => filterActiveProjectCourses(courses), [courses]);
   const [selectedCourseId, setSelectedCourseId] = useState(null);
 
   const selectedCourse = useMemo(() => {
@@ -23,7 +20,7 @@ const CourseCard = ({ courses = [], onEdit }) => {
     );
   }, [activeCourses, selectedCourseId]);
 
-  // 드롭다운에 넘겨줄 모집/진행 중인 강의명 목록
+  // 드롭다운에 넘겨줄 강의명 목록
   const courseNames = activeCourses.map((course) => course.name);
 
   const handleCourseChange = (selectedCourseName) => {
@@ -37,7 +34,11 @@ const CourseCard = ({ courses = [], onEdit }) => {
   };
 
   if (!selectedCourse) {
-    return <div className="course-card-loading">모집/진행 중인 강의가 없습니다.</div>;
+    return (
+      <div className="course-card-loading">
+        {hasProjectStatus ? '모집/진행 중인 강의가 없습니다.' : '강의 정보가 없습니다.'}
+      </div>
+    );
   }
 
   return (

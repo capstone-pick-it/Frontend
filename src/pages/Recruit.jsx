@@ -19,7 +19,6 @@ import {
   getTraitItems,
   toTraitFilters,
 } from '../api/recruit';
-import { isActiveProjectStatus } from '../api/mypage';
 import {
   IMPORTANCE_LABEL_BY_VALUE,
   IMPORTANCE_SCORE_BY_VALUE,
@@ -40,34 +39,46 @@ const SORT_OPTIONS = [
 
 const RECRUIT_STATUS = {
   RECRUITING: 'RECRUITING',
+  CONFIRM_PENDING: 'CONFIRM_PENDING',
   RECRUITMENT_COMPLETED: 'RECRUITMENT_COMPLETED',
 }
 
 const LEGACY_RECRUIT_STATUS_MAP = {
   '모집 중': RECRUIT_STATUS.RECRUITING,
+  '확정 대기': RECRUIT_STATUS.CONFIRM_PENDING,
   '모집 완료': RECRUIT_STATUS.RECRUITMENT_COMPLETED,
 }
 
 const RECRUIT_STATUS_LABELS = {
   [RECRUIT_STATUS.RECRUITING]: '모집 중',
+  [RECRUIT_STATUS.CONFIRM_PENDING]: '확정 대기',
   [RECRUIT_STATUS.RECRUITMENT_COMPLETED]: '모집 완료',
 }
-
-const isSelectableCourse = (course) => isActiveProjectStatus(course.projectStatus)
 
 const getRecruitCardUser = (card) => {
   if (card.user) return card.user
 
   return {
     name: card.userName ?? card.nickname ?? card.name,
-    major: card.major,
+    major: card.major ?? card.department,
     year: card.grade ?? card.year,
     level: card.teamLevel ?? card.level,
-    points: card.points,
+    points: card.points ?? card.point,
   }
 }
 
 const getRecruitCardTraits = (card) => card.traits || card.defaultTraits || []
+
+const getRecruitCardProjectSummary = (card) => {
+  if (card.projectSummary) return card.projectSummary
+
+  return {
+    projectCount: card.projectCount ?? 0,
+    completionRate: card.completionRate ?? 0,
+    averagePeerReview: card.averagePeerReview ?? card.averagePeerRating ?? 0,
+    maxPeerReviewScore: 5,
+  }
+}
 
 const getRecruitCardImportance = (card) => {
   const importance = card.importance
@@ -91,7 +102,10 @@ const isVisibleRecruitCard = (card, includeCompleted) => {
   const status = getRecruitCardStatus(card)
 
   if (includeCompleted) {
-    return status === RECRUIT_STATUS.RECRUITING || status === RECRUIT_STATUS.RECRUITMENT_COMPLETED
+    return (
+      status === RECRUIT_STATUS.RECRUITING ||
+      status === RECRUIT_STATUS.RECRUITMENT_COMPLETED
+    )
   }
 
   return status === RECRUIT_STATUS.RECRUITING
@@ -144,15 +158,13 @@ const Recruit = () => {
         const pageData = await fetchRecruitPageData();
         if (ignore) return;
 
-        const selectableRecruitCourses = pageData.recruitCourses.filter(isSelectableCourse);
-
         setCourses(pageData.recruitCourses);
         setCards([]);
         setTraitFilters(pageData.traitFilters);
         setSelectedCourseId((prev) => {
-          if (selectableRecruitCourses.some((course) => course.id === prev)) return prev;
+          if (pageData.recruitCourses.some((course) => course.id === prev)) return prev;
 
-          return selectableRecruitCourses[0]?.id || '';
+          return pageData.recruitCourses[0]?.id || '';
         });
       } catch (error) {
         console.error('[모집 페이지 조회 실패]', error.message);
@@ -175,9 +187,9 @@ const Recruit = () => {
     };
   }, []);
 
-  // 모집 가능한 강의만 드롭다운에 노출
+  // 모집 카드 목록 API가 머지되면 카드의 recruitmentStatus로 모집 상태를 판단한다.
   const recruitCourses = useMemo(() => {
-    return courses.filter(isSelectableCourse);
+    return courses;
   }, [courses]);
 
   const selectedCourse = recruitCourses.find((course) => course.id === selectedCourseId);
@@ -361,13 +373,13 @@ const Recruit = () => {
           {filteredCards.length > 0 ? (
             filteredCards.map((card) => (
               <ProfileCard
-                key={card.id}
+                key={card.id ?? card.userCourseProfileId ?? card.userId}
                 variant="recruit"
                 user={getRecruitCardUser(card)}
                 status={getRecruitCardStatusLabel(card)}
                 traits={getRecruitCardTraits(card)}
                 importance={getRecruitCardImportance(card)}
-                projectSummary={card.projectSummary}
+                projectSummary={getRecruitCardProjectSummary(card)}
                 onChatClick={() => console.log(`${getRecruitCardUser(card).name || '사용자'} 채팅`)}
               />
             ))
