@@ -16,6 +16,7 @@ import {
 import {
   createTraitNameMap,
   deleteCourse,
+  filterActiveProjectCourses,
   getCourseCards,
   getTraitItems,
   mapCourseCard,
@@ -93,9 +94,12 @@ const CourseEdit = () => {
           ? createTraitNameMap(traitItemsResult.value.result || [])
           : undefined;
 
-        const apiCourse = (courseCardsResult.value.result || [])
-          .map((courseItem) => mapCourseCard(courseItem, traitNameMap))
-          .find((item) => String(item.id) === String(courseId));
+        const activeCourses = filterActiveProjectCourses(
+          (courseCardsResult.value.result || [])
+            .map((courseItem) => mapCourseCard(courseItem, traitNameMap))
+        );
+
+        const apiCourse = activeCourses.find((item) => String(item.id) === String(courseId));
 
         if (!isMounted) return;
 

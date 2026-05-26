@@ -6,6 +6,7 @@ import TopBar from '../../components/TopBar';
 import CourseListItem from '../../components/MyPage/CourseListItem';
 
 import {
+  filterActiveProjectCourses,
   getCourseList,
   mapCourseListItem,
   sortCoursesByCourseNameAsc,
@@ -28,7 +29,9 @@ const CourseList = () => {
         if (!isMounted) return;
 
         setCourses(
-          sortCoursesByCourseNameAsc((response.result || []).map(mapCourseListItem))
+          sortCoursesByCourseNameAsc(
+            filterActiveProjectCourses((response.result || []).map(mapCourseListItem))
+          )
         );
       } catch (error) {
         console.log('[강의 목록 조회 실패]', error.message);
@@ -64,7 +67,7 @@ const CourseList = () => {
       <main className="course-list-page__content">
         {isLoading ? (
           <p className="course-list-page__empty">강의 목록을 불러오는 중입니다.</p>
-        ) : (
+        ) : courses.length > 0 ? (
           <ul className="course-list-page__list">
             {courses.map((course) => (
               <CourseListItem
@@ -74,6 +77,8 @@ const CourseList = () => {
               />
             ))}
           </ul>
+        ) : (
+          <p className="course-list-page__empty">모집/진행 중인 강의가 없습니다.</p>
         )}
       </main>
 
