@@ -449,18 +449,42 @@ const Home = () => {
       return
     }
 
+    let shouldMoveToActive = false
+
     try {
-      await confirmTeamMembers(teamConfirmTarget.id)
+      const response = await confirmTeamMembers(teamConfirmTarget.id)
+      const result = response.result
+
+      shouldMoveToActive = result?.allConfirmed || result?.projectTeamStatus === 'IN_PROGRESS'
     } catch (error) {
       console.warn('팀원 확정 실패:', error.message)
     } finally {
-      setRecruitingItems((items) => (
-        items.map((project) => (
-          project.id === teamConfirmTarget.id
-            ? { ...project, action: teamConfirmAction.pending }
-            : project
+      if (shouldMoveToActive) {
+        const nextActiveProject = {
+          ...teamConfirmTarget,
+          action: '',
+          status: projectStatusLabel.IN_PROGRESS,
+          progress: teamConfirmTarget.progress ?? 0,
+          teammates: teamConfirmTarget.teammates || [],
+          checklist: teamConfirmTarget.checklist || [],
+        }
+
+        setRecruitingItems((items) => items.filter((project) => project.id !== teamConfirmTarget.id))
+        setActiveItems((items) => (
+          items.some((project) => project.id === teamConfirmTarget.id)
+            ? items
+            : [nextActiveProject, ...items]
         ))
-      ))
+      } else {
+        setRecruitingItems((items) => (
+          items.map((project) => (
+            project.id === teamConfirmTarget.id
+              ? { ...project, action: teamConfirmAction.pending }
+              : project
+          ))
+        ))
+      }
+
       setTeamConfirmTarget(null)
       setShowTeamConfirm(false)
     }
