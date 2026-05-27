@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import logo from '../../assets/images/logo.png'
+import logo from '../../assets/images/logo.svg'
 import AuthButton from '../../components/Auth/AuthButton'
 import AuthField from '../../components/Auth/AuthField'
 import { loginUser } from '../../api/auth'

@@ -1,6 +1,6 @@
 import React from 'react'
 import Button from '../../components/Button'
-import logo from '../../assets/images/logo.png'
+import logo from '../../assets/images/logo.svg'
 import { useNavigate } from 'react-router-dom'
 import { getUser } from '../../api/token'
 
