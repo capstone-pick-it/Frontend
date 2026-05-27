@@ -64,10 +64,16 @@ const Login = ({ onSignupClick, onResetPasswordClick, onLoginSuccess }) => {
         <button className="login__reset" type="button" onClick={onResetPasswordClick}>
           비밀번호가 기억나지 않으시나요?
         </button>
-        {errorMessage && <p className="auth-message">{errorMessage}</p>}
-        <AuthButton type="submit" disabled={isSubmitting}>
-          {isSubmitting ? '로그인 중...' : '로그인'}
-        </AuthButton>
+        <div className="login__button-area">
+          {errorMessage && (
+            <p className="auth-message login__message" aria-live="polite">
+              {errorMessage}
+            </p>
+          )}
+          <AuthButton type="submit" disabled={isSubmitting}>
+            {isSubmitting ? '로그인 중...' : '로그인'}
+          </AuthButton>
+        </div>
       </form>
 
       <button className="login__signup" type="button" onClick={onSignupClick}>

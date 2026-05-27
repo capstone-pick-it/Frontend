@@ -151,6 +151,19 @@
   @include body5;
 }
 
+.login__button-area {
+  position: relative;
+}
+
+.login__message {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 8px);
+  margin-top: 0;
+  padding-left: 0;
+}
+
 .login__signup {
   align-self: center;
   margin-top: 70px;
