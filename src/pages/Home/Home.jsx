@@ -9,11 +9,13 @@ import HomeProjectCard from '../../components/Home/HomeProjectCard'
 import MemberCard from '../../components/Home/MemberCard'
 import ReviewModal from '../../components/Home/ReviewModal'
 import {
+  confirmTeamMembers,
   createCompletionRequest,
   createPeerReview,
   createProjectChecklist,
   decideCompletionRequest,
   deleteChecklist,
+  forceLeaveTeam,
   getCurrentCompletionRequest,
   getPeerReviewStatus,
   getPeerReviewTargets,
@@ -21,7 +23,8 @@ import {
   getProjectDetail,
   getProjectMembers,
   getProjects,
-  leaveProject,
+  leaveTeamBeforeConfirm,
+  requestTeamLeave,
   updateChecklist,
   updateChecklistStatus,
 } from '../../api/Home/home'
@@ -365,6 +368,7 @@ const Home = () => {
   const [activeItems, setActiveItems] = useState(activeProjects)
   const [doneItems, setDoneItems] = useState(completedProjects)
   const [exitTarget, setExitTarget] = useState(null)
+  const [teamConfirmTarget, setTeamConfirmTarget] = useState(null)
   const [reviewProject, setReviewProject] = useState(null)
   const [reviewIndex, setReviewIndex] = useState(0)
   const [reviewTargets, setReviewTargets] = useState([])
@@ -423,6 +427,27 @@ const Home = () => {
     setModal('exit')
   }
 
+  const openTeamConfirm = (project) => {
+    setTeamConfirmTarget(project)
+    setShowTeamConfirm(true)
+  }
+
+  const confirmRecruitingTeam = async () => {
+    if (!teamConfirmTarget) {
+      setShowTeamConfirm(false)
+      return
+    }
+
+    try {
+      await confirmTeamMembers(teamConfirmTarget.id)
+    } catch (error) {
+      console.warn('팀원 확정 실패:', error.message)
+    }
+
+    setTeamConfirmTarget(null)
+    setShowTeamConfirm(false)
+  }
+
   const completeExit = async (agreed) => {
     if (!exitTarget) {
       setModal(null)
@@ -430,7 +455,13 @@ const Home = () => {
     }
 
     try {
-      await leaveProject(exitTarget.projectId, { agreed })
+      if (exitTarget.tabKey === 'recruiting') {
+        await leaveTeamBeforeConfirm(exitTarget.projectId)
+      } else if (agreed) {
+        await requestTeamLeave(exitTarget.projectId)
+      } else {
+        await forceLeaveTeam(exitTarget.projectId)
+      }
     } catch (error) {
       console.warn('프로젝트 나가기 실패:', error.message)
     }
@@ -441,7 +472,9 @@ const Home = () => {
     }
 
     if (exitTarget.tabKey === 'active') {
-      setActiveItems((items) => items.filter((project) => project.id !== exitTarget.projectId))
+      if (!agreed) {
+        setActiveItems((items) => items.filter((project) => project.id !== exitTarget.projectId))
+      }
       setActiveTab('active')
       navigate('/home')
     }
@@ -1035,7 +1068,7 @@ const Home = () => {
                 project={project}
                 tab={activeTab}
                 key={project.id}
-                onConfirm={() => setShowTeamConfirm(true)}
+                onConfirm={() => openTeamConfirm(project)}
                 onExit={() => openExitModal(project, activeTab)}
                 onOpen={activeTab !== 'recruiting' ? () => openProjectDetail(project) : undefined}
               />
@@ -1054,8 +1087,13 @@ const Home = () => {
             확인 후 진행을 권장드립니다
           </p>
           <div>
-            <button type="button" onClick={() => setShowTeamConfirm(false)}>아니오</button>
-            <button type="button" onClick={() => setShowTeamConfirm(false)}>팀 확정하기</button>
+            <button type="button" onClick={() => {
+              setTeamConfirmTarget(null)
+              setShowTeamConfirm(false)
+            }}>
+              아니오
+            </button>
+            <button type="button" onClick={confirmRecruitingTeam}>팀 확정하기</button>
           </div>
         </section>
       )}

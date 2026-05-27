@@ -13,10 +13,6 @@ export const updateChecklistStatusRequestBody = ({ status }) => ({
   status,
 })
 
-export const leaveProjectRequestBody = ({ agreed }) => ({
-  agreed,
-})
-
 export const completionDecisionRequestBody = ({ decision }) => ({
   decision,
 })

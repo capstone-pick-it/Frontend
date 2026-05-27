@@ -2,7 +2,6 @@ import { request } from '../client'
 import {
   completionDecisionRequestBody,
   createChecklistRequestBody,
-  leaveProjectRequestBody,
   peerReviewRequestBody,
   updateChecklistRequestBody,
   updateChecklistStatusRequestBody,
@@ -68,11 +67,45 @@ export const deleteChecklist = (checklistItemId) => {
   })
 }
 
-export const leaveProject = (projectTeamId, { agreed }) => {
-  return request(`/api/projects/${projectTeamId}/leave`, {
+export const confirmTeamMembers = (projectTeamId) => {
+  return request(`/api/teams/${projectTeamId}/confirm`, {
+    method: 'PATCH',
+    requireAuth: true,
+  })
+}
+
+export const leaveTeamBeforeConfirm = (projectTeamId) => {
+  return request(`/api/teams/${projectTeamId}/leave`, {
+    method: 'DELETE',
+    requireAuth: true,
+  })
+}
+
+export const requestTeamLeave = (projectTeamId) => {
+  return request(`/api/teams/${projectTeamId}/leave/request`, {
     method: 'POST',
     requireAuth: true,
-    body: JSON.stringify(leaveProjectRequestBody({ agreed })),
+  })
+}
+
+export const getTeamLeaveRequest = (projectTeamId) => {
+  return request(`/api/teams/${projectTeamId}/leave/request`, {
+    method: 'GET',
+    requireAuth: true,
+  })
+}
+
+export const approveTeamLeave = (projectTeamId) => {
+  return request(`/api/teams/${projectTeamId}/leave/approve`, {
+    method: 'POST',
+    requireAuth: true,
+  })
+}
+
+export const forceLeaveTeam = (projectTeamId) => {
+  return request(`/api/teams/${projectTeamId}/leave/force`, {
+    method: 'DELETE',
+    requireAuth: true,
   })
 }
 
