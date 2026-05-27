@@ -7,9 +7,9 @@ import ConfirmModal from '../../components/Home/ConfirmModal'
 import ChatRoomHeader from '../../components/Chat/ChatRoomHeader'
 import ChatRoomInput from '../../components/Chat/ChatRoomInput'
 import useChatSocket from '../../hooks/useChatSocket'
+import ChatToast from '../../components/Chat/ChatToast'
 import { getSavedUser } from '../../api/token'
-import { getChatMessages, markChatAsRead } from '../../api/chat'
-import { commonCourses } from '../../api/chat'
+import { getChatMessages, markChatAsRead, commonCourses, teamRequest } from '../../api/chat'
 
 const ChatRoom = () => {
     const { roomId } = useParams()
@@ -17,11 +17,12 @@ const ChatRoom = () => {
     const opponent = state?.opponent
 
     const [isModal, setIsModal] = useState(false)
+    const [toastStatus, setToastStatus] = useState(null)
     const [selectedCourse, setSelectedCourse] = useState('')
     const [prevMessages, setPrevMessages] = useState([])
     const chatContentRef = useRef(null)
 
-    const { messages, sendMessage } = useChatSocket(roomId)
+    const { messages, sendMessage, teamRequestEvent } = useChatSocket(roomId)
     const myUser = getSavedUser()
 
     const [courseList, setCourseList] = useState([])
@@ -68,14 +69,41 @@ const ChatRoom = () => {
 
     //공통 과목 조회
     useEffect(() => {
-    if (!roomId) return
-    commonCourses(roomId)
-        .then((data) => {
-            const list = data?.courses ?? []
-            setCourseList(list.map((c) => c.courseName))
-        })
-        .catch((e) => console.error('공통과목 조회 실패', e))
+        if (!roomId) return
+        const saved = localStorage.getItem(`teamRequest_${roomId}`)
+        if (saved) setToastStatus(saved)
+
+        commonCourses(roomId)
+            .then((data) => {
+                const list = data?.courses ?? []
+                setCourseList(list)
+                if (list.length > 0) setSelectedCourse(list[0].courseName)
+            })
+            .catch((e) => console.error('공통과목 조회 실패', e))
     }, [roomId])
+
+    // 팀원 요청 이벤트 수신
+    useEffect(() => {
+        if (!teamRequestEvent) return
+        if (teamRequestEvent.type === 'TEAM_REQUEST_CREATED' && toastStatus !== 'WAITING') {
+            localStorage.setItem(`teamRequest_${roomId}`, 'REQUEST')
+            setToastStatus('REQUEST')
+        }
+    }, [teamRequestEvent])
+
+    // 팀원 요청 전송
+    const handleTeamRequest = async () => {
+        const course = courseList.find((c) => c.courseName === selectedCourse)
+        if (!course) return
+        try {
+            await teamRequest(roomId, course.courseId)
+            localStorage.setItem(`teamRequest_${roomId}`, 'WAITING')
+            setIsModal(false)
+            setToastStatus('WAITING')
+        } catch (e) {
+            console.error('팀원 요청 실패', e)
+        }
+    }
 
     // 새 메시지 오면 스크롤 아래로
     useEffect(() => {
@@ -106,16 +134,17 @@ const ChatRoom = () => {
                     />
                 ))}
             </div>
+            <ChatToast status={toastStatus} />
             <ChatRoomInput sendMessage={sendMessage} />
             {isModal && (
                 <ConfirmModal
                     title="팀원 요청을 보내시겠습니까?"
                     description="팀원 요청을 보내고자 하는 과목명을 선택해주세요"
                     cancelText="아니오"
-                    confirmText="네"
+                    confirmText="네"  
                     isModalOpen={() => setIsModal(false)}
-                    onConfirm={() => setIsModal(false)}
-                    dropdownList={courseList}
+                    onConfirm={handleTeamRequest}
+                    dropdownList={courseList.map((c) => c.courseName)}
                     onCourseChange={setSelectedCourse}
                     hasDropdown={true}
                 />
