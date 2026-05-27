@@ -3,7 +3,6 @@ import back from '../../assets/images/Chat/back.svg'
 import team_request from '../../assets/images/Chat/user-add.svg'
 import { Link, useParams } from 'react-router-dom'
 import profile_xs from '../../assets/images/Chat/profile_xs.svg'
-import { GROUP_USERS } from '../../data/mockData'
 
 const ChatRoomHeader = ({ roomId, isModalOpen, total }) => {
 
@@ -24,7 +23,9 @@ const ChatRoomHeader = ({ roomId, isModalOpen, total }) => {
             )}
         </div>
         {Number(total) < 3 &&(
-            <img src={team_request} onClick={isModalOpen} alt="" />
+            <button onClick={isModalOpen} >
+                <img src={team_request} alt="" />
+            </button>
         ) }
     </div>
   )
