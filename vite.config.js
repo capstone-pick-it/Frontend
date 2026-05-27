@@ -23,6 +23,24 @@ export default defineConfig({
         changeOrigin: true,
         ws: true,
       },
+      '/projects': {
+        target: 'http://34.50.11.93:8080',
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.removeHeader('origin')
+          })
+        },
+      },
+      '/checklists': {
+        target: 'http://34.50.11.93:8080',
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.removeHeader('origin')
+          })
+        },
+      },
     },
   },
 })

@@ -9,10 +9,14 @@ import Button from '../../components/Button';
 import Modal from '../../components/Modal';
 import Nav from '../../components/Nav';
 
-import { PREFERENCE } from '../../data/mockData';
+import {
+  IMPORTANCE_OPTIONS,
+  TRAIT_OPTIONS,
+} from '../../constants/commonOptions';
 import {
   createTraitNameMap,
   deleteCourse,
+  filterActiveProjectCourses,
   getCourseCards,
   getTraitItems,
   mapCourseCard,
@@ -20,13 +24,13 @@ import {
 } from '../../api/mypage';
 
 const getTraitPairTitles = (traitTitle) => {
-  const selectedTrait = PREFERENCE.find((trait) => trait.title === traitTitle);
+  const selectedTrait = TRAIT_OPTIONS.find((trait) => trait.title === traitTitle);
 
   if (!selectedTrait) return [];
 
   const pairStartIndex = Math.floor((selectedTrait.id - 1) / 2) * 2;
 
-  return PREFERENCE
+  return TRAIT_OPTIONS
     .slice(pairStartIndex, pairStartIndex + 2)
     .map((trait) => trait.title);
 };
@@ -41,14 +45,14 @@ const selectTraitInPair = (selectedTraits, traitTitle) => {
 };
 
 const sortTraitsByPreferenceOrder = (traits = []) => {
-  return PREFERENCE
+  return TRAIT_OPTIONS
     .map((preference) => preference.title)
     .filter((traitTitle) => traits.includes(traitTitle));
 };
 
 const normalizeTraitSelectionByPair = (selectedTraits = []) => {
   return selectedTraits.reduce((normalizedTraits, traitTitle) => {
-    if (!PREFERENCE.some((trait) => trait.title === traitTitle)) {
+    if (!TRAIT_OPTIONS.some((trait) => trait.title === traitTitle)) {
       return normalizedTraits;
     }
 
@@ -56,14 +60,25 @@ const normalizeTraitSelectionByPair = (selectedTraits = []) => {
   }, []);
 };
 
+const getCourseDeleteErrorMessage = (error) => {
+  const deleteBlockedStatusCodes = [400, 403, 409];
+
+  if (deleteBlockedStatusCodes.includes(Number(error?.status))) {
+    return '이미 해당 강의 카드로 구성된 팀이 있어요.\n구성된 팀이 없는 경우에만 삭제가 가능해요.';
+  }
+
+  return error?.message || '강의 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.';
+};
+
 const CourseEdit = () => {
   const navigate = useNavigate();
   const { courseId } = useParams();
 
   const [course, setCourse] = useState(null);
-  const [importance, setImportance] = useState('높음');
+  const [importance, setImportance] = useState(IMPORTANCE_OPTIONS[0]);
   const [selectedTraits, setSelectedTraits] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -90,15 +105,18 @@ const CourseEdit = () => {
           ? createTraitNameMap(traitItemsResult.value.result || [])
           : undefined;
 
-        const apiCourse = (courseCardsResult.value.result || [])
-          .map((courseItem) => mapCourseCard(courseItem, traitNameMap))
-          .find((item) => String(item.id) === String(courseId));
+        const activeCourses = filterActiveProjectCourses(
+          (courseCardsResult.value.result || [])
+            .map((courseItem) => mapCourseCard(courseItem, traitNameMap))
+        );
+
+        const apiCourse = activeCourses.find((item) => String(item.id) === String(courseId));
 
         if (!isMounted) return;
 
         if (apiCourse) {
           setCourse(apiCourse);
-          setImportance(apiCourse.importance || '높음');
+          setImportance(apiCourse.importance || IMPORTANCE_OPTIONS[0]);
           setSelectedTraits(normalizeTraitSelectionByPair(apiCourse.traits));
         } else {
           setCourse(null);
@@ -190,10 +208,15 @@ const CourseEdit = () => {
       await deleteCourse(course.id);
 
       setIsDeleteModalOpen(false);
-      navigate('/mypage/courses');
+      navigate('/mypage/courses', {
+        state: {
+          deletedCourseName: course.name,
+        },
+      });
     } catch (error) {
       console.log('[강의 삭제 실패]', error.message);
-      alert(error.message || '강의 삭제에 실패했습니다.');
+      setIsDeleteModalOpen(false);
+      setDeleteErrorMessage(getCourseDeleteErrorMessage(error));
     } finally {
       setIsDeleting(false);
     }
@@ -224,7 +247,7 @@ const CourseEdit = () => {
 
         <Dropdown
           title="중요도"
-          list={['높음', '보통', '낮음']}
+          list={IMPORTANCE_OPTIONS}
           value={importance}
           onChange={setImportance}
         />
@@ -234,7 +257,7 @@ const CourseEdit = () => {
           <h2 className="course-edit-page__title">팀플 성향</h2>
 
           <div className="course-edit-page__grid">
-            {PREFERENCE.map((item) => (
+            {TRAIT_OPTIONS.map((item) => (
               <PreferenceCard
                 key={item.id}
                 title={item.title}
@@ -289,6 +312,25 @@ const CourseEdit = () => {
           onCancel={() => setIsDeleteModalOpen(false)}
           onConfirm={handleDeleteConfirm}
         />
+      )}
+
+      {deleteErrorMessage && (
+        <Modal
+          type="error"
+          title="강의 삭제 불가"
+          confirmText="확인"
+          onClose={() => setDeleteErrorMessage('')}
+          onConfirm={() => setDeleteErrorMessage('')}
+        >
+          <p className="modal__description">
+            {deleteErrorMessage.split('\n').map((line) => (
+              <React.Fragment key={line}>
+                {line}
+                <br />
+              </React.Fragment>
+            ))}
+          </p>
+        </Modal>
       )}
     </div>
   );

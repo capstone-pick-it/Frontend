@@ -1,34 +1,11 @@
 import { request } from './client'
-
-const IMPORTANCE_LEVEL_LABEL = {
-  HIGH: '높음',
-  MEDIUM: '보통',
-  LOW: '낮음',
-}
-
-const RECRUITMENT_STATUS_LABEL = {
-  RECRUITING: '모집 중',
-  CONFIRM_PENDING: '확정 대기',
-  RECRUITMENT_COMPLETED: '모집 완료',
-}
-
-const formatSemester = (semester) => {
-  if (!semester) return ''
-
-  const match = String(semester).match(/^(\d{4})-(\d)$/)
-  if (!match) return semester
-
-  return `${match[1]}년도 ${match[2]}학기`
-}
-
-const TRAIT_NAME_ALIASES = {
-  '대면 선호': '대면선호',
-  '비대면 선호': '비대면선호',
-  '협업 선호': '협업선호',
-  '분담 선호': '분담선호',
-  '아침형 인간': '아침형',
-  '새벽형 인간': '새벽형',
-}
+import {
+  filterActiveProjectCourses,
+  getCourseCards,
+  mapCourseCard,
+  sortCoursesByCourseNameAsc,
+} from './mypage'
+import { TRAIT_NAME_ALIASES } from '../constants/commonOptions'
 
 const normalizeTraitName = (traitName) => {
   if (!traitName) return ''
@@ -38,22 +15,60 @@ const normalizeTraitName = (traitName) => {
   return TRAIT_NAME_ALIASES[trimmedTraitName] || trimmedTraitName
 }
 
-export const toRecruitCourse = (profile) => {
-  const courseId = profile?.courseId
-  const profileId = profile?.userCourseProfileId
-  const recruitmentStatus = profile?.recruitmentStatus
+export const DEFAULT_RECRUITING_MEMBERS_PAGE = 0
+export const DEFAULT_RECRUITING_MEMBERS_SIZE = 20
+export const DEFAULT_RECRUITING_MEMBERS_SORT = 'TRAIT_SIMILARITY_DESC'
 
-  return {
-    id: String(courseId ?? profileId ?? ''),
-    profileId: profileId ? String(profileId) : '',
-    name: profile?.courseName || '강의명 없음',
-    semester: formatSemester(profile?.semester),
-    importance: IMPORTANCE_LEVEL_LABEL[profile?.importanceLevel] || profile?.importanceLevel || '',
-    importanceLevel: profile?.importanceLevel || '',
-    recruitmentStatus: recruitmentStatus || '',
-    status: RECRUITMENT_STATUS_LABEL[recruitmentStatus] || recruitmentStatus || '',
-    projectStatus: recruitmentStatus === 'RECRUITMENT_COMPLETED' ? 'COMPLETED' : 'ONGOING',
+const RECRUITING_MEMBER_SORT_BY_UI_VALUE = {
+  match: 'TRAIT_SIMILARITY_DESC',
+  importance: 'IMPORTANCE_DESC',
+  level: 'TEAM_LEVEL_DESC',
+  default: 'LATEST',
+}
+
+export const toRecruitingMemberSort = (sort) => {
+  if (!sort) return DEFAULT_RECRUITING_MEMBERS_SORT
+
+  return RECRUITING_MEMBER_SORT_BY_UI_VALUE[sort] || sort
+}
+
+export const toRecruitingMemberQuery = ({
+  keyword = '',
+  traits = [],
+  includeCompleted = false,
+  sort = DEFAULT_RECRUITING_MEMBERS_SORT,
+  page = DEFAULT_RECRUITING_MEMBERS_PAGE,
+  size = DEFAULT_RECRUITING_MEMBERS_SIZE,
+} = {}) => {
+  const traitValues = Array.isArray(traits) ? traits : [traits].filter(Boolean)
+  const query = {
+    includeCompleted,
+    page,
+    size,
   }
+
+  const trimmedKeyword = String(keyword).trim()
+  if (trimmedKeyword) {
+    query.keyword = trimmedKeyword
+  }
+
+  if (traitValues.length > 0) {
+    query.traits = traitValues.join(',')
+  }
+
+  if (sort) {
+    query.sort = toRecruitingMemberSort(sort)
+  }
+
+  return query
+}
+
+export const getRecruitingMembers = (courseId, filters = {}) => {
+  return request(`/api/courses/${courseId}/recruiting-members`, {
+    method: 'GET',
+    requireAuth: true,
+    params: toRecruitingMemberQuery(filters),
+  })
 }
 
 export const toTraitFilters = (traitItems = []) => {
@@ -77,22 +92,16 @@ export const toTraitFilters = (traitItems = []) => {
   })
 }
 
-export const getRecruitProfiles = async () => {
-  const response = await request('/api/courses/profiles', {
-    method: 'GET',
-    requireAuth: true,
-  })
+export const getRecruitCourses = async () => {
+  const response = await getCourseCards()
+  const courseCards = response.result || []
 
-  return response.result || []
-}
-
-export const getRecruitProfile = async (userCourseProfileId) => {
-  const response = await request(`/api/courses/profiles/${userCourseProfileId}`, {
-    method: 'GET',
-    requireAuth: true,
-  })
-
-  return response.result || null
+  return sortCoursesByCourseNameAsc(
+    filterActiveProjectCourses(courseCards.map((course) => mapCourseCard(course)))
+  ).map((course) => ({
+    ...course,
+    id: String(course.id),
+  }))
 }
 
 export const getTraitItems = async () => {

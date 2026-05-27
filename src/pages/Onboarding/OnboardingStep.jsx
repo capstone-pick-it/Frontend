@@ -2,11 +2,12 @@ import React from 'react'
 import back from '../../assets/images/Chat/back.svg'
 import PreferenceCard from '../../components/PreferenceCard'
 import Button from '../../components/Button'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { PREFERENCE, USER_INFO } from '../../data/mockData'
+import { USER_INFO } from '../../data/mockData'
 import StepBar from '../../components/Onboarding/StepBar'
 import { saveOnboardingPersonality } from '../../api/auth'
+import { TRAIT_OPTIONS } from '../../constants/commonOptions'
 
 const OnboardingStep = () => {
   const navigate= useNavigate();
@@ -20,7 +21,7 @@ const OnboardingStep = () => {
 
   const [currentStep, setCurrentStep] = useState(0)
   const totalSteps = 5;
-  const currentItem = PREFERENCE.slice(currentStep*2, currentStep*2+2)
+  const currentItem = TRAIT_OPTIONS.slice(currentStep*2, currentStep*2+2)
 
   const handleNext = async() => {
     const currentPairIds = currentItem.map(item => item.id);

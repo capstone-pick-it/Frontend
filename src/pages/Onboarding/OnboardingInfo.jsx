@@ -4,9 +4,14 @@ import Dropdown from '../../components/Dropdown'
 import Button from '../../components/Button'
 import { useState } from 'react'
 import delete_img from '../../assets/images/Onboarding/delete.svg'
-import { ONBOARDING_INFO_OPTIONS, USER_INFO } from '../../data/mockData'
+import { USER_INFO } from '../../data/mockData'
 import { useNavigate } from 'react-router-dom'
 import { saveOnboardingProfile } from '../../api/auth'
+import {
+  GRADE_OPTIONS,
+  MAJOR_OPTIONS,
+  SEMESTER_OPTIONS,
+} from '../../constants/commonOptions'
 
 const OnboardingInfo = () => {
   const navigate = useNavigate();
@@ -14,9 +19,9 @@ const OnboardingInfo = () => {
   const [input, SetInput] = useState("")
 
   const [school, setSchool] = useState()
-  const [major, setMajor] = useState(ONBOARDING_INFO_OPTIONS.MAJORS[0])
-  const [grade, setGrade] = useState(ONBOARDING_INFO_OPTIONS.GRADES[0])
-  const [semester, setSemester] = useState(ONBOARDING_INFO_OPTIONS.SEMESTERS[0])
+  const [major, setMajor] = useState(MAJOR_OPTIONS[0])
+  const [grade, setGrade] = useState(GRADE_OPTIONS[0])
+  const [semester, setSemester] = useState(SEMESTER_OPTIONS[0])
 
   const handleAddLecture = () => {
     if(input.trim() === "")
@@ -52,9 +57,9 @@ const OnboardingInfo = () => {
         <h1>{USER_INFO.name} 님에 대해 알려주세요!</h1>
          <Input title={"학교"} value={school} onChange={(e) => setSchool(e.target.value)}/>
         <div className="dropdown_container">
-          <Dropdown title={"전공"} list={ONBOARDING_INFO_OPTIONS.MAJORS} value={major} onChange={(value)=>setMajor(value)}/>
-          <Dropdown title={"학년"} list={ONBOARDING_INFO_OPTIONS.GRADES} value={grade} onChange={(value)=>setGrade(value)}/>
-          <Dropdown title={"학기"} list={ONBOARDING_INFO_OPTIONS.SEMESTERS} value={semester} onChange={(value)=>setSemester(value)}/>
+          <Dropdown title={"전공"} list={MAJOR_OPTIONS} value={major} onChange={(value)=>setMajor(value)}/>
+          <Dropdown title={"학년"} list={GRADE_OPTIONS} value={grade} onChange={(value)=>setGrade(value)}/>
+          <Dropdown title={"학기"} list={SEMESTER_OPTIONS} value={semester} onChange={(value)=>setSemester(value)}/>
         </div>
         <div className="lecture_container">
           <div className="text_container">

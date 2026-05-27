@@ -1,6 +1,6 @@
 import React from 'react'
 
-const MemberCard = ({ member, onChatClick }) => {
+const MemberCard = ({ currentIndex, member, onChatClick, totalCount }) => {
   return (
     <section className="home-member-card">
       <div className="home-member-card__top">
@@ -8,7 +8,7 @@ const MemberCard = ({ member, onChatClick }) => {
           <h2>{member.name}</h2>
           <p>{member.school}</p>
         </div>
-        <span>1/7</span>
+        <span>{currentIndex}/{totalCount}</span>
       </div>
 
       <div className="home-member-card__tags">
