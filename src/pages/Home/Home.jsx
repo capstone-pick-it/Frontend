@@ -64,6 +64,11 @@ const projectStatusLabel = {
   DONE: '진행 완료',
 }
 
+const teamConfirmAction = {
+  ready: '팀 확정',
+  pending: '확정대기',
+}
+
 const capstoneTeammates = [
   {
     userId: 1,
@@ -136,14 +141,14 @@ const recruitingProjects = [
     title: '알고리즘',
     members: '김성연 이승희 문채이',
     status: '모집 중',
-    action: '확정 대기',
+    action: teamConfirmAction.pending,
   },
   {
     id: 2,
     title: '서버구축시스템실습',
     members: '이승희 김성연',
     status: '모집 중',
-    action: '팀 확정',
+    action: teamConfirmAction.ready,
   },
 ]
 
@@ -302,7 +307,7 @@ const normalizeProjectSummary = (project, fallbackStatus) => {
     title,
     members: Array.isArray(memberNames) ? memberNames.join(' ') : memberNames,
     status: projectStatusLabel[status] || project.status || projectStatusLabel[fallbackStatus] || '진행 중',
-    action: project.action || '확정 대기',
+    action: project.action || (status === 'RECRUITING' ? teamConfirmAction.ready : ''),
     progress: Math.round(project.progressRate ?? project.progress ?? (status === 'DONE' ? 100 : 0)),
     teammates: Array.isArray(memberNames)
       ? memberNames.map((name, index) => ({
@@ -423,7 +428,13 @@ const Home = () => {
   }
 
   const openExitModal = (project, tabKey = currentTab) => {
-    setExitTarget({ projectId: project.id, tabKey })
+    const shouldRequestLeave = tabKey !== 'recruiting' || project.action !== teamConfirmAction.ready
+
+    setExitTarget({
+      projectId: project.id,
+      tabKey,
+      shouldRequestLeave,
+    })
     setModal('exit')
   }
 
@@ -440,6 +451,13 @@ const Home = () => {
 
     try {
       await confirmTeamMembers(teamConfirmTarget.id)
+      setRecruitingItems((items) => (
+        items.map((project) => (
+          project.id === teamConfirmTarget.id
+            ? { ...project, action: teamConfirmAction.pending }
+            : project
+        ))
+      ))
     } catch (error) {
       console.warn('팀원 확정 실패:', error.message)
     }
@@ -455,7 +473,7 @@ const Home = () => {
     }
 
     try {
-      if (exitTarget.tabKey === 'recruiting') {
+      if (!exitTarget.shouldRequestLeave) {
         await leaveTeamBeforeConfirm(exitTarget.projectId)
       } else if (agreed) {
         await requestTeamLeave(exitTarget.projectId)
@@ -466,7 +484,12 @@ const Home = () => {
       console.warn('프로젝트 나가기 실패:', error.message)
     }
 
-    if (exitTarget.tabKey === 'recruiting') {
+    if (exitTarget.tabKey === 'recruiting' && !exitTarget.shouldRequestLeave) {
+      setRecruitingItems((items) => items.filter((project) => project.id !== exitTarget.projectId))
+      setShowTeamConfirm(false)
+    }
+
+    if (exitTarget.tabKey === 'recruiting' && exitTarget.shouldRequestLeave && !agreed) {
       setRecruitingItems((items) => items.filter((project) => project.id !== exitTarget.projectId))
       setShowTeamConfirm(false)
     }
@@ -1267,7 +1290,14 @@ const Home = () => {
             setExitTarget(null)
             setModal(null)
           }}
-          onConfirm={() => setModal('team-confirm-guide')}
+          onConfirm={() => {
+            if (exitTarget?.shouldRequestLeave) {
+              setModal('team-confirm-guide')
+              return
+            }
+
+            completeExit(false)
+          }}
         />
       )}
 
