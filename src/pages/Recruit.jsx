@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import TopBar from '../components/TopBar';
 import Nav from '../components/Nav';
@@ -21,6 +22,7 @@ import {
   getTraitItems,
   toTraitFilters,
 } from '../api/recruit';
+import { createDirectChat } from '../api/chat';
 import { IMPORTANCE_LABEL_BY_VALUE } from '../constants/commonOptions';
 
 const SORT_OPTIONS = [
@@ -132,6 +134,7 @@ const fetchRecruitPageData = async () => {
 };
 
 const Recruit = () => {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [cards, setCards] = useState([]);
   const [traitFilters, setTraitFilters] = useState([]);
@@ -142,6 +145,7 @@ const Recruit = () => {
   const [hasNextCardPage, setHasNextCardPage] = useState(false);
   const loadMoreTriggerRef = useRef(null);
   const isLoadingMoreCardsRef = useRef(false);
+  const isEnteringChatRoomRef = useRef(false);
 
   const [selectedCourseId, setSelectedCourseId] = useState('');
 
@@ -385,6 +389,43 @@ const Recruit = () => {
     setSearchKeyword(searchInput.trim());
   };
 
+  const handleEnterChatRoom = async (card) => {
+    if (isEnteringChatRoomRef.current) return;
+
+    const targetUserId = card.userId;
+    const user = getRecruitCardUser(card);
+
+    if (!targetUserId) {
+      alert('채팅을 시작할 사용자 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    try {
+      isEnteringChatRoomRef.current = true;
+
+      const result = await createDirectChat(targetUserId);
+      const chatRoomId = result?.chatRoomId;
+
+      if (!chatRoomId) {
+        throw new Error('채팅방 정보를 찾을 수 없습니다.');
+      }
+
+      navigate(`/chatroom/${chatRoomId}`, {
+        state: {
+          opponent: result.opponent ?? {
+            userId: targetUserId,
+            nickname: user.name || '사용자',
+          },
+        },
+      });
+    } catch (error) {
+      console.error('[채팅방 입장 실패]', error);
+      alert(error.message || '채팅방 입장에 실패했습니다.');
+    } finally {
+      isEnteringChatRoomRef.current = false;
+    }
+  };
+
   const handleCourseChange = (courseName) => {
     const course = recruitCourses.find((item) => item.name === courseName);
     if (!course) return;
@@ -513,7 +554,7 @@ const Recruit = () => {
                 traits={getRecruitCardTraits(card)}
                 importance={getRecruitCardImportance(card)}
                 projectSummary={getRecruitCardProjectSummary(card)}
-                onChatClick={() => console.log(`${getRecruitCardUser(card).name || '사용자'} 채팅`)}
+                onChatClick={() => handleEnterChatRoom(card)}
               />
             ))
           ) : (
