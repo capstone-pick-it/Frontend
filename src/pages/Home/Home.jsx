@@ -451,6 +451,9 @@ const Home = () => {
 
     try {
       await confirmTeamMembers(teamConfirmTarget.id)
+    } catch (error) {
+      console.warn('팀원 확정 실패:', error.message)
+    } finally {
       setRecruitingItems((items) => (
         items.map((project) => (
           project.id === teamConfirmTarget.id
@@ -458,12 +461,9 @@ const Home = () => {
             : project
         ))
       ))
-    } catch (error) {
-      console.warn('팀원 확정 실패:', error.message)
+      setTeamConfirmTarget(null)
+      setShowTeamConfirm(false)
     }
-
-    setTeamConfirmTarget(null)
-    setShowTeamConfirm(false)
   }
 
   const completeExit = async (agreed) => {
