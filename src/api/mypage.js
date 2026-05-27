@@ -231,21 +231,24 @@ export const mapDefaultTraits = (traits = [], traitNameMap) => {
   return mapTraitNames(traits, traitNameMap)
 }
 
-const LEGACY_PROJECT_STATUS_MAP = {
-  ONGOING: 'RECRUITING',
-  COMPLETED: 'DONE',
-}
+const ACTIVE_PROJECT_STATUSES = new Set(['RECRUITING', 'IN_PROGRESS'])
 
-export const normalizeProjectStatus = (projectStatus, fallbackStatus = 'RECRUITING') => {
-  const status = projectStatus || fallbackStatus
+export const normalizeProjectStatus = (projectStatus) => {
+  if (!projectStatus) return ''
 
-  return LEGACY_PROJECT_STATUS_MAP[status] || status
+  return projectStatus
 }
 
 export const isActiveProjectStatus = (projectStatus) => {
-  const status = normalizeProjectStatus(projectStatus, '')
+  return ACTIVE_PROJECT_STATUSES.has(normalizeProjectStatus(projectStatus))
+}
 
-  return status === 'RECRUITING' || status === 'IN_PROGRESS'
+export const filterActiveProjectCourses = (courses = []) => {
+  const hasProjectStatus = courses.some((course) => course.projectStatus)
+
+  if (!hasProjectStatus) return courses
+
+  return courses.filter((course) => isActiveProjectStatus(course.projectStatus))
 }
 
 export const mapCourseCard = (course, traitNameMap) => ({
@@ -281,7 +284,6 @@ export const mapProjectHistoryDetail = (detail) => {
     id: project.projectId ?? project.id ?? `${project.projectName || 'project'}-${index}`,
     courseName: project.projectName ?? project.courseName,
     completionRate: project.completionRate ?? 0,
-    status: normalizeProjectStatus(project.projectStatus ?? project.status, 'DONE'),
     peerReview: {
       completion: project.teamEvaluation?.completion ?? 0,
       participation: project.teamEvaluation?.activeness ?? 0,
