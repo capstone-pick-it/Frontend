@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import TopBar from '../components/TopBar';
 import Nav from '../components/Nav';
@@ -15,6 +15,7 @@ import checkDefault from '../assets/images/Recruit/icon-check.svg';
 import checkActive from '../assets/images/Recruit/icon-check_pri.svg';
 
 import {
+  DEFAULT_RECRUITING_MEMBERS_PAGE,
   getRecruitCourses,
   getRecruitingMembers,
   getTraitItems,
@@ -67,6 +68,15 @@ const getRecruitCardUser = (card) => {
     level: card.teamLevel ?? card.level,
     points: card.points ?? card.point,
   }
+}
+
+const getRecruitCardKey = (card) => {
+  const user = getRecruitCardUser(card)
+
+  return card.id
+    ?? card.userCourseProfileId
+    ?? card.userId
+    ?? `${card.courseId}-${user.name || 'unknown'}`
 }
 
 const getRecruitCardTraits = (card) => card.traits || card.defaultTraits || []
@@ -127,6 +137,11 @@ const Recruit = () => {
   const [traitFilters, setTraitFilters] = useState([]);
   const [isRecruitLoading, setIsRecruitLoading] = useState(true);
   const [isCardLoading, setIsCardLoading] = useState(false);
+  const [isLoadingMoreCards, setIsLoadingMoreCards] = useState(false);
+  const [cardPage, setCardPage] = useState(DEFAULT_RECRUITING_MEMBERS_PAGE);
+  const [hasNextCardPage, setHasNextCardPage] = useState(false);
+  const loadMoreTriggerRef = useRef(null);
+  const isLoadingMoreCardsRef = useRef(false);
 
   const [selectedCourseId, setSelectedCourseId] = useState('');
 
@@ -146,6 +161,17 @@ const Recruit = () => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [tempSortType, setTempSortType] = useState(sortType);
   const [tempTraits, setTempTraits] = useState(selectedTraits);
+
+  const cardQueryKey = useMemo(() => {
+    return [
+      selectedCourseId,
+      searchKeyword,
+      sortType,
+      includeCompleted,
+      selectedTraits.join(','),
+    ].join('|')
+  }, [selectedCourseId, searchKeyword, sortType, includeCompleted, selectedTraits]);
+  const cardQueryKeyRef = useRef(cardQueryKey);
 
   useEffect(() => {
     let ignore = false;
@@ -193,21 +219,28 @@ const Recruit = () => {
 
   useEffect(() => {
     let ignore = false;
+    cardQueryKeyRef.current = cardQueryKey;
 
     const loadRecruitCards = async () => {
       if (!selectedCourseId) {
         setCards([]);
+        setCardPage(DEFAULT_RECRUITING_MEMBERS_PAGE);
+        setHasNextCardPage(false);
         return;
       }
 
       try {
         setIsCardLoading(true);
+        setCards([]);
+        setCardPage(DEFAULT_RECRUITING_MEMBERS_PAGE);
+        setHasNextCardPage(false);
 
         const response = await getRecruitingMembers(selectedCourseId, {
           keyword: searchKeyword,
           sort: sortType,
           traits: selectedTraits,
           includeCompleted,
+          page: DEFAULT_RECRUITING_MEMBERS_PAGE,
         });
 
         if (ignore) return;
@@ -220,10 +253,13 @@ const Recruit = () => {
         }));
 
         setCards(nextCards);
+        setCardPage(result.page ?? DEFAULT_RECRUITING_MEMBERS_PAGE);
+        setHasNextCardPage(Boolean(result.hasNext));
       } catch (error) {
         console.error('[모집 카드 목록 조회 실패]', error.message);
         if (!ignore) {
           setCards([]);
+          setHasNextCardPage(false);
         }
       } finally {
         if (!ignore) {
@@ -243,6 +279,106 @@ const Recruit = () => {
     sortType,
     selectedTraits,
     includeCompleted,
+    cardQueryKey,
+  ]);
+
+  const handleLoadMoreCards = useCallback(async () => {
+    if (
+      !selectedCourseId
+      || isCardLoading
+      || isLoadingMoreCardsRef.current
+      || !hasNextCardPage
+    ) {
+      return;
+    }
+
+    const requestQueryKey = cardQueryKey;
+    const nextPage = cardPage + 1;
+
+    try {
+      isLoadingMoreCardsRef.current = true;
+      setIsLoadingMoreCards(true);
+
+      const response = await getRecruitingMembers(selectedCourseId, {
+        keyword: searchKeyword,
+        sort: sortType,
+        traits: selectedTraits,
+        includeCompleted,
+        page: nextPage,
+      });
+
+      if (cardQueryKeyRef.current !== requestQueryKey) return;
+
+      const result = response.result || {};
+      const courseId = String(result.courseId ?? selectedCourseId);
+      const nextCards = (result.content || []).map((card) => ({
+        ...card,
+        courseId,
+      }));
+
+      setCards((prevCards) => {
+        const existingCardKeys = new Set(
+          prevCards.map((card) => String(getRecruitCardKey(card)))
+        );
+        const cardsToAppend = nextCards.filter((card) => {
+          return !existingCardKeys.has(String(getRecruitCardKey(card)))
+        });
+
+        return [...prevCards, ...cardsToAppend];
+      });
+      setCardPage(result.page ?? nextPage);
+      setHasNextCardPage(Boolean(result.hasNext));
+    } catch (error) {
+      console.error('[모집 카드 추가 조회 실패]', error.message);
+    } finally {
+      isLoadingMoreCardsRef.current = false;
+      setIsLoadingMoreCards(false);
+    }
+  }, [
+    selectedCourseId,
+    isCardLoading,
+    hasNextCardPage,
+    cardQueryKey,
+    cardPage,
+    searchKeyword,
+    sortType,
+    selectedTraits,
+    includeCompleted,
+  ]);
+
+  useEffect(() => {
+    const loadMoreTrigger = loadMoreTriggerRef.current;
+
+    if (
+      !loadMoreTrigger
+      || !hasNextCardPage
+      || isCardLoading
+      || isLoadingMoreCards
+    ) {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          handleLoadMoreCards();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '160px 0px',
+        threshold: 0,
+      }
+    );
+
+    observer.observe(loadMoreTrigger);
+
+    return () => observer.disconnect();
+  }, [
+    hasNextCardPage,
+    isCardLoading,
+    isLoadingMoreCards,
+    handleLoadMoreCards,
   ]);
 
   const handleSearch = () => {
@@ -370,7 +506,7 @@ const Recruit = () => {
           {filteredCards.length > 0 ? (
             filteredCards.map((card) => (
               <ProfileCard
-                key={card.id ?? card.userCourseProfileId ?? card.userId}
+                key={getRecruitCardKey(card)}
                 variant="recruit"
                 user={getRecruitCardUser(card)}
                 status={getRecruitCardStatusLabel(card)}
@@ -384,6 +520,19 @@ const Recruit = () => {
             <p className="recruit-card-list__empty">
               {isRecruitLoading || isCardLoading ? '모집 페이지 정보를 불러오는 중입니다.' : '모집 중인 팀원을 찾을 수 없습니다.'}
             </p>
+          )}
+          {filteredCards.length > 0 && isLoadingMoreCards && (
+            <p className="recruit-card-list__loading">
+              모집 카드를 불러오는 중입니다.
+            </p>
+          )}
+
+          {filteredCards.length > 0 && hasNextCardPage && (
+            <div
+              ref={loadMoreTriggerRef}
+              className="recruit-card-list__sentinel"
+              aria-hidden="true"
+            />
           )}
         </div>
       </div>
