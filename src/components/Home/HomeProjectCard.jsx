@@ -31,6 +31,7 @@ const HomeProjectCard = ({ project, tab, onConfirm, onExit, onOpen }) => {
           <button
             className={`home-project-card__action ${showConfirm ? 'is-primary' : ''}`}
             type="button"
+            disabled={!showConfirm}
             onClick={showConfirm ? onConfirm : undefined}
           >
             {project.action}

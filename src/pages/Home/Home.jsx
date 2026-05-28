@@ -9,11 +9,13 @@ import HomeProjectCard from '../../components/Home/HomeProjectCard'
 import MemberCard from '../../components/Home/MemberCard'
 import ReviewModal from '../../components/Home/ReviewModal'
 import {
+  confirmTeamMembers,
   createCompletionRequest,
   createPeerReview,
   createProjectChecklist,
   decideCompletionRequest,
   deleteChecklist,
+  forceLeaveTeam,
   getCurrentCompletionRequest,
   getPeerReviewStatus,
   getPeerReviewTargets,
@@ -21,12 +23,12 @@ import {
   getProjectDetail,
   getProjectMembers,
   getProjects,
-  leaveProject,
+  leaveTeamBeforeConfirm,
+  requestTeamLeave,
   updateChecklist,
   updateChecklistStatus,
 } from '../../api/Home/home'
 import {
-  IMPORTANCE_OPTIONS,
   mapTraitNames,
   normalizeTraitName,
   toDisplayImportance,
@@ -61,159 +63,10 @@ const projectStatusLabel = {
   DONE: '진행 완료',
 }
 
-const capstoneTeammates = [
-  {
-    userId: 1,
-    name: '문채이',
-    school: '컴퓨터공학과 4학년',
-    tags: ['빠른소통', '꼼꼼함', normalizeTraitName('비대면선호')],
-    level: 'LV.2',
-    point: '140p',
-    priority: IMPORTANCE_OPTIONS[1],
-  },
-  {
-    userId: 2,
-    name: '이승희',
-    school: '컴퓨터공학과 4학년',
-    tags: ['미리준비', normalizeTraitName('완벽주의'), normalizeTraitName('대면선호')],
-    level: 'LV.1',
-    point: '100p',
-    priority: IMPORTANCE_OPTIONS[0],
-  },
-  {
-    userId: 3,
-    name: '김성연',
-    school: '컴퓨터공학과 4학년',
-    tags: ['적극참여', '자료조사', normalizeTraitName('대면선호')],
-    level: 'LV.3',
-    point: '220p',
-    priority: IMPORTANCE_OPTIONS[0],
-  },
-  {
-    userId: 4,
-    name: '이은우',
-    school: '컴퓨터공학과 4학년',
-    tags: ['자료조사', '꼼꼼함', normalizeTraitName('비대면선호')],
-    level: 'LV.2',
-    point: '130p',
-    priority: IMPORTANCE_OPTIONS[1],
-  },
-  {
-    userId: 5,
-    name: '김지희',
-    school: '컴퓨터공학과 4학년',
-    tags: ['일정관리', '빠른소통', normalizeTraitName('대면선호')],
-    level: 'LV.2',
-    point: '150p',
-    priority: IMPORTANCE_OPTIONS[0],
-  },
-  {
-    userId: 6,
-    name: '김예린',
-    school: '컴퓨터공학과 4학년',
-    tags: ['디자인', '꼼꼼함', normalizeTraitName('완벽주의')],
-    level: 'LV.3',
-    point: '210p',
-    priority: IMPORTANCE_OPTIONS[0],
-  },
-  {
-    userId: 7,
-    name: '김채원',
-    school: '컴퓨터공학과 4학년',
-    tags: ['일정관리', '디자인', '빠른소통'],
-    level: 'LV.2',
-    point: '160p',
-    priority: IMPORTANCE_OPTIONS[1],
-  },
-]
-
-const recruitingProjects = [
-  {
-    id: 1,
-    title: '알고리즘',
-    members: '김성연 이승희 문채이',
-    status: '모집 중',
-    action: '확정 대기',
-  },
-  {
-    id: 2,
-    title: '서버구축시스템실습',
-    members: '이승희 김성연',
-    status: '모집 중',
-    action: '팀 확정',
-  },
-]
-
-const checklist = [
-  { id: 1, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', assignee: '이승희', done: false },
-  { id: 2, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', assignee: '김성연', done: false },
-  { id: 3, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', assignee: '김채원', done: false },
-  { id: 4, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', assignee: '이승희', done: true },
-]
-
-const activeProjects = [
-  {
-    id: 1,
-    title: '알고리즘',
-    members: '이승희 문채이',
-    status: '진행 중',
-    progress: 45,
-    teammates: [
-      {
-        userId: 2,
-        name: '이승희',
-        school: '컴퓨터공학과 4학년',
-        tags: ['미리준비', normalizeTraitName('완벽주의'), normalizeTraitName('대면선호')],
-        level: 'LV.1',
-        point: '100p',
-        priority: IMPORTANCE_OPTIONS[0],
-      },
-      {
-        userId: 1,
-        name: '문채이',
-        school: '컴퓨터공학과 4학년',
-        tags: ['빠른소통', '꼼꼼함', normalizeTraitName('비대면선호')],
-        level: 'LV.2',
-        point: '140p',
-        priority: IMPORTANCE_OPTIONS[1],
-      },
-    ],
-    checklist: [
-      { id: 101, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', assignee: '이승희', done: false },
-      { id: 102, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', assignee: '문채이', done: false },
-      { id: 103, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', assignee: '이승희', done: false },
-      { id: 104, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', assignee: '문채이', done: true },
-      { id: 105, title: '중간 발표 준비', date: '2026년 5월 8일 금요일', dueAt: '2026-05-08', assignee: '문채이', done: false },
-      { id: 106, title: '최종 발표 자료 제작', date: '2026년 6월 2일 화요일', dueAt: '2026-06-02', assignee: '이승희', done: false },
-    ],
-  },
-  {
-    id: 2,
-    title: '캡스톤 디자인',
-    members: '문채이 이승희 김성연 이은우 김지희 김예린 김채원',
-    status: '진행 중',
-    progress: 72,
-    teammates: capstoneTeammates,
-    checklist,
-  },
-]
-
-const completedProjects = [
-  {
-    id: 201,
-    title: '캡스톤 디자인',
-    members: '문채이 이승희 김성연 이은우 김지희 김예린 김채원',
-    status: '진행 완료',
-    progress: 100,
-    teammates: capstoneTeammates,
-    checklist: [
-      { id: 2011, title: '기획 및 디자인 완료', date: '2026년 3월 30일 월요일', dueAt: '2026-03-30', assignee: '이승희', done: true },
-      { id: 2012, title: '프론트엔드 완료', date: '2026년 4월 10일 수요일', dueAt: '2026-04-10', assignee: '문채이', done: true },
-      { id: 2013, title: '백엔드 완료', date: '2026년 5월 1일 목요일', dueAt: '2026-05-01', assignee: '김성연', done: true },
-      { id: 2014, title: '팀원 모집 완료', date: '2026년 3월 10일 금요일', dueAt: '2026-03-10', assignee: '이승희', done: true },
-    ],
-  },
-]
+const teamConfirmAction = {
+  ready: '팀 확정',
+  pending: '확정대기',
+}
 
 const sortChecklist = (items) => {
   return [...items].sort((a, b) => {
@@ -299,7 +152,7 @@ const normalizeProjectSummary = (project, fallbackStatus) => {
     title,
     members: Array.isArray(memberNames) ? memberNames.join(' ') : memberNames,
     status: projectStatusLabel[status] || project.status || projectStatusLabel[fallbackStatus] || '진행 중',
-    action: project.action || '확정 대기',
+    action: project.action || (status === 'RECRUITING' ? teamConfirmAction.ready : ''),
     progress: Math.round(project.progressRate ?? project.progress ?? (status === 'DONE' ? 100 : 0)),
     teammates: Array.isArray(memberNames)
       ? memberNames.map((name, index) => ({
@@ -361,10 +214,11 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState('recruiting')
   const [modal, setModal] = useState(null)
   const [showTeamConfirm, setShowTeamConfirm] = useState(false)
-  const [recruitingItems, setRecruitingItems] = useState(recruitingProjects)
-  const [activeItems, setActiveItems] = useState(activeProjects)
-  const [doneItems, setDoneItems] = useState(completedProjects)
+  const [recruitingItems, setRecruitingItems] = useState([])
+  const [activeItems, setActiveItems] = useState([])
+  const [doneItems, setDoneItems] = useState([])
   const [exitTarget, setExitTarget] = useState(null)
+  const [teamConfirmTarget, setTeamConfirmTarget] = useState(null)
   const [reviewProject, setReviewProject] = useState(null)
   const [reviewIndex, setReviewIndex] = useState(0)
   const [reviewTargets, setReviewTargets] = useState([])
@@ -419,8 +273,66 @@ const Home = () => {
   }
 
   const openExitModal = (project, tabKey = currentTab) => {
-    setExitTarget({ projectId: project.id, tabKey })
+    const shouldRequestLeave = tabKey !== 'recruiting' || project.action !== teamConfirmAction.ready
+
+    setExitTarget({
+      projectId: project.id,
+      tabKey,
+      shouldRequestLeave,
+    })
     setModal('exit')
+  }
+
+  const openTeamConfirm = (project) => {
+    setTeamConfirmTarget(project)
+    setShowTeamConfirm(true)
+  }
+
+  const confirmRecruitingTeam = async () => {
+    if (!teamConfirmTarget) {
+      setShowTeamConfirm(false)
+      return
+    }
+
+    let shouldMoveToActive = false
+
+    try {
+      const response = await confirmTeamMembers(teamConfirmTarget.id)
+      const result = response.result
+
+      shouldMoveToActive = result?.allConfirmed || result?.projectTeamStatus === 'IN_PROGRESS'
+    } catch (error) {
+      console.warn('팀원 확정 실패:', error.message)
+    } finally {
+      if (shouldMoveToActive) {
+        const nextActiveProject = {
+          ...teamConfirmTarget,
+          action: '',
+          status: projectStatusLabel.IN_PROGRESS,
+          progress: teamConfirmTarget.progress ?? 0,
+          teammates: teamConfirmTarget.teammates || [],
+          checklist: teamConfirmTarget.checklist || [],
+        }
+
+        setRecruitingItems((items) => items.filter((project) => project.id !== teamConfirmTarget.id))
+        setActiveItems((items) => (
+          items.some((project) => project.id === teamConfirmTarget.id)
+            ? items
+            : [nextActiveProject, ...items]
+        ))
+      } else {
+        setRecruitingItems((items) => (
+          items.map((project) => (
+            project.id === teamConfirmTarget.id
+              ? { ...project, action: teamConfirmAction.pending }
+              : project
+          ))
+        ))
+      }
+
+      setTeamConfirmTarget(null)
+      setShowTeamConfirm(false)
+    }
   }
 
   const completeExit = async (agreed) => {
@@ -430,18 +342,31 @@ const Home = () => {
     }
 
     try {
-      await leaveProject(exitTarget.projectId, { agreed })
+      if (!exitTarget.shouldRequestLeave) {
+        await leaveTeamBeforeConfirm(exitTarget.projectId)
+      } else if (agreed) {
+        await requestTeamLeave(exitTarget.projectId)
+      } else {
+        await forceLeaveTeam(exitTarget.projectId)
+      }
     } catch (error) {
       console.warn('프로젝트 나가기 실패:', error.message)
     }
 
-    if (exitTarget.tabKey === 'recruiting') {
+    if (exitTarget.tabKey === 'recruiting' && !exitTarget.shouldRequestLeave) {
+      setRecruitingItems((items) => items.filter((project) => project.id !== exitTarget.projectId))
+      setShowTeamConfirm(false)
+    }
+
+    if (exitTarget.tabKey === 'recruiting' && exitTarget.shouldRequestLeave && !agreed) {
       setRecruitingItems((items) => items.filter((project) => project.id !== exitTarget.projectId))
       setShowTeamConfirm(false)
     }
 
     if (exitTarget.tabKey === 'active') {
-      setActiveItems((items) => items.filter((project) => project.id !== exitTarget.projectId))
+      if (!agreed) {
+        setActiveItems((items) => items.filter((project) => project.id !== exitTarget.projectId))
+      }
       setActiveTab('active')
       navigate('/home')
     }
@@ -1035,7 +960,7 @@ const Home = () => {
                 project={project}
                 tab={activeTab}
                 key={project.id}
-                onConfirm={() => setShowTeamConfirm(true)}
+                onConfirm={() => openTeamConfirm(project)}
                 onExit={() => openExitModal(project, activeTab)}
                 onOpen={activeTab !== 'recruiting' ? () => openProjectDetail(project) : undefined}
               />
@@ -1054,8 +979,13 @@ const Home = () => {
             확인 후 진행을 권장드립니다
           </p>
           <div>
-            <button type="button" onClick={() => setShowTeamConfirm(false)}>아니오</button>
-            <button type="button" onClick={() => setShowTeamConfirm(false)}>팀 확정하기</button>
+            <button type="button" onClick={() => {
+              setTeamConfirmTarget(null)
+              setShowTeamConfirm(false)
+            }}>
+              아니오
+            </button>
+            <button type="button" onClick={confirmRecruitingTeam}>팀 확정하기</button>
           </div>
         </section>
       )}
@@ -1229,7 +1159,14 @@ const Home = () => {
             setExitTarget(null)
             setModal(null)
           }}
-          onConfirm={() => setModal('team-confirm-guide')}
+          onConfirm={() => {
+            if (exitTarget?.shouldRequestLeave) {
+              setModal('team-confirm-guide')
+              return
+            }
+
+            completeExit(false)
+          }}
         />
       )}
 
