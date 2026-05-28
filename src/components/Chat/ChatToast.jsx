@@ -22,6 +22,11 @@ const ChatToast = ({ status, onAccept }) => {
                 <img src={check_g} alt="" /> 팀원 요청 수락
             </button>
         )}
+        {status === "REJECTED" && (
+            <button className="status_btn rejected">
+                <img src={check_g} alt="" /> 팀원 요청 거절
+            </button>
+        )}
     </div>
   )
 }
