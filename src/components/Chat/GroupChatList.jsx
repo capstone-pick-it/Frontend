@@ -2,16 +2,14 @@ import { useCallback, useRef, useState } from 'react'
 import ChatBadge from './ChatBadge'
 import ConfirmModal from '../Home/ConfirmModal'
 import { useNavigate } from 'react-router-dom'
-import { GROUP_USERS } from '../../data/mockData'
 import profile5 from '../../assets/images/Chat/group_profile_5.svg'
 import { leaveChatRoom } from '../../api/chat'
 
 const SWIPE_THRESHOLD = 50
 const SWIPE_WIDTH = 80
 
-const GroupChatList = () => {
+const GroupChatList = ({ rooms, setRooms }) => {
     const navigate = useNavigate()
-    const [groupRooms, setGroupRooms] = useState(GROUP_USERS)
     const [swipedRoomId, setSwipedRoomId] = useState(null)
     const [confirmRoomId, setConfirmRoomId] = useState(null)
     const swipedRoomIdRef = useRef(null)
@@ -67,16 +65,18 @@ const GroupChatList = () => {
         }
     }
 
-    const handleClick = (group) => {
+    const handleClick = (room) => {
         if (hasSwiped.current) return
         if (swipedRoomId) { setSwipedRoom(null); return }
-        navigate(`/chatroom/${group.courseName}`)
+        navigate(`/chatroom/${room.chatRoomId}`, {
+            state: { opponent: { nickname: room.roomName } },
+        })
     }
 
     const handleLeave = async () => {
         try {
             await leaveChatRoom(confirmRoomId)
-            setGroupRooms((prev) => prev.filter((g) => g.id !== confirmRoomId))
+            setRooms((prev) => prev.filter((r) => r.chatRoomId !== confirmRoomId))
         } catch (e) {
             console.error('그룹 채팅방 나가기 실패', e)
         } finally {
@@ -87,29 +87,29 @@ const GroupChatList = () => {
 
     return (
         <div>
-            {groupRooms?.map((group) => (
-                <div key={group.id} className="GroupChatList_Slide_Wrap">
+            {rooms?.map((room) => (
+                <div key={room.chatRoomId} className="GroupChatList_Slide_Wrap">
                     <div
-                        ref={(el) => (itemRefs.current[group.id] = el)}
-                        className={`GroupChatContainer_Wrap${swipedRoomId === group.id ? ' swiped' : ''}`}
+                        ref={(el) => (itemRefs.current[room.chatRoomId] = el)}
+                        className={`GroupChatContainer_Wrap${swipedRoomId === room.chatRoomId ? ' swiped' : ''}`}
                         onPointerDown={handlePointerDown}
-                        onPointerMove={(e) => handlePointerMove(e, group.id)}
-                        onPointerUp={(e) => handlePointerUp(e, group.id)}
-                        onClick={() => handleClick(group)}
+                        onPointerMove={(e) => handlePointerMove(e, room.chatRoomId)}
+                        onPointerUp={(e) => handlePointerUp(e, room.chatRoomId)}
+                        onClick={() => handleClick(room)}
                     >
                         <img src={profile5} alt="" />
                         <div className="text_container">
                             <div>
-                                <h1>{group.courseName}</h1>
-                                <p>{group.total}</p>
+                                <h1>{room.roomName}</h1>
+                                <p>{room.participantCount}</p>
                             </div>
-                            <p>{group.message}</p>
+                            <p>{room.lastMessage ?? ''}</p>
                         </div>
-                        <ChatBadge />
+                        <ChatBadge count={room.unreadCount} />
                     </div>
                     <button
                         className="leave-btn"
-                        onClick={() => setConfirmRoomId(group.id)}
+                        onClick={() => setConfirmRoomId(room.chatRoomId)}
                     >
                         나가기
                     </button>

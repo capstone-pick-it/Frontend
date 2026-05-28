@@ -1,16 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import profile from '../../assets/images/Chat/profile.svg'
 import ChatBadge from './ChatBadge'
 import ConfirmModal from '../Home/ConfirmModal'
 import { useNavigate } from 'react-router-dom'
-import { createDirectChat, getChatRooms, getLatestTeamRequest, leaveChatRoom } from '../../api/chat'
+import { createDirectChat, leaveChatRoom } from '../../api/chat'
 
 const SWIPE_THRESHOLD = 50
 const SWIPE_WIDTH = 80
 
-const ChatList = () => {
+const ChatList = ({ rooms, setRooms }) => {
     const navigate = useNavigate()
-    const [chatRooms, setChatRooms] = useState([])
     const [swipedRoomId, setSwipedRoomId] = useState(null)
     const [confirmRoomId, setConfirmRoomId] = useState(null)
     const swipedRoomIdRef = useRef(null)
@@ -22,27 +21,6 @@ const ChatList = () => {
     const setSwipedRoom = useCallback((roomId) => {
         swipedRoomIdRef.current = roomId
         setSwipedRoomId(roomId)
-    }, [])
-
-    useEffect(() => {
-        const fetchChatRooms = async () => {
-            try {
-                const result = await getChatRooms()
-                const rooms = result.chatRooms ?? []
-                const teamRequestResults = await Promise.all(
-                    rooms.map((room) =>
-                        getLatestTeamRequest(room.chatRoomId).catch(() => null)
-                    )
-                )
-                setChatRooms(rooms.map((room, i) => {
-                    const tr = teamRequestResults[i]
-                    return { ...room, hasPendingRequest: tr?.status === 'PENDING' && tr?.role === 'RECEIVER' }
-                }))
-            } catch (e) {
-                console.error('채팅 목록 조회 실패', e)
-            }
-        }
-        fetchChatRooms()
     }, [])
 
     const handlePointerDown = (e) => {
@@ -90,7 +68,7 @@ const ChatList = () => {
     const handleClick = async (targetUserId, opponent, chatRoomId) => {
         if (hasSwiped.current) return
         if (swipedRoomId) { setSwipedRoom(null); return }
-        setChatRooms((prev) =>
+        setRooms((prev) =>
             prev.map((r) => r.chatRoomId === chatRoomId ? { ...r, unreadCount: 0 } : r)
         )
         try {
@@ -107,7 +85,7 @@ const ChatList = () => {
     const handleLeave = async () => {
         try {
             await leaveChatRoom(confirmRoomId)
-            setChatRooms((prev) => prev.filter((r) => r.chatRoomId !== confirmRoomId))
+            setRooms((prev) => prev.filter((r) => r.chatRoomId !== confirmRoomId))
         } catch (e) {
             console.error('채팅방 나가기 실패', e)
         } finally {
@@ -118,7 +96,7 @@ const ChatList = () => {
 
     return (
         <div className="ChatContainer_Wrap">
-            {chatRooms?.map((room) => (
+            {rooms?.map((room) => (
                 <div key={room.chatRoomId} className="ChatList_Slide_Wrap">
                     <div
                         ref={(el) => (itemRefs.current[room.chatRoomId] = el)}
@@ -133,7 +111,10 @@ const ChatList = () => {
                             <h1>{room.opponent.nickname}</h1>
                             <p>{room.lastMessage ?? ''}</p>
                         </div>
-                        <ChatBadge count={room.unreadCount} teamRequest={room.hasPendingRequest} />
+                        <ChatBadge
+                            count={room.unreadCount}
+                            teamRequest={room.badgeType === 'TEAM_REQUEST'}
+                        />
                     </div>
                     <button
                         className="leave-btn"
