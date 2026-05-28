@@ -88,22 +88,25 @@
 #ChatBadge_Wrap{
     position: absolute;
     right: 16px;
-
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-
-    //채팅 알림 - error, 팀 신청 알림 - primary
-    background-color: var(--error-main);
-    // background-color: var(--primary-700);
-
     display: flex;
-    justify-content: center;
+    gap: 4px;
     align-items: center;
 
-    p{
-        color: var(--white);
-        @include caption
+    .badge {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        &.badge-red { background-color: var(--error-main); }
+        &.badge-blue { background-color: var(--primary-700); }
+
+        p{
+            color: var(--white);
+            @include caption
+        }
     }
 }
 

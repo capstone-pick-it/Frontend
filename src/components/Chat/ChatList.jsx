@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import profile from '../../assets/images/Chat/profile.svg'
 import ChatBadge from './ChatBadge'
 import { useNavigate } from 'react-router-dom'
-import { createDirectChat, getChatRooms } from '../../api/chat'
+import { createDirectChat, getChatRooms, getLatestTeamRequest } from '../../api/chat'
 
 const ChatList = () => {
     const navigate = useNavigate()
@@ -12,7 +12,21 @@ const ChatList = () => {
         const fetchChatRooms = async () => {
             try {
                 const result = await getChatRooms()
-                setChatRooms(result.chatRooms ?? [])
+                const rooms = result.chatRooms ?? []
+
+                const teamRequestResults = await Promise.all(
+                    rooms.map((room) =>
+                        getLatestTeamRequest(room.chatRoomId).catch(() => null)
+                    )
+                )
+
+                const roomsWithRequest = rooms.map((room, i) => {
+                    const tr = teamRequestResults[i]
+                    const hasPendingRequest = tr?.status === 'PENDING' && tr?.role === 'RECEIVER'
+                    return { ...room, hasPendingRequest }
+                })
+
+                setChatRooms(roomsWithRequest)
             } catch (e) {
                 console.error('채팅 목록 조회 실패', e)
             }
@@ -51,7 +65,7 @@ const ChatList = () => {
                         <h1>{room.opponent.nickname}</h1>
                         <p>{room.lastMessage ?? ''}</p>
                     </div>
-                    <ChatBadge count={room.unreadCount} />
+                    <ChatBadge count={room.unreadCount} teamRequest={room.hasPendingRequest} />
                 </div>
             ))}
         </div>
