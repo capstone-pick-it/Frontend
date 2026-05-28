@@ -57,6 +57,15 @@ export const teamRequest = async (chatRoomId, courseId) => {
     return response.result
 }
 
+// 채팅방 나가기
+export const leaveChatRoom = async (chatRoomId) => {
+    const response = await request(`/api/chats/${chatRoomId}/leave`, {
+        method: 'PATCH',
+        auth: true,
+    })
+    return response.result
+}
+
 // 팀원 요청 최신 상태 조회
 export const getLatestTeamRequest = async (chatRoomId) => {
     const response = await request(`/api/chats/${chatRoomId}/team-requests/latest`, {

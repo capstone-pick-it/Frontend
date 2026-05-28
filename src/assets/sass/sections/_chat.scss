@@ -5,8 +5,30 @@
 
 
 //채팅 리스트
+.ChatList_Slide_Wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+
+    .leave-btn {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 80px;
+        background-color: var(--error-main);
+        color: var(--white);
+        border: none;
+        cursor: pointer;
+        z-index: 0;
+        @include body4;
+    }
+}
+
 .ChatList_Wrap{
     position: relative;
+    z-index: 1;
     width: 100%;
     height: 70px;
     background-color: var(--primary-50);
@@ -16,8 +38,13 @@
     align-items: center;
     gap: 8px;
     padding: 0 16px;
-    margin-bottom: 8px;
     cursor: pointer;
+    touch-action: pan-y;
+    transition: transform 0.25s ease;
+
+    &.swiped {
+        transform: translateX(-80px);
+    }
 
     img{
         width: 40px;
