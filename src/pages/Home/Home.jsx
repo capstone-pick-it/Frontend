@@ -189,7 +189,8 @@ const getApprovedUserIds = (request) => {
     (request?.approvals || [])
       .filter((approval) => approval.decision === 'APPROVE')
       .map((approval) => approval.user?.userId)
-      .filter(Boolean),
+      .filter(Boolean)
+      .map(String),
   )
 }
 
@@ -1140,7 +1141,7 @@ const Home = () => {
                     )}
                     <div>
                       {selectedProject.teammates.map((member) => (
-                        <span className={approvedUserIds.has(member.userId) ? 'is-approved' : ''} key={member.userId}>
+                        <span className={approvedUserIds.has(String(member.userId)) ? 'is-approved' : ''} key={member.userId}>
                           {member.name}
                         </span>
                       ))}
