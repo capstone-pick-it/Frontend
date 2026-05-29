@@ -147,15 +147,17 @@ const normalizeChecklistItem = (item) => ({
 const normalizeProjectMember = (member, fallbackMember = {}) => ({
   ...fallbackMember,
   userId: member.userId ?? fallbackMember.userId,
-  projectTeamMemberId: member.projectTeamMemberId,
+  projectTeamMemberId: member.projectTeamMemberId ?? fallbackMember.projectTeamMemberId,
   name: member.nickname || fallbackMember.name || '팀원',
   school: member.major || fallbackMember.school || '',
-  role: member.role,
-  activeMember: member.activeMember,
+  major: member.major || fallbackMember.major || fallbackMember.school || '',
+  year: member.grade ?? fallbackMember.year,
+  role: member.role ?? fallbackMember.role,
+  activeMember: member.activeMember ?? fallbackMember.activeMember,
   tags: getDisplayTraits(member.traits || member.defaultTraits, fallbackMember.tags || []),
-  level: fallbackMember.level || 'LV.1',
-  point: fallbackMember.point || '0p',
-  priority: getDisplayImportance(member.importance, member.priority, fallbackMember.priority),
+  level: member.teamLevel ?? fallbackMember.level ?? 1,
+  point: member.point ?? fallbackMember.point ?? 0,
+  priority: getDisplayImportance(member.importanceLevel, member.importance, member.priority, fallbackMember.priority),
 })
 
 const normalizeProjectDetail = (detail, fallbackProject) => {
@@ -189,10 +191,11 @@ const normalizeProjectSummary = (project, fallbackStatus) => {
         userId: project.memberIds?.[index] ?? index + 1,
         name,
         school: '',
+        major: '',
         tags: getDisplayTraits(project.traits || project.defaultTraits),
-        level: 'LV.1',
-        point: '0p',
-        priority: getDisplayImportance(project.importance, project.priority),
+        level: 1,
+        point: 0,
+        priority: getDisplayImportance(project.importanceLevel, project.importance, project.priority),
       }))
       : [],
     checklist: [],
