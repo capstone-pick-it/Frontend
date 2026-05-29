@@ -678,7 +678,12 @@ const Home = () => {
   }
 
   const enterMemberChatRoom = async (member) => {
-    if (!member?.userId || isSameUserId(member.userId, currentProjectUserId) || isEnteringChatRoomRef.current) {
+    if (isEnteringChatRoomRef.current) {
+      return
+    }
+
+    if (!member?.userId || isSameUserId(member.userId, currentProjectUserId)) {
+      navigate('/chat')
       return
     }
 
