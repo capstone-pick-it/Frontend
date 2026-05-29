@@ -680,17 +680,20 @@
     border-radius: 7px;
     background-color: var(--white);
     display: grid;
-    grid-template-columns: 44px auto 28px auto 28px auto 70px;
+    grid-template-columns: 54px auto 34px auto 34px auto 74px;
     align-items: center;
     gap: 4px;
     margin-top: 0;
 
-    input {
+    > select {
       height: 100%;
       padding: 0;
       border: 0;
       border-radius: 0;
+      background-color: transparent;
+      color: var(--black);
       text-align: center;
+      appearance: none;
       @include caption;
     }
 
