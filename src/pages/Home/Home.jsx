@@ -69,6 +69,28 @@ const teamConfirmAction = {
   pending: '확정대기',
 }
 
+const completionDecisionStorageKey = 'pickitCompletionDecisions'
+
+const loadCompletionDecisions = () => {
+  try {
+    return JSON.parse(window.localStorage.getItem(completionDecisionStorageKey) || '{}')
+  } catch {
+    return {}
+  }
+}
+
+const saveCompletionDecision = (projectId, requestId, decision) => {
+  const decisions = loadCompletionDecisions()
+
+  window.localStorage.setItem(completionDecisionStorageKey, JSON.stringify({
+    ...decisions,
+    [projectId]: {
+      requestId,
+      decision,
+    },
+  }))
+}
+
 const sortChecklist = (items) => {
   return [...items].sort((a, b) => {
     if (a.done !== b.done) {
@@ -239,6 +261,7 @@ const Home = () => {
   const [reviewIndex, setReviewIndex] = useState(0)
   const [reviewTargets, setReviewTargets] = useState([])
   const [completionRequests, setCompletionRequests] = useState({})
+  const [storedCompletionDecisions, setStoredCompletionDecisions] = useState(() => loadCompletionDecisions())
   const [peerReviewStatuses, setPeerReviewStatuses] = useState({})
   const [memberIndex, setMemberIndex] = useState(0)
   const [checklistPage, setChecklistPage] = useState(0)
