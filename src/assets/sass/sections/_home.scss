@@ -209,26 +209,9 @@
   padding: 17px 16px 16px;
 }
 
-.home-checklist-pager {
-  position: relative;
-
-  > button {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 50%;
-    overflow: hidden;
-    opacity: 0;
-    z-index: 1;
-
-    &:first-child {
-      left: 0;
-    }
-
-    &:last-child {
-      right: 0;
-    }
-  }
+.home-checklist {
+  touch-action: pan-y;
+  user-select: none;
 }
 
 .home-member-carousel {

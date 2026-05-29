@@ -282,6 +282,8 @@ const Home = () => {
   const checklistIdRef = useRef(1000)
   const isEnteringChatRoomRef = useRef(false)
   const memberSwipeStartXRef = useRef(null)
+  const checklistSwipeStartXRef = useRef(null)
+  const shouldIgnoreChecklistClickRef = useRef(false)
 
   const projectsByTab = {
     recruiting: recruitingItems,
@@ -781,6 +783,51 @@ const Home = () => {
     moveMemberCard(distance < 0 ? 1 : -1)
   }
 
+  const moveChecklistPage = (direction) => {
+    setChecklistPage((page) => (
+      (page + direction + checklistPages) % checklistPages
+    ))
+  }
+
+  const handleChecklistSwipeStart = (event) => {
+    checklistSwipeStartXRef.current = event.clientX
+  }
+
+  const handleChecklistSwipeEnd = (event) => {
+    if (checklistSwipeStartXRef.current === null) {
+      return
+    }
+
+    const distance = event.clientX - checklistSwipeStartXRef.current
+    checklistSwipeStartXRef.current = null
+
+    if (Math.abs(distance) < 45) {
+      return
+    }
+
+    shouldIgnoreChecklistClickRef.current = true
+    moveChecklistPage(distance < 0 ? 1 : -1)
+    setTimeout(() => {
+      shouldIgnoreChecklistClickRef.current = false
+    }, 0)
+  }
+
+  const openChecklistItem = (itemId) => {
+    if (shouldIgnoreChecklistClickRef.current || currentTab !== 'active') {
+      return
+    }
+
+    setEditingChecklistId(itemId)
+  }
+
+  const toggleChecklistItemWithGuard = (itemId) => {
+    if (shouldIgnoreChecklistClickRef.current) {
+      return
+    }
+
+    toggleChecklistItem(itemId)
+  }
+
   const addChecklistItem = async () => {
     if (!selectedProject) {
       return
@@ -1223,10 +1270,17 @@ const Home = () => {
             {currentTab === 'active' && <button type="button" onClick={addChecklistItem}>+</button>}
           </header>
 
-          <div className="home-checklist">
+          <div
+            className="home-checklist"
+            onPointerDown={handleChecklistSwipeStart}
+            onPointerUp={handleChecklistSwipeEnd}
+            onPointerCancel={() => {
+              checklistSwipeStartXRef.current = null
+            }}
+          >
             {visibleChecklist.map((item) => (
               <article className={item.done ? 'is-done' : ''} key={item.id}>
-                <button type="button" onClick={() => currentTab === 'active' && setEditingChecklistId(item.id)}>
+                <button type="button" onClick={() => openChecklistItem(item.id)}>
                   <div className="home-checklist__title-row">
                     <h3>{item.title}</h3>
                     <span>{item.assignee}</span>
@@ -1241,7 +1295,7 @@ const Home = () => {
                       ? '체크리스트 완료 상태 변경'
                       : `${item.assignee} 담당 할 일입니다`
                   }
-                  onClick={() => toggleChecklistItem(item.id)}
+                  onClick={() => toggleChecklistItemWithGuard(item.id)}
                 >
                   {item.done ? '✓' : ''}
                 </button>
@@ -1250,12 +1304,6 @@ const Home = () => {
           </div>
 
           <div className="home-checklist-pager">
-            <button
-              type="button"
-              onClick={() => setChecklistPage((checklistPage - 1 + checklistPages) % checklistPages)}
-            >
-              이전 체크리스트
-            </button>
             <div className="home-carousel-dots home-carousel-dots--checklist">
               {Array.from({ length: checklistPages }).map((_, index) => (
                 <button
@@ -1267,12 +1315,6 @@ const Home = () => {
                 />
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => setChecklistPage((checklistPage + 1) % checklistPages)}
-            >
-              다음 체크리스트
-            </button>
           </div>
 
           {currentTab === 'active' && (
