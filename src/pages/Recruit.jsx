@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import TopBar from '../components/TopBar';
 import Nav from '../components/Nav';
@@ -15,20 +16,14 @@ import checkDefault from '../assets/images/Recruit/icon-check.svg';
 import checkActive from '../assets/images/Recruit/icon-check_pri.svg';
 
 import {
+  DEFAULT_RECRUITING_MEMBERS_PAGE,
   getRecruitCourses,
+  getRecruitingMembers,
   getTraitItems,
   toTraitFilters,
 } from '../api/recruit';
-import {
-  IMPORTANCE_LABEL_BY_VALUE,
-  IMPORTANCE_SCORE_BY_VALUE,
-} from '../constants/commonOptions';
-
-const getMatchScore = (card) => {
-  const score = card.matchScore ?? card.similarityScore ?? card.matchingScore;
-
-  return typeof score === 'number' ? score : 0;
-};
+import { createDirectChat } from '../api/chat';
+import { IMPORTANCE_LABEL_BY_VALUE } from '../constants/commonOptions';
 
 const SORT_OPTIONS = [
   { value: 'match', label: '성향 유사순' },
@@ -55,6 +50,16 @@ const RECRUIT_STATUS_LABELS = {
   [RECRUIT_STATUS.RECRUITMENT_COMPLETED]: '모집 완료',
 }
 
+const ACTIVE_RECRUIT_STATUSES = new Set([
+  RECRUIT_STATUS.RECRUITING,
+  RECRUIT_STATUS.CONFIRM_PENDING,
+])
+
+const RECRUIT_STATUSES_WITH_COMPLETED = new Set([
+  ...ACTIVE_RECRUIT_STATUSES,
+  RECRUIT_STATUS.RECRUITMENT_COMPLETED,
+])
+
 const getRecruitCardUser = (card) => {
   if (card.user) return card.user
 
@@ -65,6 +70,15 @@ const getRecruitCardUser = (card) => {
     level: card.teamLevel ?? card.level,
     points: card.points ?? card.point,
   }
+}
+
+const getRecruitCardKey = (card) => {
+  const user = getRecruitCardUser(card)
+
+  return card.id
+    ?? card.userCourseProfileId
+    ?? card.userId
+    ?? `${card.courseId}-${user.name || 'unknown'}`
 }
 
 const getRecruitCardTraits = (card) => card.traits || card.defaultTraits || []
@@ -100,15 +114,11 @@ const getRecruitCardStatusLabel = (card) => {
 
 const isVisibleRecruitCard = (card, includeCompleted) => {
   const status = getRecruitCardStatus(card)
+  const visibleStatuses = includeCompleted
+    ? RECRUIT_STATUSES_WITH_COMPLETED
+    : ACTIVE_RECRUIT_STATUSES
 
-  if (includeCompleted) {
-    return (
-      status === RECRUIT_STATUS.RECRUITING ||
-      status === RECRUIT_STATUS.RECRUITMENT_COMPLETED
-    )
-  }
-
-  return status === RECRUIT_STATUS.RECRUITING
+  return visibleStatuses.has(status)
 }
 
 const fetchRecruitPageData = async () => {
@@ -124,10 +134,18 @@ const fetchRecruitPageData = async () => {
 };
 
 const Recruit = () => {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [cards, setCards] = useState([]);
   const [traitFilters, setTraitFilters] = useState([]);
   const [isRecruitLoading, setIsRecruitLoading] = useState(true);
+  const [isCardLoading, setIsCardLoading] = useState(false);
+  const [isLoadingMoreCards, setIsLoadingMoreCards] = useState(false);
+  const [cardPage, setCardPage] = useState(DEFAULT_RECRUITING_MEMBERS_PAGE);
+  const [hasNextCardPage, setHasNextCardPage] = useState(false);
+  const loadMoreTriggerRef = useRef(null);
+  const isLoadingMoreCardsRef = useRef(false);
+  const isEnteringChatRoomRef = useRef(false);
 
   const [selectedCourseId, setSelectedCourseId] = useState('');
 
@@ -148,6 +166,17 @@ const Recruit = () => {
   const [tempSortType, setTempSortType] = useState(sortType);
   const [tempTraits, setTempTraits] = useState(selectedTraits);
 
+  const cardQueryKey = useMemo(() => {
+    return [
+      selectedCourseId,
+      searchKeyword,
+      sortType,
+      includeCompleted,
+      selectedTraits.join(','),
+    ].join('|')
+  }, [selectedCourseId, searchKeyword, sortType, includeCompleted, selectedTraits]);
+  const cardQueryKeyRef = useRef(cardQueryKey);
+
   useEffect(() => {
     let ignore = false;
 
@@ -159,7 +188,6 @@ const Recruit = () => {
         if (ignore) return;
 
         setCourses(pageData.recruitCourses);
-        setCards([]);
         setTraitFilters(pageData.traitFilters);
         setSelectedCourseId((prev) => {
           if (pageData.recruitCourses.some((course) => course.id === prev)) return prev;
@@ -187,15 +215,215 @@ const Recruit = () => {
     };
   }, []);
 
-  // 모집 카드 목록 API가 머지되면 카드의 recruitmentStatus로 모집 상태를 판단한다.
   const recruitCourses = useMemo(() => {
     return courses;
   }, [courses]);
 
   const selectedCourse = recruitCourses.find((course) => course.id === selectedCourseId);
 
+  useEffect(() => {
+    let ignore = false;
+    cardQueryKeyRef.current = cardQueryKey;
+
+    const loadRecruitCards = async () => {
+      if (!selectedCourseId) {
+        setCards([]);
+        setCardPage(DEFAULT_RECRUITING_MEMBERS_PAGE);
+        setHasNextCardPage(false);
+        return;
+      }
+
+      try {
+        setIsCardLoading(true);
+        setCards([]);
+        setCardPage(DEFAULT_RECRUITING_MEMBERS_PAGE);
+        setHasNextCardPage(false);
+
+        const response = await getRecruitingMembers(selectedCourseId, {
+          keyword: searchKeyword,
+          sort: sortType,
+          traits: selectedTraits,
+          includeCompleted,
+          page: DEFAULT_RECRUITING_MEMBERS_PAGE,
+        });
+
+        if (ignore) return;
+
+        const result = response.result || {};
+        const courseId = String(result.courseId ?? selectedCourseId);
+        const nextCards = (result.content || []).map((card) => ({
+          ...card,
+          courseId,
+        }));
+
+        setCards(nextCards);
+        setCardPage(result.page ?? DEFAULT_RECRUITING_MEMBERS_PAGE);
+        setHasNextCardPage(Boolean(result.hasNext));
+      } catch (error) {
+        console.error('[모집 카드 목록 조회 실패]', error.message);
+        if (!ignore) {
+          setCards([]);
+          setHasNextCardPage(false);
+        }
+      } finally {
+        if (!ignore) {
+          setIsCardLoading(false);
+        }
+      }
+    };
+
+    loadRecruitCards();
+
+    return () => {
+      ignore = true;
+    };
+  }, [
+    selectedCourseId,
+    searchKeyword,
+    sortType,
+    selectedTraits,
+    includeCompleted,
+    cardQueryKey,
+  ]);
+
+  const handleLoadMoreCards = useCallback(async () => {
+    if (
+      !selectedCourseId
+      || isCardLoading
+      || isLoadingMoreCardsRef.current
+      || !hasNextCardPage
+    ) {
+      return;
+    }
+
+    const requestQueryKey = cardQueryKey;
+    const nextPage = cardPage + 1;
+
+    try {
+      isLoadingMoreCardsRef.current = true;
+      setIsLoadingMoreCards(true);
+
+      const response = await getRecruitingMembers(selectedCourseId, {
+        keyword: searchKeyword,
+        sort: sortType,
+        traits: selectedTraits,
+        includeCompleted,
+        page: nextPage,
+      });
+
+      if (cardQueryKeyRef.current !== requestQueryKey) return;
+
+      const result = response.result || {};
+      const courseId = String(result.courseId ?? selectedCourseId);
+      const nextCards = (result.content || []).map((card) => ({
+        ...card,
+        courseId,
+      }));
+
+      setCards((prevCards) => {
+        const existingCardKeys = new Set(
+          prevCards.map((card) => String(getRecruitCardKey(card)))
+        );
+        const cardsToAppend = nextCards.filter((card) => {
+          return !existingCardKeys.has(String(getRecruitCardKey(card)))
+        });
+
+        return [...prevCards, ...cardsToAppend];
+      });
+      setCardPage(result.page ?? nextPage);
+      setHasNextCardPage(Boolean(result.hasNext));
+    } catch (error) {
+      console.error('[모집 카드 추가 조회 실패]', error.message);
+    } finally {
+      isLoadingMoreCardsRef.current = false;
+      setIsLoadingMoreCards(false);
+    }
+  }, [
+    selectedCourseId,
+    isCardLoading,
+    hasNextCardPage,
+    cardQueryKey,
+    cardPage,
+    searchKeyword,
+    sortType,
+    selectedTraits,
+    includeCompleted,
+  ]);
+
+  useEffect(() => {
+    const loadMoreTrigger = loadMoreTriggerRef.current;
+
+    if (
+      !loadMoreTrigger
+      || !hasNextCardPage
+      || isCardLoading
+      || isLoadingMoreCards
+    ) {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          handleLoadMoreCards();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '160px 0px',
+        threshold: 0,
+      }
+    );
+
+    observer.observe(loadMoreTrigger);
+
+    return () => observer.disconnect();
+  }, [
+    hasNextCardPage,
+    isCardLoading,
+    isLoadingMoreCards,
+    handleLoadMoreCards,
+  ]);
+
   const handleSearch = () => {
     setSearchKeyword(searchInput.trim());
+  };
+
+  const handleEnterChatRoom = async (card) => {
+    if (isEnteringChatRoomRef.current) return;
+
+    const targetUserId = card.userId;
+    const user = getRecruitCardUser(card);
+
+    if (!targetUserId) {
+      alert('채팅을 시작할 사용자 정보를 찾을 수 없습니다.');
+      return;
+    }
+
+    try {
+      isEnteringChatRoomRef.current = true;
+
+      const result = await createDirectChat(targetUserId);
+      const chatRoomId = result?.chatRoomId;
+
+      if (!chatRoomId) {
+        throw new Error('채팅방 정보를 찾을 수 없습니다.');
+      }
+
+      navigate(`/chatroom/${chatRoomId}`, {
+        state: {
+          opponent: result.opponent ?? {
+            userId: targetUserId,
+            nickname: user.name || '사용자',
+          },
+        },
+      });
+    } catch (error) {
+      console.error('[채팅방 입장 실패]', error);
+      alert(error.message || '채팅방 입장에 실패했습니다.');
+    } finally {
+      isEnteringChatRoomRef.current = false;
+    }
   };
 
   const handleCourseChange = (courseName) => {
@@ -248,64 +476,10 @@ const Recruit = () => {
   }, [selectedTraits, traitFilters]);
 
   const filteredCards = useMemo(() => {
-    let result = cards;
-
-    // 선택된 강의의 카드만 표시
-    if (selectedCourseId) {
-      result = result.filter((card) => String(card.courseId) === selectedCourseId);
-    }
-
-    // 모집 완료 포함 체크 해제: RECRUITING만 노출
-    // 모집 완료 포함 체크: RECRUITING, RECRUITMENT_COMPLETED 노출
-    result = result.filter((card) => isVisibleRecruitCard(card, includeCompleted));
-
-    // 사용자 이름 검색
-    if (searchKeyword) {
-      result = result.filter((card) => {
-        const userName = getRecruitCardUser(card).name || ''
-
-        return userName.includes(searchKeyword)
-      });
-    }
-
-    // 선택한 성향을 모두 가진 카드만 표시
-    if (selectedTraits.length > 0) {
-      result = result.filter((card) =>
-        selectedTraits.every((trait) => getRecruitCardTraits(card).includes(trait))
-      );
-    }
-
-    const sortedResult = [...result];
-
-    if (sortType === 'importance') {
-      sortedResult.sort(
-        (a, b) => (IMPORTANCE_SCORE_BY_VALUE[b.importance] || 0) - (IMPORTANCE_SCORE_BY_VALUE[a.importance] || 0)
-      );
-    }
-
-    if (sortType === 'level') {
-      sortedResult.sort((a, b) => {
-        const aLevel = getRecruitCardUser(a).level ?? 0
-        const bLevel = getRecruitCardUser(b).level ?? 0
-
-        return bLevel - aLevel
-      });
-    }
-
-    if (sortType === 'match') {
-      sortedResult.sort((a, b) => {
-        return getMatchScore(b) - getMatchScore(a);
-      });
-    }
-
-    return sortedResult;
+    return cards.filter((card) => isVisibleRecruitCard(card, includeCompleted));
   }, [
     cards,
-    selectedCourseId,
     includeCompleted,
-    searchKeyword,
-    selectedTraits,
-    sortType,
   ]);
 
   const isFilterActive = selectedTraits.length > 0;
@@ -373,20 +547,33 @@ const Recruit = () => {
           {filteredCards.length > 0 ? (
             filteredCards.map((card) => (
               <ProfileCard
-                key={card.id ?? card.userCourseProfileId ?? card.userId}
+                key={getRecruitCardKey(card)}
                 variant="recruit"
                 user={getRecruitCardUser(card)}
                 status={getRecruitCardStatusLabel(card)}
                 traits={getRecruitCardTraits(card)}
                 importance={getRecruitCardImportance(card)}
                 projectSummary={getRecruitCardProjectSummary(card)}
-                onChatClick={() => console.log(`${getRecruitCardUser(card).name || '사용자'} 채팅`)}
+                onChatClick={() => handleEnterChatRoom(card)}
               />
             ))
           ) : (
             <p className="recruit-card-list__empty">
-              {isRecruitLoading ? '모집 페이지 정보를 불러오는 중입니다.' : '모집 중인 팀원을 찾을 수 없습니다.'}
+              {isRecruitLoading || isCardLoading ? '모집 페이지 정보를 불러오는 중입니다.' : '모집 중인 팀원을 찾을 수 없습니다.'}
             </p>
+          )}
+          {filteredCards.length > 0 && isLoadingMoreCards && (
+            <p className="recruit-card-list__loading">
+              모집 카드를 불러오는 중입니다.
+            </p>
+          )}
+
+          {filteredCards.length > 0 && hasNextCardPage && (
+            <div
+              ref={loadMoreTriggerRef}
+              className="recruit-card-list__sentinel"
+              aria-hidden="true"
+            />
           )}
         </div>
       </div>
