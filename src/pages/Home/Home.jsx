@@ -590,8 +590,8 @@ const Home = () => {
           getProjectChecklists(selectedProject.id),
         ])
         const detail = detailResponse.result
-        const members = membersResponse.result?.members || []
-        const checklists = checklistsResponse.result?.checklists || []
+        const members = membersResponse.result?.members || detail?.members || []
+        const checklists = checklistsResponse.result?.checklists || detail?.checklists || []
         const nextTeammates = members.map((member) => {
           const fallbackMember = selectedProject.teammates?.find((teammate) => teammate.userId === member.userId)
 
