@@ -441,7 +441,11 @@ const Home = () => {
   }
   const completionRequest = selectedProject ? completionRequests[selectedProject.id] : null
   const approvedUserIds = getApprovedUserIds(completionRequest)
+  const storedCompletionDecision = selectedProject ? storedCompletionDecisions[selectedProject.id] : null
+  const isStoredCompletionDecisionCurrent = storedCompletionDecision
+    && String(storedCompletionDecision.requestId) === String(completionRequest?.id)
   const currentUserCompletionDecision = getUserCompletionDecision(completionRequest, currentProjectUserId)
+    || (isStoredCompletionDecisionCurrent ? storedCompletionDecision.decision : undefined)
   const completionApproved = completionRequest?.status === 'APPROVED'
     || (selectedProject && approvedUserIds.size >= selectedProject.teammates.length)
   const peerReviewStatus = selectedProject ? peerReviewStatuses[selectedProject.id] : null
