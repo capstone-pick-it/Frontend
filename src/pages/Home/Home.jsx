@@ -33,6 +33,7 @@ import {
   normalizeTraitName,
   toDisplayImportance,
 } from '../../constants/commonOptions'
+import { getSavedUser } from '../../api/token'
 
 const tabs = [
   { key: 'recruiting', label: '모집 중' },
@@ -192,6 +193,19 @@ const getApprovedUserIds = (request) => {
   )
 }
 
+const isSameUserId = (left, right) => {
+  if (!left || !right) {
+    return false
+  }
+
+  return String(left) === String(right)
+}
+
+const getUserCompletionDecision = (request, userId) => {
+  return (request?.approvals || [])
+    .find((approval) => isSameUserId(approval.user?.userId, userId))?.decision
+}
+
 const getReviewProgress = (status, fallbackTotal = 0) => {
   const members = status?.members || []
   const completedCount = members.filter((member) => member.completed).length
@@ -211,6 +225,7 @@ const isPeerReviewCompleted = (status) => {
 const Home = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const [savedUser] = useState(() => getSavedUser())
   const [activeTab, setActiveTab] = useState('recruiting')
   const [modal, setModal] = useState(null)
   const [showTeamConfirm, setShowTeamConfirm] = useState(false)
@@ -383,12 +398,16 @@ const Home = () => {
   const checklistPages = Math.max(1, Math.ceil(checklistItems.length / 4))
   const visibleChecklist = checklistItems.slice(checklistPage * 4, checklistPage * 4 + 4)
   const editingChecklistItem = checklistItems.find((item) => item.id === editingChecklistId)
-  const currentProjectUser = selectedProject?.teammates?.find((member) => member.name === demoCurrentUserName)
+  const currentProjectUser = selectedProject?.teammates?.find((member) => isSameUserId(member.userId, savedUser?.userId))
+    || reviewProject?.teammates?.find((member) => isSameUserId(member.userId, savedUser?.userId))
+    || selectedProject?.teammates?.find((member) => member.name === savedUser?.nickname)
+    || reviewProject?.teammates?.find((member) => member.name === savedUser?.nickname)
+    || selectedProject?.teammates?.find((member) => member.name === demoCurrentUserName)
     || reviewProject?.teammates?.find((member) => member.name === demoCurrentUserName)
     || selectedProject?.teammates?.[0]
     || reviewProject?.teammates?.[0]
-  const currentProjectUserName = currentProjectUser?.name || ''
-  const currentProjectUserId = currentProjectUser?.userId
+  const currentProjectUserName = currentProjectUser?.name || savedUser?.nickname || ''
+  const currentProjectUserId = savedUser?.userId || currentProjectUser?.userId
   const isChecklistAssignee = (item) => {
     if (item.assigneeId && currentProjectUserId) {
       return item.assigneeId === currentProjectUserId
@@ -398,8 +417,7 @@ const Home = () => {
   }
   const completionRequest = selectedProject ? completionRequests[selectedProject.id] : null
   const approvedUserIds = getApprovedUserIds(completionRequest)
-  const currentUserCompletionDecision = (completionRequest?.approvals || [])
-    .find((approval) => approval.user?.userId === currentProjectUserId)?.decision
+  const currentUserCompletionDecision = getUserCompletionDecision(completionRequest, currentProjectUserId)
   const completionApproved = completionRequest?.status === 'APPROVED'
     || (selectedProject && approvedUserIds.size >= selectedProject.teammates.length)
   const peerReviewStatus = selectedProject ? peerReviewStatuses[selectedProject.id] : null
