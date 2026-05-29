@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 const weekdayLabels = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
-const weekdayOptions = ['월요일', '화요일', '수요일', '목요일', '금요일']
+const weekdayOptions = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
 
 const getDateParts = (item) => {
   const [, textYear, textMonth, textDay] = item.date.match(/(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일/) || []
