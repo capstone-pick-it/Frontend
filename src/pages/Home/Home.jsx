@@ -8,6 +8,7 @@ import DoorIcon from '../../components/Home/DoorIcon'
 import HomeProjectCard from '../../components/Home/HomeProjectCard'
 import ReviewModal from '../../components/Home/ReviewModal'
 import ProfileCard from '../../components/ProfileCard'
+import Modal from '../../components/Modal'
 import {
   confirmTeamMembers,
   createCompletionRequest,
@@ -267,6 +268,7 @@ const Home = () => {
   const [doneItems, setDoneItems] = useState([])
   const [isProjectLoading, setIsProjectLoading] = useState(true)
   const [exitTarget, setExitTarget] = useState(null)
+  const [reportTarget, setReportTarget] = useState(null)
   const [teamConfirmTarget, setTeamConfirmTarget] = useState(null)
   const [reviewProject, setReviewProject] = useState(null)
   const [reviewIndex, setReviewIndex] = useState(0)
@@ -298,6 +300,7 @@ const Home = () => {
     setShowTeamConfirm(false)
     setModal(null)
     setExitTarget(null)
+    setReportTarget(null)
     setMemberIndex(0)
     setChecklistPage(0)
     setEditingChecklistId(null)
@@ -318,6 +321,7 @@ const Home = () => {
 
     setModal(null)
     setExitTarget(null)
+    setReportTarget(null)
     setMemberIndex(0)
     setChecklistPage(0)
     setEditingChecklistId(null)
@@ -691,6 +695,20 @@ const Home = () => {
 
   const getManagerId = (assigneeName) => {
     return selectedProject?.teammates?.find((member) => member.name === assigneeName)?.userId || currentProjectUserId
+  }
+
+  const openReportModal = (member) => {
+    setReportTarget(member)
+    setModal('report-confirm')
+  }
+
+  const completeReport = () => {
+    setModal('report-complete')
+  }
+
+  const closeReportModal = () => {
+    setReportTarget(null)
+    setModal(null)
   }
 
   const enterMemberChatRoom = async (member) => {
@@ -1147,7 +1165,7 @@ const Home = () => {
                   memberIndex={memberIndex + 1}
                   memberTotal={selectedProject.teammates.length}
                   onChatClick={() => enterMemberChatRoom(selectedMember)}
-                  onReportClick={() => {}}
+                  onReportClick={() => openReportModal(selectedMember)}
                 />
                 <button
                   type="button"
@@ -1319,6 +1337,31 @@ const Home = () => {
           confirmText="보내기"
           onClose={() => setModal(null)}
           onConfirm={requestProjectCompletion}
+        />
+      )}
+
+      {modal === 'report-confirm' && reportTarget && (
+        <Modal
+          type="error"
+          variant="confirm"
+          title="신고하기"
+          description={`${reportTarget.name} 님을 신고하시겠습니까?`}
+          cancelText="아니오"
+          confirmText="네"
+          onClose={closeReportModal}
+          onCancel={closeReportModal}
+          onConfirm={completeReport}
+        />
+      )}
+
+      {modal === 'report-complete' && (
+        <Modal
+          type="error"
+          title="신고 완료"
+          description="신고가 완료되었습니다."
+          confirmText="확인"
+          onClose={closeReportModal}
+          onConfirm={closeReportModal}
         />
       )}
 
