@@ -6,8 +6,8 @@ import ChecklistEditModal from '../../components/Home/ChecklistEditModal'
 import ConfirmModal from '../../components/Home/ConfirmModal'
 import DoorIcon from '../../components/Home/DoorIcon'
 import HomeProjectCard from '../../components/Home/HomeProjectCard'
-import MemberCard from '../../components/Home/MemberCard'
 import ReviewModal from '../../components/Home/ReviewModal'
+import ProfileCard from '../../components/ProfileCard'
 import {
   confirmTeamMembers,
   createCompletionRequest,
@@ -1135,11 +1135,19 @@ const Home = () => {
                 >
                   이전 팀원
                 </button>
-                <MemberCard
-                  currentIndex={memberIndex + 1}
-                  member={selectedMember}
-                  totalCount={selectedProject.teammates.length}
+                <ProfileCard
+                  variant="workspace"
+                  name={selectedMember.name}
+                  major={selectedMember.major || selectedMember.school}
+                  year={selectedMember.year}
+                  level={String(selectedMember.level).replace(/^LV\./, '')}
+                  points={String(selectedMember.point).replace(/p$/, '')}
+                  traits={selectedMember.tags}
+                  importance={selectedMember.priority}
+                  memberIndex={memberIndex + 1}
+                  memberTotal={selectedProject.teammates.length}
                   onChatClick={() => enterMemberChatRoom(selectedMember)}
+                  onReportClick={() => {}}
                 />
                 <button
                   type="button"
