@@ -34,6 +34,7 @@ import {
   toDisplayImportance,
 } from '../../constants/commonOptions'
 import { getSavedUser } from '../../api/token'
+import { createDirectChat } from '../../api/chat'
 
 const tabs = [
   { key: 'recruiting', label: '모집 중' },
@@ -267,6 +268,7 @@ const Home = () => {
   const [checklistPage, setChecklistPage] = useState(0)
   const [editingChecklistId, setEditingChecklistId] = useState(null)
   const checklistIdRef = useRef(1000)
+  const isEnteringChatRoomRef = useRef(false)
 
   const projectsByTab = {
     recruiting: recruitingItems,
@@ -669,6 +671,36 @@ const Home = () => {
 
   const getManagerId = (assigneeName) => {
     return selectedProject?.teammates?.find((member) => member.name === assigneeName)?.userId || currentProjectUserId
+  }
+
+  const enterMemberChatRoom = async (member) => {
+    if (!member?.userId || isSameUserId(member.userId, currentProjectUserId) || isEnteringChatRoomRef.current) {
+      return
+    }
+
+    try {
+      isEnteringChatRoomRef.current = true
+      const result = await createDirectChat(member.userId)
+      const chatRoomId = result?.chatRoomId
+
+      if (!chatRoomId) {
+        throw new Error('채팅방 정보를 찾을 수 없습니다.')
+      }
+
+      navigate(`/chatroom/${chatRoomId}`, {
+        state: {
+          opponent: result.opponent ?? {
+            userId: member.userId,
+            nickname: member.name || '사용자',
+          },
+        },
+      })
+    } catch (error) {
+      console.warn('채팅방 입장 실패:', error.message)
+      navigate('/chat')
+    } finally {
+      isEnteringChatRoomRef.current = false
+    }
   }
 
   const addChecklistItem = async () => {
@@ -1076,7 +1108,7 @@ const Home = () => {
                   currentIndex={memberIndex + 1}
                   member={selectedMember}
                   totalCount={selectedProject.teammates.length}
-                  onChatClick={() => navigate('/chat')}
+                  onChatClick={() => enterMemberChatRoom(selectedMember)}
                 />
                 <button
                   type="button"
