@@ -33,6 +33,13 @@
   gap: 10px;
 }
 
+.home-project-list__message {
+  padding-top: 42px;
+  color: var(--gray-500);
+  text-align: center;
+  @include body3;
+}
+
 .home-project-card,
 .home-member-card {
   border-radius: 8px;

@@ -42,6 +42,12 @@ const tabs = [
   { key: 'done', label: '진행 완료' },
 ]
 
+const emptyProjectMessages = {
+  recruiting: '모집 중인 프로젝트가 아직 없습니다',
+  active: '진행 중인 프로젝트가 아직 없습니다.',
+  done: '완료된 프로젝트가 아직 없습니다.',
+}
+
 const demoCurrentUserName = '이승희'
 const getDisplayImportance = (...importanceValues) => {
   const importance = importanceValues.find((value) => value)
@@ -256,6 +262,7 @@ const Home = () => {
   const [recruitingItems, setRecruitingItems] = useState([])
   const [activeItems, setActiveItems] = useState([])
   const [doneItems, setDoneItems] = useState([])
+  const [isProjectLoading, setIsProjectLoading] = useState(true)
   const [exitTarget, setExitTarget] = useState(null)
   const [teamConfirmTarget, setTeamConfirmTarget] = useState(null)
   const [reviewProject, setReviewProject] = useState(null)
@@ -275,6 +282,7 @@ const Home = () => {
     active: activeItems,
     done: doneItems,
   }
+  const visibleProjects = projectsByTab[activeTab]
   const [detailTab, detailProjectId] = location.pathname.replace(/^\/home\/?/, '').split('/').filter(Boolean)
   const isDetailPage = Boolean(projectsByTab[detailTab] && detailProjectId)
   const currentTab = isDetailPage ? detailTab : activeTab
@@ -497,6 +505,7 @@ const Home = () => {
 
     const fetchProjects = async () => {
       try {
+        setIsProjectLoading(true)
         const [recruitingResponse, activeResponse, doneResponse] = await Promise.all([
           getProjects('RECRUITING'),
           getProjects('IN_PROGRESS'),
@@ -518,6 +527,10 @@ const Home = () => {
         )))
       } catch (error) {
         console.warn('프로젝트 목록 조회 실패:', error.message)
+      } finally {
+        if (!ignore) {
+          setIsProjectLoading(false)
+        }
       }
     }
 
@@ -1067,16 +1080,22 @@ const Home = () => {
           </nav>
 
           <section className="home-project-list">
-            {projectsByTab[activeTab].map((project) => (
-              <HomeProjectCard
-                project={project}
-                tab={activeTab}
-                key={project.id}
-                onConfirm={() => openTeamConfirm(project)}
-                onExit={() => openExitModal(project, activeTab)}
-                onOpen={activeTab !== 'recruiting' ? () => openProjectDetail(project) : undefined}
-              />
-            ))}
+            {isProjectLoading ? (
+              <p className="home-project-list__message">프로젝트를 불러오는 중입니다.</p>
+            ) : visibleProjects.length > 0 ? (
+              visibleProjects.map((project) => (
+                <HomeProjectCard
+                  project={project}
+                  tab={activeTab}
+                  key={project.id}
+                  onConfirm={() => openTeamConfirm(project)}
+                  onExit={() => openExitModal(project, activeTab)}
+                  onOpen={activeTab !== 'recruiting' ? () => openProjectDetail(project) : undefined}
+                />
+              ))
+            ) : (
+              <p className="home-project-list__message">{emptyProjectMessages[activeTab]}</p>
+            )}
           </section>
         </>
       )}
