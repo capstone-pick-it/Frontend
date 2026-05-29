@@ -9,7 +9,7 @@ import ChatRoomInput from '../../components/Chat/ChatRoomInput'
 import useChatSocket from '../../hooks/useChatSocket'
 import ChatToast from '../../components/Chat/ChatToast'
 import { getSavedUser } from '../../api/token'
-import { getChatMessages, markChatAsRead, commonCourses, teamRequest } from '../../api/chat'
+import { getChatMessages, markChatAsRead, commonCourses, teamRequest, getLatestTeamRequest, acceptTeamRequest } from '../../api/chat'
 
 const ChatRoom = () => {
     const { roomId } = useParams()
@@ -21,6 +21,8 @@ const ChatRoom = () => {
     const [selectedCourse, setSelectedCourse] = useState('')
     const [prevMessages, setPrevMessages] = useState([])
     const chatContentRef = useRef(null)
+    const myRoleRef = useRef(null)
+    const teamRequestIdRef = useRef(null)
 
     const { messages, sendMessage, teamRequestEvent } = useChatSocket(roomId)
     const myUser = getSavedUser()
@@ -70,9 +72,6 @@ const ChatRoom = () => {
     //공통 과목 조회
     useEffect(() => {
         if (!roomId) return
-        const saved = localStorage.getItem(`teamRequest_${roomId}`)
-        if (saved) setToastStatus(saved)
-
         commonCourses(roomId)
             .then((data) => {
                 const list = data?.courses ?? []
@@ -82,12 +81,48 @@ const ChatRoom = () => {
             .catch((e) => console.error('공통과목 조회 실패', e))
     }, [roomId])
 
+    // 팀원 요청 최신 상태 초기화
+    useEffect(() => {
+        if (!roomId) return
+        getLatestTeamRequest(roomId)
+            .then((result) => {
+                if (!result) return
+                myRoleRef.current = result.role
+                teamRequestIdRef.current = result.teamRequestId
+                if (result.status === 'PENDING') {
+                    if (result.role === 'SENDER') setToastStatus('WAITING')
+                    else if (result.role === 'RECEIVER') setToastStatus('REQUEST')
+                } else if (result.status === 'REJECTED' && result.role === 'SENDER') {
+                    setToastStatus('REJECTED')
+                    setTimeout(() => setToastStatus(null), 2000)
+                }
+            })
+            .catch((e) => console.error('[TeamRequest] 조회 실패:', e))
+    }, [roomId])
+
     // 팀원 요청 이벤트 수신
     useEffect(() => {
         if (!teamRequestEvent) return
-        if (teamRequestEvent.type === 'TEAM_REQUEST_CREATED' && toastStatus !== 'WAITING') {
-            localStorage.setItem(`teamRequest_${roomId}`, 'REQUEST')
-            setToastStatus('REQUEST')
+        if (teamRequestEvent.type === 'TEAM_REQUEST_CREATED') {
+            if (myRoleRef.current !== 'SENDER') {
+                myRoleRef.current = 'RECEIVER'
+                teamRequestIdRef.current = teamRequestEvent.teamRequestId
+                setToastStatus('REQUEST')
+            }
+        } else if (teamRequestEvent.type === 'TEAM_REQUEST_ACCEPTED') {
+            if (myRoleRef.current === 'SENDER') {
+                setToastStatus(null)
+            } else if (myRoleRef.current === 'RECEIVER') {
+                setToastStatus('ACCEPTED')
+                setTimeout(() => setToastStatus(null), 2000)
+            }
+        } else if (teamRequestEvent.type === 'TEAM_REQUEST_REJECTED') {
+            if (myRoleRef.current === 'SENDER') {
+                setToastStatus('REJECTED')
+                setTimeout(() => setToastStatus(null), 2000)
+            } else if (myRoleRef.current === 'RECEIVER') {
+                setToastStatus(null)
+            }
         }
     }, [teamRequestEvent])
 
@@ -96,12 +131,23 @@ const ChatRoom = () => {
         const course = courseList.find((c) => c.courseName === selectedCourse)
         if (!course) return
         try {
-            await teamRequest(roomId, course.courseId)
-            localStorage.setItem(`teamRequest_${roomId}`, 'WAITING')
+            const result = await teamRequest(roomId, course.courseId)
+            myRoleRef.current = 'SENDER'
+            teamRequestIdRef.current = result?.teamRequestId
             setIsModal(false)
             setToastStatus('WAITING')
         } catch (e) {
             console.error('팀원 요청 실패', e)
+        }
+    }
+
+    // 팀원 요청 수락
+    const handleAccept = async () => {
+        if (!teamRequestIdRef.current) return
+        try {
+            await acceptTeamRequest(roomId, teamRequestIdRef.current)
+        } catch (e) {
+            console.error('팀원 요청 수락 실패', e)
         }
     }
 
@@ -134,7 +180,7 @@ const ChatRoom = () => {
                     />
                 ))}
             </div>
-            <ChatToast status={toastStatus} />
+            <ChatToast status={toastStatus} onAccept={handleAccept} />
             <ChatRoomInput sendMessage={sendMessage} />
             {isModal && (
                 <ConfirmModal
@@ -142,7 +188,7 @@ const ChatRoom = () => {
                     description="팀원 요청을 보내고자 하는 과목명을 선택해주세요"
                     cancelText="아니오"
                     confirmText="네"  
-                    isModalOpen={() => setIsModal(false)}
+                    onCancel={() => setIsModal(false)}
                     onConfirm={handleTeamRequest}
                     dropdownList={courseList.map((c) => c.courseName)}
                     onCourseChange={setSelectedCourse}
