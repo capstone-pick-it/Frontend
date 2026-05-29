@@ -685,7 +685,8 @@
     gap: 4px;
     margin-top: 0;
 
-    > select {
+    > select,
+    > strong {
       height: 100%;
       padding: 0;
       border: 0;
@@ -695,6 +696,13 @@
       text-align: center;
       appearance: none;
       @include caption;
+    }
+
+    > strong {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 400;
     }
 
     em {

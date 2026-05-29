@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 const weekdayLabels = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
 const weekdayOptions = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
-const yearOptions = ['2026', '2027']
+const fixedYear = '2026'
 const monthOptions = Array.from({ length: 12 }, (_, index) => String(index + 1))
 
 const getDateParts = (item) => {
@@ -58,14 +58,14 @@ const getWeekdayFromParts = (parts) => {
 }
 
 const getDaysInMonth = ({ year, month }) => {
-  const safeYear = yearOptions.includes(year) ? Number(year) : Number(yearOptions[0])
+  const safeYear = Number(year || fixedYear)
   const safeMonth = Number(month) >= 1 && Number(month) <= 12 ? Number(month) : 1
 
   return new Date(safeYear, safeMonth, 0).getDate()
 }
 
 const normalizeDateParts = (parts) => {
-  const year = yearOptions.includes(parts.year) ? parts.year : yearOptions[0]
+  const year = fixedYear
   const month = monthOptions.includes(String(Number(parts.month))) ? String(Number(parts.month)) : monthOptions[0]
   const maxDay = getDaysInMonth({ year, month })
   const day = Number(parts.day) >= 1 && Number(parts.day) <= maxDay ? String(Number(parts.day)) : '1'
@@ -101,6 +101,7 @@ const ChecklistEditModal = ({ canEdit, item, members, onClose, onDelete, onSave 
       const nextValue = value.replace(/\D/g, '')
       const nextParts = {
         ...parts,
+        year: fixedYear,
         [key]: nextValue,
       }
 
@@ -140,18 +141,7 @@ const ChecklistEditModal = ({ canEdit, item, members, onClose, onDelete, onSave 
         <label>
           <span>기한</span>
           <div className="home-checklist-modal__date">
-            <select
-              value={dateParts.year}
-              disabled={!canEdit}
-              onChange={(event) => updateDatePart('year', event.target.value)}
-              aria-label="기한 연도"
-            >
-              {yearOptions.map((year) => (
-                <option value={year} key={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+            <strong>{fixedYear}</strong>
             <em>년</em>
             <select
               value={dateParts.month}
