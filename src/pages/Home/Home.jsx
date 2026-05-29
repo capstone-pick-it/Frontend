@@ -448,6 +448,10 @@ const Home = () => {
     && String(storedCompletionDecision.requestId) === String(completionRequest?.id)
   const currentUserCompletionDecision = getUserCompletionDecision(completionRequest, currentProjectUserId)
     || (isStoredCompletionDecisionCurrent ? storedCompletionDecision.decision : undefined)
+  const isCompletionApprovedMember = (member) => (
+    approvedUserIds.has(String(member.userId))
+    || (currentUserCompletionDecision === 'APPROVE' && isSameUserId(member.userId, currentProjectUserId))
+  )
   const completionApproved = completionRequest?.status === 'APPROVED'
     || (selectedProject && approvedUserIds.size >= selectedProject.teammates.length)
   const peerReviewStatus = selectedProject ? peerReviewStatuses[selectedProject.id] : null
@@ -1215,7 +1219,7 @@ const Home = () => {
                     )}
                     <div>
                       {selectedProject.teammates.map((member) => (
-                        <span className={approvedUserIds.has(String(member.userId)) ? 'is-approved' : ''} key={member.userId}>
+                        <span className={isCompletionApprovedMember(member) ? 'is-approved' : ''} key={member.userId}>
                           {member.name}
                         </span>
                       ))}
