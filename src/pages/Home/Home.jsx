@@ -33,6 +33,8 @@ import {
   normalizeTraitName,
   toDisplayImportance,
 } from '../../constants/commonOptions'
+import { getSavedUser } from '../../api/token'
+import { createDirectChat } from '../../api/chat'
 
 const tabs = [
   { key: 'recruiting', label: '모집 중' },
@@ -66,6 +68,28 @@ const projectStatusLabel = {
 const teamConfirmAction = {
   ready: '팀 확정',
   pending: '확정대기',
+}
+
+const completionDecisionStorageKey = 'pickitCompletionDecisions'
+
+const loadCompletionDecisions = () => {
+  try {
+    return JSON.parse(window.localStorage.getItem(completionDecisionStorageKey) || '{}')
+  } catch {
+    return {}
+  }
+}
+
+const saveCompletionDecision = (projectId, requestId, decision) => {
+  const decisions = loadCompletionDecisions()
+
+  window.localStorage.setItem(completionDecisionStorageKey, JSON.stringify({
+    ...decisions,
+    [projectId]: {
+      requestId,
+      decision,
+    },
+  }))
 }
 
 const sortChecklist = (items) => {
@@ -188,8 +212,22 @@ const getApprovedUserIds = (request) => {
     (request?.approvals || [])
       .filter((approval) => approval.decision === 'APPROVE')
       .map((approval) => approval.user?.userId)
-      .filter(Boolean),
+      .filter(Boolean)
+      .map(String),
   )
+}
+
+const isSameUserId = (left, right) => {
+  if (!left || !right) {
+    return false
+  }
+
+  return String(left) === String(right)
+}
+
+const getUserCompletionDecision = (request, userId) => {
+  return (request?.approvals || [])
+    .find((approval) => isSameUserId(approval.user?.userId, userId))?.decision
 }
 
 const getReviewProgress = (status, fallbackTotal = 0) => {
@@ -211,6 +249,7 @@ const isPeerReviewCompleted = (status) => {
 const Home = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const [savedUser] = useState(() => getSavedUser())
   const [activeTab, setActiveTab] = useState('recruiting')
   const [modal, setModal] = useState(null)
   const [showTeamConfirm, setShowTeamConfirm] = useState(false)
@@ -223,11 +262,13 @@ const Home = () => {
   const [reviewIndex, setReviewIndex] = useState(0)
   const [reviewTargets, setReviewTargets] = useState([])
   const [completionRequests, setCompletionRequests] = useState({})
+  const [storedCompletionDecisions, setStoredCompletionDecisions] = useState(() => loadCompletionDecisions())
   const [peerReviewStatuses, setPeerReviewStatuses] = useState({})
   const [memberIndex, setMemberIndex] = useState(0)
   const [checklistPage, setChecklistPage] = useState(0)
   const [editingChecklistId, setEditingChecklistId] = useState(null)
   const checklistIdRef = useRef(1000)
+  const isEnteringChatRoomRef = useRef(false)
 
   const projectsByTab = {
     recruiting: recruitingItems,
@@ -383,12 +424,16 @@ const Home = () => {
   const checklistPages = Math.max(1, Math.ceil(checklistItems.length / 4))
   const visibleChecklist = checklistItems.slice(checklistPage * 4, checklistPage * 4 + 4)
   const editingChecklistItem = checklistItems.find((item) => item.id === editingChecklistId)
-  const currentProjectUser = selectedProject?.teammates?.find((member) => member.name === demoCurrentUserName)
+  const currentProjectUser = selectedProject?.teammates?.find((member) => isSameUserId(member.userId, savedUser?.userId))
+    || reviewProject?.teammates?.find((member) => isSameUserId(member.userId, savedUser?.userId))
+    || selectedProject?.teammates?.find((member) => member.name === savedUser?.nickname)
+    || reviewProject?.teammates?.find((member) => member.name === savedUser?.nickname)
+    || selectedProject?.teammates?.find((member) => member.name === demoCurrentUserName)
     || reviewProject?.teammates?.find((member) => member.name === demoCurrentUserName)
     || selectedProject?.teammates?.[0]
     || reviewProject?.teammates?.[0]
-  const currentProjectUserName = currentProjectUser?.name || ''
-  const currentProjectUserId = currentProjectUser?.userId
+  const currentProjectUserName = currentProjectUser?.name || savedUser?.nickname || ''
+  const currentProjectUserId = savedUser?.userId || currentProjectUser?.userId
   const isChecklistAssignee = (item) => {
     if (item.assigneeId && currentProjectUserId) {
       return item.assigneeId === currentProjectUserId
@@ -398,8 +443,15 @@ const Home = () => {
   }
   const completionRequest = selectedProject ? completionRequests[selectedProject.id] : null
   const approvedUserIds = getApprovedUserIds(completionRequest)
-  const currentUserCompletionDecision = (completionRequest?.approvals || [])
-    .find((approval) => approval.user?.userId === currentProjectUserId)?.decision
+  const storedCompletionDecision = selectedProject ? storedCompletionDecisions[selectedProject.id] : null
+  const isStoredCompletionDecisionCurrent = storedCompletionDecision
+    && String(storedCompletionDecision.requestId) === String(completionRequest?.id)
+  const currentUserCompletionDecision = getUserCompletionDecision(completionRequest, currentProjectUserId)
+    || (isStoredCompletionDecisionCurrent ? storedCompletionDecision.decision : undefined)
+  const isCompletionApprovedMember = (member) => (
+    approvedUserIds.has(String(member.userId))
+    || (currentUserCompletionDecision === 'APPROVE' && isSameUserId(member.userId, currentProjectUserId))
+  )
   const completionApproved = completionRequest?.status === 'APPROVED'
     || (selectedProject && approvedUserIds.size >= selectedProject.teammates.length)
   const peerReviewStatus = selectedProject ? peerReviewStatuses[selectedProject.id] : null
@@ -544,8 +596,8 @@ const Home = () => {
           getProjectChecklists(selectedProject.id),
         ])
         const detail = detailResponse.result
-        const members = membersResponse.result?.members || []
-        const checklists = checklistsResponse.result?.checklists || []
+        const members = membersResponse.result?.members || detail?.members || []
+        const checklists = checklistsResponse.result?.checklists || detail?.checklists || []
         const nextTeammates = members.map((member) => {
           const fallbackMember = selectedProject.teammates?.find((teammate) => teammate.userId === member.userId)
 
@@ -625,6 +677,41 @@ const Home = () => {
     return selectedProject?.teammates?.find((member) => member.name === assigneeName)?.userId || currentProjectUserId
   }
 
+  const enterMemberChatRoom = async (member) => {
+    if (isEnteringChatRoomRef.current) {
+      return
+    }
+
+    if (!member?.userId || isSameUserId(member.userId, currentProjectUserId)) {
+      navigate('/chat')
+      return
+    }
+
+    try {
+      isEnteringChatRoomRef.current = true
+      const result = await createDirectChat(member.userId)
+      const chatRoomId = result?.chatRoomId
+
+      if (!chatRoomId) {
+        throw new Error('채팅방 정보를 찾을 수 없습니다.')
+      }
+
+      navigate(`/chatroom/${chatRoomId}`, {
+        state: {
+          opponent: result.opponent ?? {
+            userId: member.userId,
+            nickname: member.name || '사용자',
+          },
+        },
+      })
+    } catch (error) {
+      console.warn('채팅방 입장 실패:', error.message)
+      navigate('/chat')
+    } finally {
+      isEnteringChatRoomRef.current = false
+    }
+  }
+
   const addChecklistItem = async () => {
     if (!selectedProject) {
       return
@@ -662,7 +749,9 @@ const Home = () => {
           dueDate: nextItem.dueAt,
           managerId,
         })
-        const savedItem = normalizeChecklistItem(response.result)
+        const savedItem = response.result
+          ? normalizeChecklistItem(response.result)
+          : { ...nextItem, assigneeId: managerId, isNew: false }
 
         updateProjectChecklist((selectedProject?.checklist || []).map((item) => (
           item.id === nextItem.id ? savedItem : item
@@ -670,7 +759,7 @@ const Home = () => {
       } catch (error) {
         console.warn('체크리스트 생성 실패:', error.message)
         updateProjectChecklist((selectedProject?.checklist || []).map((item) => (
-          item.id === nextItem.id ? { ...nextItem, assigneeId: managerId } : item
+          item.id === nextItem.id ? { ...nextItem, assigneeId: managerId, isNew: false } : item
         )))
       } finally {
         setEditingChecklistId(null)
@@ -754,7 +843,7 @@ const Home = () => {
     approvals: [],
   })
 
-  const createFallbackApprovals = (decision) => {
+  const createFallbackApprovals = (decision, baseRequest = completionRequest) => {
     const currentApproval = {
       completionApprovalId: Date.now() + currentProjectUserId,
       user: {
@@ -763,10 +852,21 @@ const Home = () => {
       },
       decision,
     }
-    const nextApprovals = (completionRequest.approvals || [])
-      .filter((approval) => approval.user?.userId !== currentProjectUserId)
+    const nextApprovals = (baseRequest?.approvals || [])
+      .filter((approval) => !isSameUserId(approval.user?.userId, currentProjectUserId))
 
     return [...nextApprovals, currentApproval]
+  }
+
+  const storeCompletionDecision = (projectId, requestId, decision) => {
+    saveCompletionDecision(projectId, requestId, decision)
+    setStoredCompletionDecisions((decisions) => ({
+      ...decisions,
+      [projectId]: {
+        requestId,
+        decision,
+      },
+    }))
   }
 
   const requestProjectCompletion = async () => {
@@ -798,14 +898,25 @@ const Home = () => {
       return
     }
 
+    if (currentUserCompletionDecision === decision) {
+      return
+    }
+
     try {
       const response = await decideCompletionRequest(completionRequest.id, { decision })
       const nextRequest = normalizeCompletionRequest(response.result)
+      const nextApprovals = getUserCompletionDecision(nextRequest, currentProjectUserId)
+        ? nextRequest.approvals
+        : createFallbackApprovals(decision, nextRequest || completionRequest)
 
       setCompletionRequests((requests) => ({
         ...requests,
-        [selectedProject.id]: nextRequest || completionRequest,
+        [selectedProject.id]: {
+          ...(nextRequest || completionRequest),
+          approvals: nextApprovals,
+        },
       }))
+      storeCompletionDecision(selectedProject.id, (nextRequest || completionRequest).id, decision)
     } catch (error) {
       console.warn('프로젝트 종료 요청 응답 실패:', error.message)
       const nextApprovals = createFallbackApprovals(decision)
@@ -820,6 +931,7 @@ const Home = () => {
           status: isApprovedByAll ? 'APPROVED' : 'PENDING',
         },
       }))
+      storeCompletionDecision(selectedProject.id, completionRequest.id, decision)
     }
   }
 
@@ -1005,7 +1117,7 @@ const Home = () => {
                   currentIndex={memberIndex + 1}
                   member={selectedMember}
                   totalCount={selectedProject.teammates.length}
-                  onChatClick={() => navigate('/chat')}
+                  onChatClick={() => enterMemberChatRoom(selectedMember)}
                 />
                 <button
                   type="button"
@@ -1112,7 +1224,7 @@ const Home = () => {
                     )}
                     <div>
                       {selectedProject.teammates.map((member) => (
-                        <span className={approvedUserIds.has(member.userId) ? 'is-approved' : ''} key={member.userId}>
+                        <span className={isCompletionApprovedMember(member) ? 'is-approved' : ''} key={member.userId}>
                           {member.name}
                         </span>
                       ))}
