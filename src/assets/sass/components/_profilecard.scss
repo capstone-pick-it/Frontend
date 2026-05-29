@@ -162,6 +162,8 @@
 
     // 4. 홈 프로젝트 워크스페이스: 채팅 / 신고 버튼
     &__actions {
+        position: relative;
+        z-index: 2;
         display: flex;
         align-items: center;
         gap: 10px;
