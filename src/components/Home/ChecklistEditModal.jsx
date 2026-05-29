@@ -45,6 +45,16 @@ const getDateTextFromParts = (parts, weekday) => {
   return `${Number(parts.year)}년 ${Number(parts.month)}월 ${Number(parts.day)}일 ${weekday}`
 }
 
+const getWeekdayFromParts = (parts) => {
+  if (!isValidDateParts(parts)) {
+    return ''
+  }
+
+  const date = new Date(Number(parts.year), Number(parts.month) - 1, Number(parts.day))
+
+  return weekdayLabels[date.getDay()]
+}
+
 const getWeekdayFromItem = (item, parts) => {
   const [, weekday] = item.date.match(/\d{1,2}일\s*(\S+)/) || []
 
@@ -56,8 +66,7 @@ const getWeekdayFromItem = (item, parts) => {
     return weekdayOptions[0]
   }
 
-  const date = new Date(Number(parts.year), Number(parts.month) - 1, Number(parts.day))
-  const calculatedWeekday = weekdayLabels[date.getDay()]
+  const calculatedWeekday = getWeekdayFromParts(parts)
 
   return weekdayOptions.includes(calculatedWeekday) ? calculatedWeekday : weekdayOptions[0]
 }
@@ -68,10 +77,19 @@ const ChecklistEditModal = ({ canEdit, item, members, onClose, onDelete, onSave 
   const [weekday, setWeekday] = useState(getWeekdayFromItem(item, getDateParts(item)))
   const [assignee, setAssignee] = useState(item.assignee || members[0]?.name || '')
   const updateDatePart = (key, value, maxLength) => {
-    setDateParts((parts) => ({
-      ...parts,
-      [key]: value.replace(/\D/g, '').slice(0, maxLength),
-    }))
+    setDateParts((parts) => {
+      const nextParts = {
+        ...parts,
+        [key]: value.replace(/\D/g, '').slice(0, maxLength),
+      }
+      const nextWeekday = getWeekdayFromParts(nextParts)
+
+      if (nextWeekday) {
+        setWeekday(nextWeekday)
+      }
+
+      return nextParts
+    })
   }
 
   return (
