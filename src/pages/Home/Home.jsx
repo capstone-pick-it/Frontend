@@ -708,7 +708,9 @@ const Home = () => {
           dueDate: nextItem.dueAt,
           managerId,
         })
-        const savedItem = normalizeChecklistItem(response.result)
+        const savedItem = response.result
+          ? normalizeChecklistItem(response.result)
+          : { ...nextItem, assigneeId: managerId, isNew: false }
 
         updateProjectChecklist((selectedProject?.checklist || []).map((item) => (
           item.id === nextItem.id ? savedItem : item
@@ -716,7 +718,7 @@ const Home = () => {
       } catch (error) {
         console.warn('체크리스트 생성 실패:', error.message)
         updateProjectChecklist((selectedProject?.checklist || []).map((item) => (
-          item.id === nextItem.id ? { ...nextItem, assigneeId: managerId } : item
+          item.id === nextItem.id ? { ...nextItem, assigneeId: managerId, isNew: false } : item
         )))
       } finally {
         setEditingChecklistId(null)
