@@ -815,6 +815,17 @@ const Home = () => {
     return [...nextApprovals, currentApproval]
   }
 
+  const storeCompletionDecision = (projectId, requestId, decision) => {
+    saveCompletionDecision(projectId, requestId, decision)
+    setStoredCompletionDecisions((decisions) => ({
+      ...decisions,
+      [projectId]: {
+        requestId,
+        decision,
+      },
+    }))
+  }
+
   const requestProjectCompletion = async () => {
     if (!selectedProject) {
       return
@@ -862,6 +873,7 @@ const Home = () => {
           approvals: nextApprovals,
         },
       }))
+      storeCompletionDecision(selectedProject.id, (nextRequest || completionRequest).id, decision)
     } catch (error) {
       console.warn('프로젝트 종료 요청 응답 실패:', error.message)
       const nextApprovals = createFallbackApprovals(decision)
@@ -876,6 +888,7 @@ const Home = () => {
           status: isApprovedByAll ? 'APPROVED' : 'PENDING',
         },
       }))
+      storeCompletionDecision(selectedProject.id, completionRequest.id, decision)
     }
   }
 
