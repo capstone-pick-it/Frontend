@@ -772,7 +772,7 @@ const Home = () => {
     approvals: [],
   })
 
-  const createFallbackApprovals = (decision) => {
+  const createFallbackApprovals = (decision, baseRequest = completionRequest) => {
     const currentApproval = {
       completionApprovalId: Date.now() + currentProjectUserId,
       user: {
@@ -781,8 +781,8 @@ const Home = () => {
       },
       decision,
     }
-    const nextApprovals = (completionRequest.approvals || [])
-      .filter((approval) => approval.user?.userId !== currentProjectUserId)
+    const nextApprovals = (baseRequest?.approvals || [])
+      .filter((approval) => !isSameUserId(approval.user?.userId, currentProjectUserId))
 
     return [...nextApprovals, currentApproval]
   }
@@ -816,13 +816,23 @@ const Home = () => {
       return
     }
 
+    if (currentUserCompletionDecision === decision) {
+      return
+    }
+
     try {
       const response = await decideCompletionRequest(completionRequest.id, { decision })
       const nextRequest = normalizeCompletionRequest(response.result)
+      const nextApprovals = getUserCompletionDecision(nextRequest, currentProjectUserId)
+        ? nextRequest.approvals
+        : createFallbackApprovals(decision, nextRequest || completionRequest)
 
       setCompletionRequests((requests) => ({
         ...requests,
-        [selectedProject.id]: nextRequest || completionRequest,
+        [selectedProject.id]: {
+          ...(nextRequest || completionRequest),
+          approvals: nextApprovals,
+        },
       }))
     } catch (error) {
       console.warn('프로젝트 종료 요청 응답 실패:', error.message)
