@@ -209,7 +209,6 @@
   padding: 17px 16px 16px;
 }
 
-.home-member-carousel,
 .home-checklist-pager {
   position: relative;
 
@@ -233,9 +232,8 @@
 }
 
 .home-member-carousel {
-  > button {
-    height: 100%;
-  }
+  touch-action: pan-y;
+  user-select: none;
 }
 
 .home-member-card__top {

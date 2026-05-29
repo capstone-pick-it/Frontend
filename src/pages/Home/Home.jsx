@@ -281,6 +281,7 @@ const Home = () => {
   const [editingChecklistId, setEditingChecklistId] = useState(null)
   const checklistIdRef = useRef(1000)
   const isEnteringChatRoomRef = useRef(false)
+  const memberSwipeStartXRef = useRef(null)
 
   const projectsByTab = {
     recruiting: recruitingItems,
@@ -746,6 +747,40 @@ const Home = () => {
     }
   }
 
+  const moveMemberCard = (direction) => {
+    if (!selectedProject?.teammates?.length) {
+      return
+    }
+
+    setMemberIndex((index) => (
+      (index + direction + selectedProject.teammates.length) % selectedProject.teammates.length
+    ))
+  }
+
+  const handleMemberSwipeStart = (event) => {
+    if (event.target.closest('button')) {
+      memberSwipeStartXRef.current = null
+      return
+    }
+
+    memberSwipeStartXRef.current = event.clientX
+  }
+
+  const handleMemberSwipeEnd = (event) => {
+    if (memberSwipeStartXRef.current === null) {
+      return
+    }
+
+    const distance = event.clientX - memberSwipeStartXRef.current
+    memberSwipeStartXRef.current = null
+
+    if (Math.abs(distance) < 45) {
+      return
+    }
+
+    moveMemberCard(distance < 0 ? 1 : -1)
+  }
+
   const addChecklistItem = async () => {
     if (!selectedProject) {
       return
@@ -1146,13 +1181,14 @@ const Home = () => {
         <section className="home-detail">
           {selectedMember && (
             <>
-              <div className="home-member-carousel">
-                <button
-                  type="button"
-                  onClick={() => setMemberIndex((memberIndex - 1 + selectedProject.teammates.length) % selectedProject.teammates.length)}
-                >
-                  이전 팀원
-                </button>
+              <div
+                className="home-member-carousel"
+                onPointerDown={handleMemberSwipeStart}
+                onPointerUp={handleMemberSwipeEnd}
+                onPointerCancel={() => {
+                  memberSwipeStartXRef.current = null
+                }}
+              >
                 <ProfileCard
                   variant="workspace"
                   name={selectedMember.name}
@@ -1167,12 +1203,6 @@ const Home = () => {
                   onChatClick={() => enterMemberChatRoom(selectedMember)}
                   onReportClick={() => openReportModal(selectedMember)}
                 />
-                <button
-                  type="button"
-                  onClick={() => setMemberIndex((memberIndex + 1) % selectedProject.teammates.length)}
-                >
-                  다음 팀원
-                </button>
               </div>
               <div className="home-carousel-dots">
                 {selectedProject.teammates.map((member, index) => (
