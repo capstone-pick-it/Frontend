@@ -261,7 +261,7 @@
         box-shadow: none;
 
         .profile-card__content {
-            gap: 16px;
+            gap: 12px;
         }
 
         .profile-card__header {
@@ -271,7 +271,7 @@
         }
 
         .profile-card__info {
-            gap: 8px;
+            gap: 4px;
         }
 
         .profile-card__stats {
@@ -281,6 +281,10 @@
             > div {
                 flex: none;
             }
+        }
+
+        .profile-card__dots {
+            display: none;
         }
     }
 
