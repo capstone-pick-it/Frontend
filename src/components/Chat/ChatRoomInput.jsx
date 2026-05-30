@@ -3,7 +3,7 @@ import send from '../../assets/images/Chat/send.svg'
 import add from '../../assets/images/Chat/add.svg'
 import { useState } from 'react'
 
-const ChatRoomInput = ({ sendMessage, total }) => {
+const ChatRoomInput = ({ sendMessage, isGroup }) => {
   const [text, setText] = useState('')
   const handleSend = () => {
     if (!text.trim()) return
@@ -13,14 +13,14 @@ const ChatRoomInput = ({ sendMessage, total }) => {
 
   return (
     <div className='ChatRoomInput_Wrap'>
-       {Number(total) > 3 && (
+       {isGroup && (
          <button className="add_btn">
             <img src={add} alt="" />
         </button>
        )}
-        <input 
-        type="text" 
-        className={Number(total) > 3 ? 'with-add-btn' : ''}
+        <input
+        type="text"
+        className={isGroup ? 'with-add-btn' : ''}
         value={text}
         onChange={(e)=>setText(e.target.value)}
         onKeyDown={(e)=>e.key === 'Enter' && handleSend()}

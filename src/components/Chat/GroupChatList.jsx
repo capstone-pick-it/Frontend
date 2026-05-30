@@ -69,7 +69,7 @@ const GroupChatList = ({ rooms, setRooms }) => {
         if (hasSwiped.current) return
         if (swipedRoomId) { setSwipedRoom(null); return }
         navigate(`/chatroom/${room.chatRoomId}`, {
-            state: { opponent: { nickname: room.roomName } },
+            state: { opponent: { nickname: room.roomName }, chatType: 'GROUP', participantCount: room.participantCount },
         })
     }
 

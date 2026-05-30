@@ -15,6 +15,8 @@ const ChatRoom = () => {
     const { roomId } = useParams()
     const { state } = useLocation()
     const opponent = state?.opponent
+    const isGroup = state?.chatType === 'GROUP'
+    const participantCount = state?.participantCount ?? 2
 
     const [isModal, setIsModal] = useState(false)
     const [toastStatus, setToastStatus] = useState(null)
@@ -69,9 +71,9 @@ const ChatRoom = () => {
         }
     }, [messages])
 
-    //공통 과목 조회
+    //공통 과목 조회 (1:1만)
     useEffect(() => {
-        if (!roomId) return
+        if (!roomId || isGroup) return
         commonCourses(roomId)
             .then((data) => {
                 const list = data?.courses ?? []
@@ -79,11 +81,11 @@ const ChatRoom = () => {
                 if (list.length > 0) setSelectedCourse(list[0].courseName)
             })
             .catch((e) => console.error('공통과목 조회 실패', e))
-    }, [roomId])
+    }, [roomId, isGroup])
 
-    // 팀원 요청 최신 상태 초기화
+    // 팀원 요청 최신 상태 초기화 (1:1만)
     useEffect(() => {
-        if (!roomId) return
+        if (!roomId || isGroup) return
         getLatestTeamRequest(roomId)
             .then((result) => {
                 if (!result) return
@@ -100,9 +102,9 @@ const ChatRoom = () => {
             .catch((e) => console.error('[TeamRequest] 조회 실패:', e))
     }, [roomId])
 
-    // 팀원 요청 이벤트 수신
+    // 팀원 요청 이벤트 수신 (1:1만)
     useEffect(() => {
-        if (!teamRequestEvent) return
+        if (!teamRequestEvent || isGroup) return
         if (teamRequestEvent.type === 'TEAM_REQUEST_CREATED') {
             if (myRoleRef.current !== 'SENDER') {
                 myRoleRef.current = 'RECEIVER'
@@ -168,7 +170,8 @@ const ChatRoom = () => {
             <ChatRoomHeader
                 roomId={opponent?.nickname ?? roomId}
                 isModalOpen={() => setIsModal((prev) => !prev)}
-                total={2}
+                total={participantCount}
+                isGroup={isGroup}
             />
             <div id="ChatContent_Wrap" ref={chatContentRef}>
                 {allMessages.map((msg, i) => (
@@ -180,9 +183,9 @@ const ChatRoom = () => {
                     />
                 ))}
             </div>
-            <ChatToast status={toastStatus} onAccept={handleAccept} />
-            <ChatRoomInput sendMessage={sendMessage} />
-            {isModal && (
+            {!isGroup && <ChatToast status={toastStatus} onAccept={handleAccept} />}
+            <ChatRoomInput sendMessage={sendMessage} isGroup={isGroup} />
+            {isModal && !isGroup && (
                 <ConfirmModal
                     title="팀원 요청을 보내시겠습니까?"
                     description="팀원 요청을 보내고자 하는 과목명을 선택해주세요"

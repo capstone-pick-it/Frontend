@@ -21,9 +21,9 @@ const useChatSocket = (chatRoomId) => {
         Authorization: `Bearer ${getAccessToken()}`,
       },
       onConnect: () => {
-        console.log('[WS] 연결 성공')
+        console.log('[WS] 연결 성공 - chatRoomId:', chatRoomId)
         client.subscribe(`/topic/chatrooms/${chatRoomId}`, (frame) => {
-          console.log('[WS] 이벤트 수신:', frame.body)
+          console.log('[WS] 이벤트 수신 - chatRoomId:', chatRoomId, frame.body)
           const event = JSON.parse(frame.body)
 
           if (event.eventType === 'CHAT_MESSAGE_CREATED' && event.message) {
@@ -56,7 +56,7 @@ const useChatSocket = (chatRoomId) => {
 
   const sendMessage = (content) => {
     if (!clientRef.current?.connected) {
-      console.error('[WS] 연결되지 않음 - 메시지 전송 불가')
+      console.error('[WS] 연결되지 않음 - 메시지 전송 불가 / chatRoomId:', chatRoomId)
       return
     }
     console.log('[WS] 메시지 전송:', { chatRoomId: Number(chatRoomId), messageType: 'TEXT', content })
