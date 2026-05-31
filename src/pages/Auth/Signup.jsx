@@ -29,6 +29,15 @@ const Signup = ({ onLoginClick }) => {
   }
 
   const isPasswordMatched = form.password && form.password === form.passwordConfirm
+  const handleBack = () => {
+    if (step > 1) {
+      setStep((prevStep) => prevStep - 1)
+      setErrorMessage('')
+      return
+    }
+
+    onLoginClick()
+  }
 
   const handleSendEmailCode = async () => {
     if (!form.email) {
@@ -107,7 +116,7 @@ const Signup = ({ onLoginClick }) => {
     <main className="auth-page signup">
       {step === 1 && (
         <>
-          <AuthStepHeader title="회원가입" step={1} stepTitle="학교인증" />
+          <AuthStepHeader title="회원가입" step={1} stepTitle="학교인증" onBack={handleBack} />
           <div className="auth-form signup__email-form">
             <AuthField
               type="email"
@@ -125,7 +134,7 @@ const Signup = ({ onLoginClick }) => {
 
       {step === 2 && (
         <>
-          <AuthStepHeader title="회원가입" step={2} stepTitle="인증코드 입력" />
+          <AuthStepHeader title="회원가입" step={2} stepTitle="인증코드 입력" onBack={handleBack} />
           <div className="auth-form">
             <AuthField
               placeholder="메일로 전송된 인증코드를 입력해주세요"
@@ -145,7 +154,7 @@ const Signup = ({ onLoginClick }) => {
 
       {step === 3 && (
         <>
-          <AuthStepHeader title="회원가입" step={3} stepTitle="비밀번호 설정" />
+          <AuthStepHeader title="회원가입" step={3} stepTitle="비밀번호 설정" onBack={handleBack} />
           <div className="auth-form">
             <AuthField
               type="password"

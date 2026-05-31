@@ -6,8 +6,9 @@ import ChecklistEditModal from '../../components/Home/ChecklistEditModal'
 import ConfirmModal from '../../components/Home/ConfirmModal'
 import DoorIcon from '../../components/Home/DoorIcon'
 import HomeProjectCard from '../../components/Home/HomeProjectCard'
-import MemberCard from '../../components/Home/MemberCard'
 import ReviewModal from '../../components/Home/ReviewModal'
+import ProfileCard from '../../components/ProfileCard'
+import Modal from '../../components/Modal'
 import {
   confirmTeamMembers,
   createCompletionRequest,
@@ -41,6 +42,12 @@ const tabs = [
   { key: 'active', label: '진행 중' },
   { key: 'done', label: '진행 완료' },
 ]
+
+const emptyProjectMessages = {
+  recruiting: '모집 중인 프로젝트가 아직 없습니다',
+  active: '진행 중인 프로젝트가 아직 없습니다.',
+  done: '완료된 프로젝트가 아직 없습니다.',
+}
 
 const demoCurrentUserName = '이승희'
 const getDisplayImportance = (...importanceValues) => {
@@ -141,15 +148,17 @@ const normalizeChecklistItem = (item) => ({
 const normalizeProjectMember = (member, fallbackMember = {}) => ({
   ...fallbackMember,
   userId: member.userId ?? fallbackMember.userId,
-  projectTeamMemberId: member.projectTeamMemberId,
+  projectTeamMemberId: member.projectTeamMemberId ?? fallbackMember.projectTeamMemberId,
   name: member.nickname || fallbackMember.name || '팀원',
   school: member.major || fallbackMember.school || '',
-  role: member.role,
-  activeMember: member.activeMember,
+  major: member.major || fallbackMember.major || fallbackMember.school || '',
+  year: member.grade ?? fallbackMember.year,
+  role: member.role ?? fallbackMember.role,
+  activeMember: member.activeMember ?? fallbackMember.activeMember,
   tags: getDisplayTraits(member.traits || member.defaultTraits, fallbackMember.tags || []),
-  level: fallbackMember.level || 'LV.1',
-  point: fallbackMember.point || '0p',
-  priority: getDisplayImportance(member.importance, member.priority, fallbackMember.priority),
+  level: member.teamLevel ?? fallbackMember.level ?? 1,
+  point: member.point ?? fallbackMember.point ?? 0,
+  priority: getDisplayImportance(member.importanceLevel, member.importance, member.priority, fallbackMember.priority),
 })
 
 const normalizeProjectDetail = (detail, fallbackProject) => {
@@ -183,10 +192,11 @@ const normalizeProjectSummary = (project, fallbackStatus) => {
         userId: project.memberIds?.[index] ?? index + 1,
         name,
         school: '',
+        major: '',
         tags: getDisplayTraits(project.traits || project.defaultTraits),
-        level: 'LV.1',
-        point: '0p',
-        priority: getDisplayImportance(project.importance, project.priority),
+        level: 1,
+        point: 0,
+        priority: getDisplayImportance(project.importanceLevel, project.importance, project.priority),
       }))
       : [],
     checklist: [],
@@ -256,7 +266,9 @@ const Home = () => {
   const [recruitingItems, setRecruitingItems] = useState([])
   const [activeItems, setActiveItems] = useState([])
   const [doneItems, setDoneItems] = useState([])
+  const [isProjectLoading, setIsProjectLoading] = useState(true)
   const [exitTarget, setExitTarget] = useState(null)
+  const [reportTarget, setReportTarget] = useState(null)
   const [teamConfirmTarget, setTeamConfirmTarget] = useState(null)
   const [reviewProject, setReviewProject] = useState(null)
   const [reviewIndex, setReviewIndex] = useState(0)
@@ -269,12 +281,16 @@ const Home = () => {
   const [editingChecklistId, setEditingChecklistId] = useState(null)
   const checklistIdRef = useRef(1000)
   const isEnteringChatRoomRef = useRef(false)
+  const memberSwipeStartXRef = useRef(null)
+  const checklistSwipeStartXRef = useRef(null)
+  const shouldIgnoreChecklistClickRef = useRef(false)
 
   const projectsByTab = {
     recruiting: recruitingItems,
     active: activeItems,
     done: doneItems,
   }
+  const visibleProjects = projectsByTab[activeTab]
   const [detailTab, detailProjectId] = location.pathname.replace(/^\/home\/?/, '').split('/').filter(Boolean)
   const isDetailPage = Boolean(projectsByTab[detailTab] && detailProjectId)
   const currentTab = isDetailPage ? detailTab : activeTab
@@ -287,6 +303,7 @@ const Home = () => {
     setShowTeamConfirm(false)
     setModal(null)
     setExitTarget(null)
+    setReportTarget(null)
     setMemberIndex(0)
     setChecklistPage(0)
     setEditingChecklistId(null)
@@ -307,6 +324,7 @@ const Home = () => {
 
     setModal(null)
     setExitTarget(null)
+    setReportTarget(null)
     setMemberIndex(0)
     setChecklistPage(0)
     setEditingChecklistId(null)
@@ -497,6 +515,7 @@ const Home = () => {
 
     const fetchProjects = async () => {
       try {
+        setIsProjectLoading(true)
         const [recruitingResponse, activeResponse, doneResponse] = await Promise.all([
           getProjects('RECRUITING'),
           getProjects('IN_PROGRESS'),
@@ -518,6 +537,10 @@ const Home = () => {
         )))
       } catch (error) {
         console.warn('프로젝트 목록 조회 실패:', error.message)
+      } finally {
+        if (!ignore) {
+          setIsProjectLoading(false)
+        }
       }
     }
 
@@ -677,6 +700,20 @@ const Home = () => {
     return selectedProject?.teammates?.find((member) => member.name === assigneeName)?.userId || currentProjectUserId
   }
 
+  const openReportModal = (member) => {
+    setReportTarget(member)
+    setModal('report-confirm')
+  }
+
+  const completeReport = () => {
+    setModal('report-complete')
+  }
+
+  const closeReportModal = () => {
+    setReportTarget(null)
+    setModal(null)
+  }
+
   const enterMemberChatRoom = async (member) => {
     if (isEnteringChatRoomRef.current) {
       return
@@ -710,6 +747,85 @@ const Home = () => {
     } finally {
       isEnteringChatRoomRef.current = false
     }
+  }
+
+  const moveMemberCard = (direction) => {
+    if (!selectedProject?.teammates?.length) {
+      return
+    }
+
+    setMemberIndex((index) => (
+      (index + direction + selectedProject.teammates.length) % selectedProject.teammates.length
+    ))
+  }
+
+  const handleMemberSwipeStart = (event) => {
+    if (event.target.closest('button')) {
+      memberSwipeStartXRef.current = null
+      return
+    }
+
+    memberSwipeStartXRef.current = event.clientX
+  }
+
+  const handleMemberSwipeEnd = (event) => {
+    if (memberSwipeStartXRef.current === null) {
+      return
+    }
+
+    const distance = event.clientX - memberSwipeStartXRef.current
+    memberSwipeStartXRef.current = null
+
+    if (Math.abs(distance) < 45) {
+      return
+    }
+
+    moveMemberCard(distance < 0 ? 1 : -1)
+  }
+
+  const moveChecklistPage = (direction) => {
+    setChecklistPage((page) => (
+      (page + direction + checklistPages) % checklistPages
+    ))
+  }
+
+  const handleChecklistSwipeStart = (event) => {
+    checklistSwipeStartXRef.current = event.clientX
+  }
+
+  const handleChecklistSwipeEnd = (event) => {
+    if (checklistSwipeStartXRef.current === null) {
+      return
+    }
+
+    const distance = event.clientX - checklistSwipeStartXRef.current
+    checklistSwipeStartXRef.current = null
+
+    if (Math.abs(distance) < 45) {
+      return
+    }
+
+    shouldIgnoreChecklistClickRef.current = true
+    moveChecklistPage(distance < 0 ? 1 : -1)
+    setTimeout(() => {
+      shouldIgnoreChecklistClickRef.current = false
+    }, 0)
+  }
+
+  const openChecklistItem = (itemId) => {
+    if (shouldIgnoreChecklistClickRef.current || currentTab !== 'active') {
+      return
+    }
+
+    setEditingChecklistId(itemId)
+  }
+
+  const toggleChecklistItemWithGuard = (itemId) => {
+    if (shouldIgnoreChecklistClickRef.current) {
+      return
+    }
+
+    toggleChecklistItem(itemId)
   }
 
   const addChecklistItem = async () => {
@@ -1067,16 +1183,22 @@ const Home = () => {
           </nav>
 
           <section className="home-project-list">
-            {projectsByTab[activeTab].map((project) => (
-              <HomeProjectCard
-                project={project}
-                tab={activeTab}
-                key={project.id}
-                onConfirm={() => openTeamConfirm(project)}
-                onExit={() => openExitModal(project, activeTab)}
-                onOpen={activeTab !== 'recruiting' ? () => openProjectDetail(project) : undefined}
-              />
-            ))}
+            {isProjectLoading ? (
+              <p className="home-project-list__message">프로젝트를 불러오는 중입니다.</p>
+            ) : visibleProjects.length > 0 ? (
+              visibleProjects.map((project) => (
+                <HomeProjectCard
+                  project={project}
+                  tab={activeTab}
+                  key={project.id}
+                  onConfirm={() => openTeamConfirm(project)}
+                  onExit={() => openExitModal(project, activeTab)}
+                  onOpen={activeTab !== 'recruiting' ? () => openProjectDetail(project) : undefined}
+                />
+              ))
+            ) : (
+              <p className="home-project-list__message">{emptyProjectMessages[activeTab]}</p>
+            )}
           </section>
         </>
       )}
@@ -1106,25 +1228,28 @@ const Home = () => {
         <section className="home-detail">
           {selectedMember && (
             <>
-              <div className="home-member-carousel">
-                <button
-                  type="button"
-                  onClick={() => setMemberIndex((memberIndex - 1 + selectedProject.teammates.length) % selectedProject.teammates.length)}
-                >
-                  이전 팀원
-                </button>
-                <MemberCard
-                  currentIndex={memberIndex + 1}
-                  member={selectedMember}
-                  totalCount={selectedProject.teammates.length}
+              <div
+                className="home-member-carousel"
+                onPointerDown={handleMemberSwipeStart}
+                onPointerUp={handleMemberSwipeEnd}
+                onPointerCancel={() => {
+                  memberSwipeStartXRef.current = null
+                }}
+              >
+                <ProfileCard
+                  variant="workspace"
+                  name={selectedMember.name}
+                  major={selectedMember.major || selectedMember.school}
+                  year={selectedMember.year}
+                  level={String(selectedMember.level).replace(/^LV\./, '')}
+                  points={String(selectedMember.point).replace(/p$/, '')}
+                  traits={selectedMember.tags}
+                  importance={selectedMember.priority}
+                  memberIndex={memberIndex + 1}
+                  memberTotal={selectedProject.teammates.length}
                   onChatClick={() => enterMemberChatRoom(selectedMember)}
+                  onReportClick={() => openReportModal(selectedMember)}
                 />
-                <button
-                  type="button"
-                  onClick={() => setMemberIndex((memberIndex + 1) % selectedProject.teammates.length)}
-                >
-                  다음 팀원
-                </button>
               </div>
               <div className="home-carousel-dots">
                 {selectedProject.teammates.map((member, index) => (
@@ -1145,10 +1270,17 @@ const Home = () => {
             {currentTab === 'active' && <button type="button" onClick={addChecklistItem}>+</button>}
           </header>
 
-          <div className="home-checklist">
+          <div
+            className="home-checklist"
+            onPointerDown={handleChecklistSwipeStart}
+            onPointerUp={handleChecklistSwipeEnd}
+            onPointerCancel={() => {
+              checklistSwipeStartXRef.current = null
+            }}
+          >
             {visibleChecklist.map((item) => (
               <article className={item.done ? 'is-done' : ''} key={item.id}>
-                <button type="button" onClick={() => currentTab === 'active' && setEditingChecklistId(item.id)}>
+                <button type="button" onClick={() => openChecklistItem(item.id)}>
                   <div className="home-checklist__title-row">
                     <h3>{item.title}</h3>
                     <span>{item.assignee}</span>
@@ -1163,7 +1295,7 @@ const Home = () => {
                       ? '체크리스트 완료 상태 변경'
                       : `${item.assignee} 담당 할 일입니다`
                   }
-                  onClick={() => toggleChecklistItem(item.id)}
+                  onClick={() => toggleChecklistItemWithGuard(item.id)}
                 >
                   {item.done ? '✓' : ''}
                 </button>
@@ -1172,12 +1304,6 @@ const Home = () => {
           </div>
 
           <div className="home-checklist-pager">
-            <button
-              type="button"
-              onClick={() => setChecklistPage((checklistPage - 1 + checklistPages) % checklistPages)}
-            >
-              이전 체크리스트
-            </button>
             <div className="home-carousel-dots home-carousel-dots--checklist">
               {Array.from({ length: checklistPages }).map((_, index) => (
                 <button
@@ -1189,12 +1315,6 @@ const Home = () => {
                 />
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => setChecklistPage((checklistPage + 1) % checklistPages)}
-            >
-              다음 체크리스트
-            </button>
           </div>
 
           {currentTab === 'active' && (
@@ -1289,6 +1409,31 @@ const Home = () => {
           confirmText="보내기"
           onClose={() => setModal(null)}
           onConfirm={requestProjectCompletion}
+        />
+      )}
+
+      {modal === 'report-confirm' && reportTarget && (
+        <Modal
+          type="error"
+          variant="confirm"
+          title="신고하기"
+          description={`${reportTarget.name} 님을 신고하시겠습니까?`}
+          cancelText="아니오"
+          confirmText="네"
+          onClose={closeReportModal}
+          onCancel={closeReportModal}
+          onConfirm={completeReport}
+        />
+      )}
+
+      {modal === 'report-complete' && (
+        <Modal
+          type="error"
+          title="신고 완료"
+          description="신고가 완료되었습니다."
+          confirmText="확인"
+          onClose={closeReportModal}
+          onConfirm={closeReportModal}
         />
       )}
 

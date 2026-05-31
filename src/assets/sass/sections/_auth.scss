@@ -9,6 +9,7 @@
 }
 
 .auth-step-header {
+  position: relative;
   padding-top: 78px;
 
   h1 {
@@ -22,6 +23,18 @@
     color: var(--black);
     margin-top: 22px;
   }
+}
+
+.auth-step-header__back {
+  position: absolute;
+  top: 31px;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  background-color: transparent;
+  color: var(--black);
+  text-align: left;
+  @include heading1;
 }
 
 .auth-step-header__bars {

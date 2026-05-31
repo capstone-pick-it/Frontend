@@ -162,6 +162,8 @@
 
     // 4. 홈 프로젝트 워크스페이스: 채팅 / 신고 버튼
     &__actions {
+        position: relative;
+        z-index: 2;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -261,7 +263,7 @@
         box-shadow: none;
 
         .profile-card__content {
-            gap: 16px;
+            gap: 12px;
         }
 
         .profile-card__header {
@@ -271,7 +273,7 @@
         }
 
         .profile-card__info {
-            gap: 8px;
+            gap: 4px;
         }
 
         .profile-card__stats {
@@ -281,6 +283,10 @@
             > div {
                 flex: none;
             }
+        }
+
+        .profile-card__dots {
+            display: none;
         }
     }
 

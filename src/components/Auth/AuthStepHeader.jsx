@@ -1,8 +1,13 @@
 import React from 'react'
 
-const AuthStepHeader = ({ title, step, stepTitle }) => {
+const AuthStepHeader = ({ title, step, stepTitle, onBack }) => {
   return (
     <header className="auth-step-header">
+      {onBack && (
+        <button className="auth-step-header__back" type="button" aria-label="뒤로가기" onClick={onBack}>
+          &lt;
+        </button>
+      )}
       <h1>{title}</h1>
       <div className="auth-step-header__bars">
         {[1, 2, 3].map((item) => (

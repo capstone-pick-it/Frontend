@@ -33,6 +33,13 @@
   gap: 10px;
 }
 
+.home-project-list__message {
+  padding-top: 42px;
+  color: var(--gray-500);
+  text-align: center;
+  @include body3;
+}
+
 .home-project-card,
 .home-member-card {
   border-radius: 8px;
@@ -202,33 +209,14 @@
   padding: 17px 16px 16px;
 }
 
-.home-member-carousel,
-.home-checklist-pager {
-  position: relative;
-
-  > button {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 50%;
-    overflow: hidden;
-    opacity: 0;
-    z-index: 1;
-
-    &:first-child {
-      left: 0;
-    }
-
-    &:last-child {
-      right: 0;
-    }
-  }
+.home-checklist {
+  touch-action: pan-y;
+  user-select: none;
 }
 
 .home-member-carousel {
-  > button {
-    height: 100%;
-  }
+  touch-action: pan-y;
+  user-select: none;
 }
 
 .home-member-card__top {
