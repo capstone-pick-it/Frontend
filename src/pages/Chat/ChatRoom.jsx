@@ -60,12 +60,7 @@ const ChatRoom = () => {
         fetchMessages()
     }, [roomId])
 
-    // messageType이 'FILE'이거나, files 배열이 있으면 파일 메시지로 판단
-    const isFileMessage = (msg) =>
-        msg?.messageType === 'FILE' ||
-        (msg?.files != null && msg.files.length > 0)
-
-    // 실시간 메시지 수신 시 읽음 처리 + 파일 메시지면 히스토리 재조회(Signed URL)
+    // 실시간 메시지 수신 시 읽음 처리
     useEffect(() => {
         if (messages.length === 0) return
         const lastMsg = messages[messages.length - 1]
@@ -74,9 +69,6 @@ const ChatRoom = () => {
             markChatAsRead(roomId, lastMsgId).catch((e) => console.error('읽음 처리 실패', e))
         } else if (lastMsg) {
             console.warn('[markChatAsRead] 메시지 ID 필드를 찾을 수 없습니다:', lastMsg)
-        }
-        if (isFileMessage(lastMsg)) {
-            fetchMessages().then(() => clearMessages())
         }
     }, [messages])
 
