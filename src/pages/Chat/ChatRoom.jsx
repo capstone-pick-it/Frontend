@@ -26,40 +26,46 @@ const ChatRoom = () => {
     const myRoleRef = useRef(null)
     const teamRequestIdRef = useRef(null)
 
-    const { messages, sendMessage, teamRequestEvent } = useChatSocket(roomId)
+    const { messages, sendMessage, teamRequestEvent, clearMessages } = useChatSocket(roomId)
     const myUser = getSavedUser()
 
     const [courseList, setCourseList] = useState([])
 
+    const fetchMessages = async () => {
+        try {
+            const result = await getChatMessages(roomId)
+            const normalized = (result.messages ?? [])
+                .map((msg) => ({
+                    ...msg,
+                    senderId: msg.senderId ?? msg.sender?.userId,
+                    senderNickname: msg.senderNickname ?? msg.sender?.nickname,
+                }))
+                .reverse()
+            setPrevMessages(normalized)
+            const lastMsg = normalized[normalized.length - 1]
+            const lastMsgId = lastMsg?.messageId ?? lastMsg?.id ?? lastMsg?.chatMessageId
+            if (lastMsgId) {
+                markChatAsRead(roomId, lastMsgId).catch((e) => console.error('읽음 처리 실패', e))
+            } else if (lastMsg) {
+                console.warn('[markChatAsRead] 메시지 ID 필드를 찾을 수 없습니다:', lastMsg)
+            }
+        } catch (e) {
+            console.error('메시지 조회 실패', e)
+        }
+    }
+
     // 이전 메시지 조회
     useEffect(() => {
         if (!roomId) return
-        const fetchMessages = async () => {
-            try {
-                const result = await getChatMessages(roomId)
-                const normalized = (result.messages ?? [])
-                    .map((msg) => ({
-                        ...msg,
-                        senderId: msg.senderId ?? msg.sender?.userId,
-                        senderNickname: msg.senderNickname ?? msg.sender?.nickname,
-                    }))
-                    .reverse()
-                setPrevMessages(normalized)
-                const lastMsg = normalized[normalized.length - 1]
-                const lastMsgId = lastMsg?.messageId ?? lastMsg?.id ?? lastMsg?.chatMessageId
-                if (lastMsgId) {
-                    markChatAsRead(roomId, lastMsgId).catch((e) => console.error('읽음 처리 실패', e))
-                } else if (lastMsg) {
-                    console.warn('[markChatAsRead] 메시지 ID 필드를 찾을 수 없습니다:', lastMsg)
-                }
-            } catch (e) {
-                console.error('메시지 조회 실패', e)
-            }
-        }
         fetchMessages()
     }, [roomId])
 
-    // 실시간 메시지 수신 시 읽음 처리 (수신자/송신자 모두 읽음 처리하여 배지 제거)
+    // messageType이 'FILE'이거나, files 배열이 있으면 파일 메시지로 판단
+    const isFileMessage = (msg) =>
+        msg?.messageType === 'FILE' ||
+        (msg?.files != null && msg.files.length > 0)
+
+    // 실시간 메시지 수신 시 읽음 처리 + 파일 메시지면 히스토리 재조회(Signed URL)
     useEffect(() => {
         if (messages.length === 0) return
         const lastMsg = messages[messages.length - 1]
@@ -68,6 +74,9 @@ const ChatRoom = () => {
             markChatAsRead(roomId, lastMsgId).catch((e) => console.error('읽음 처리 실패', e))
         } else if (lastMsg) {
             console.warn('[markChatAsRead] 메시지 ID 필드를 찾을 수 없습니다:', lastMsg)
+        }
+        if (isFileMessage(lastMsg)) {
+            fetchMessages().then(() => clearMessages())
         }
     }, [messages])
 
@@ -178,13 +187,18 @@ const ChatRoom = () => {
                     <ChatMessage
                         key={i}
                         text={msg.content}
+                        files={msg.files}
                         isMe={msg.senderId === myUser?.userId}
                         sender={msg.senderNickname}
                     />
                 ))}
             </div>
             {!isGroup && <ChatToast status={toastStatus} onAccept={handleAccept} />}
-            <ChatRoomInput sendMessage={sendMessage} isGroup={isGroup} />
+            <ChatRoomInput
+                sendMessage={sendMessage}
+                isGroup={isGroup}
+                onFileSent={async () => { await fetchMessages(); clearMessages() }}
+            />
             {isModal && !isGroup && (
                 <ConfirmModal
                     title="팀원 요청을 보내시겠습니까?"
