@@ -31,14 +31,18 @@ const MessageContent = ({ text, files }) => {
   return text
 }
 
-const ChatMessage = ({ text, files, isMe, sender }) => {
+const ChatMessage = ({ text, files, isMe, sender, unreadCount }) => {
   return (
     <div className={`ChatMessage_Wrap ${isMe ? 'me' : 'other'}`}>
         {!isMe && <img src={profile} alt="" className='chat_profile' />}
         <div className="message_container">
             {!isMe && <p>{sender}</p>}
-            <div className="message">
-                <MessageContent text={text} files={files} />
+            <div className="message_row">
+                {isMe && unreadCount > 0 && <span className="unread_count">{unreadCount}</span>}
+                <div className="message">
+                    <MessageContent text={text} files={files} />
+                </div>
+                {!isMe && unreadCount > 0 && <span className="unread_count">{unreadCount}</span>}
             </div>
         </div>
     </div>

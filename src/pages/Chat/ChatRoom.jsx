@@ -190,6 +190,7 @@ const ChatRoom = () => {
                         files={msg.files}
                         isMe={msg.senderId === myUser?.userId}
                         sender={msg.senderNickname}
+                        unreadCount={isGroup ? (msg.unreadMemberCount ?? 0) : 0}
                     />
                 ))}
             </div>
