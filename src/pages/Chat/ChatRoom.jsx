@@ -189,7 +189,7 @@ const ChatRoom = () => {
     // 읽음 이벤트 수신 시 prevMessages unreadMemberCount 갱신
     useEffect(() => {
         if (!readEvent) return
-        const lastReadId = readEvent.lastReadMessageId
+        const lastReadId = readEvent.messageRead.lastReadMessageId
         setPrevMessages((prev) => prev.map((msg) => {
             const msgId = msg.messageId ?? msg.id ?? msg.chatMessageId
             if (msgId <= lastReadId && (msg.unreadMemberCount ?? 0) > 0) {
