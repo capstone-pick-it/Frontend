@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
-import { ChatRoomsProvider } from './context/ChatRoomsContext';
+import { ChatRoomsProvider, useChatRooms } from './context/ChatRoomsContext';
 import { getOnboardingStatus } from './api/auth';
 import { clearAuthTokens, getAccessToken } from './api/token';
 
@@ -126,6 +126,7 @@ const SplashRoute = () => {
 
 const LoginRoute = () => {
   const navigate = useNavigate();
+  const { fetchRooms } = useChatRooms();
 
   return (
     <AuthLayout>
@@ -134,12 +135,14 @@ const LoginRoute = () => {
         onResetPasswordClick={() => navigate('/reset-password')}
         onLoginSuccess={async () => {
           try {
-            const { result } = await getOnboardingStatus()
-            console.log('[온보딩 상태]', result)
-            navigate(result?.isCompleted ? '/home' : '/onboarding')
+            const { result } = await getOnboardingStatus();
+            console.log('[온보딩 상태]', result);
+            fetchRooms();
+            navigate(result?.isCompleted ? '/home' : '/onboarding');
           } catch (error) {
-            console.log('[온보딩 상태 에러]', error.status, error.message)
-            navigate('/onboarding')
+            console.log('[온보딩 상태 에러]', error.status, error.message);
+            fetchRooms();
+            navigate('/onboarding');
           }
         }}
       />

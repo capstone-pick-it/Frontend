@@ -10,13 +10,40 @@ import useChatSocket from '../../hooks/useChatSocket'
 import ChatToast from '../../components/Chat/ChatToast'
 import { getSavedUser } from '../../api/token'
 import { getChatMessages, markChatAsRead, commonCourses, teamRequest, getLatestTeamRequest, acceptTeamRequest } from '../../api/chat'
+import { useChatRooms } from '../../context/ChatRoomsContext'
 
 const ChatRoom = () => {
     const { roomId } = useParams()
     const { state } = useLocation()
-    const opponent = state?.opponent
-    const isGroup = state?.chatType === 'GROUP'
-    const participantCount = state?.participantCount ?? 2
+    const { directRooms, groupRooms, fetchRooms, setDirectRooms, setGroupRooms } = useChatRooms()
+
+    const [recoveredRoom, setRecoveredRoom] = useState(null)
+
+    useEffect(() => {
+        if (state) return
+        const found = [...directRooms, ...groupRooms].find(
+            (r) => String(r.chatRoomId) === String(roomId)
+        )
+        if (found) {
+            setRecoveredRoom(found)
+        } else {
+            fetchRooms()
+        }
+    }, [roomId, directRooms, groupRooms, state])
+
+    // 채팅방 진입 시 context의 unreadCount 즉시 0으로 갱신
+    useEffect(() => {
+        if (!roomId) return
+        const resetUnread = (rooms) =>
+            rooms.map((r) => String(r.chatRoomId) === String(roomId) ? { ...r, unreadCount: 0 } : r)
+        setDirectRooms(resetUnread)
+        setGroupRooms(resetUnread)
+    }, [roomId])
+
+    const opponent = state?.opponent ?? recoveredRoom?.opponent
+    const isGroup = state ? state.chatType === 'GROUP' : recoveredRoom?.chatType !== 'DIRECT'
+    const participantCount = state?.participantCount ?? recoveredRoom?.participantCount ?? 2
+    const roomName = state?.roomName ?? recoveredRoom?.roomName
 
     const [isModal, setIsModal] = useState(false)
     const [toastStatus, setToastStatus] = useState(null)
@@ -26,26 +53,31 @@ const ChatRoom = () => {
     const myRoleRef = useRef(null)
     const teamRequestIdRef = useRef(null)
 
-    const { messages, sendMessage, teamRequestEvent, clearMessages } = useChatSocket(roomId)
+    const { messages, sendMessage, teamRequestEvent, clearMessages, readEvent } = useChatSocket(roomId)
     const myUser = getSavedUser()
 
     const [courseList, setCourseList] = useState([])
 
+    const normalize = (msgs) =>
+        (msgs ?? []).map((msg) => ({
+            ...msg,
+            senderId: msg.senderId ?? msg.sender?.userId,
+            senderNickname: msg.senderNickname ?? msg.sender?.nickname,
+        })).reverse()
+
     const fetchMessages = async () => {
         try {
             const result = await getChatMessages(roomId)
-            const normalized = (result.messages ?? [])
-                .map((msg) => ({
-                    ...msg,
-                    senderId: msg.senderId ?? msg.sender?.userId,
-                    senderNickname: msg.senderNickname ?? msg.sender?.nickname,
-                }))
-                .reverse()
+            const normalized = normalize(result.messages)
             setPrevMessages(normalized)
+
             const lastMsg = normalized[normalized.length - 1]
             const lastMsgId = lastMsg?.messageId ?? lastMsg?.id ?? lastMsg?.chatMessageId
             if (lastMsgId) {
-                markChatAsRead(roomId, lastMsgId).catch((e) => console.error('읽음 처리 실패', e))
+                await markChatAsRead(roomId, lastMsgId)
+                // 읽음 처리 후 재조회로 unreadMemberCount 최신화
+                const refreshed = await getChatMessages(roomId)
+                setPrevMessages(normalize(refreshed.messages))
             } else if (lastMsg) {
                 console.warn('[markChatAsRead] 메시지 ID 필드를 찾을 수 없습니다:', lastMsg)
             }
@@ -154,6 +186,19 @@ const ChatRoom = () => {
         }
     }
 
+    // 읽음 이벤트 수신 시 prevMessages unreadMemberCount 갱신
+    useEffect(() => {
+        if (!readEvent) return
+        const lastReadId = readEvent.lastReadMessageId
+        setPrevMessages((prev) => prev.map((msg) => {
+            const msgId = msg.messageId ?? msg.id ?? msg.chatMessageId
+            if (msgId <= lastReadId && (msg.unreadMemberCount ?? 0) > 0) {
+                return { ...msg, unreadMemberCount: msg.unreadMemberCount - 1 }
+            }
+            return msg
+        }))
+    }, [readEvent])
+
     // 새 메시지 오면 스크롤 아래로
     useEffect(() => {
         const el = chatContentRef.current
@@ -169,7 +214,7 @@ const ChatRoom = () => {
     return (
         <div id="ChatRoom_Wrap" className="container">
             <ChatRoomHeader
-                roomId={opponent?.nickname ?? roomId}
+                roomId={isGroup ? roomName : opponent?.nickname}
                 isModalOpen={() => setIsModal((prev) => !prev)}
                 total={participantCount}
                 isGroup={isGroup}

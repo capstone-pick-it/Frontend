@@ -15,6 +15,7 @@ export const ChatRoomsProvider = ({ children }) => {
   const [groupRooms, setGroupRooms] = useState([])
 
   const fetchRooms = useCallback(async () => {
+    if (!getAccessToken()) return
     try {
       const result = await getChatRooms()
       const rooms = result.chatRooms ?? []
