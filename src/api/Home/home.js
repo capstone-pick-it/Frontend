@@ -110,21 +110,21 @@ export const forceLeaveTeam = (projectTeamId) => {
 }
 
 export const createCompletionRequest = (projectTeamId) => {
-  return request(`/projects/${projectTeamId}/completion-requests`, {
+  return request(`/api/projects/${projectTeamId}/completion-requests`, {
     method: 'POST',
     requireAuth: true,
   })
 }
 
 export const getCurrentCompletionRequest = (projectTeamId) => {
-  return request(`/projects/${projectTeamId}/completion-requests/current`, {
+  return request(`/api/projects/${projectTeamId}/completion-requests/current`, {
     method: 'GET',
     requireAuth: true,
   })
 }
 
 export const decideCompletionRequest = (completionRequestId, { decision }) => {
-  return request(`/completion-requests/${completionRequestId}/decisions`, {
+  return request(`/api/completion-requests/${completionRequestId}/decisions`, {
     method: 'POST',
     requireAuth: true,
     body: JSON.stringify(completionDecisionRequestBody({ decision })),
