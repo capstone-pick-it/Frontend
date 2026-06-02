@@ -4,7 +4,7 @@ import team_request from '../../assets/images/Chat/user-add.svg'
 import { Link, useParams } from 'react-router-dom'
 import profile_xs from '../../assets/images/Chat/profile_xs.svg'
 
-const ChatRoomHeader = ({ roomId, isModalOpen, total }) => {
+const ChatRoomHeader = ({ roomId, isModalOpen, total, isGroup }) => {
 
   return (
     <div className="ChatRoomHeader_Wrap">
@@ -15,18 +15,18 @@ const ChatRoomHeader = ({ roomId, isModalOpen, total }) => {
                 </Link>
                 <h1>{roomId}</h1>
             </div>
-            {Number(total) >= 3 && (
+            {isGroup && (
                 <div className='info_container'>
                     <img src={profile_xs} alt="" />
                     <p>{total}</p>
                 </div>
             )}
         </div>
-        {Number(total) < 3 &&(
-            <button onClick={isModalOpen} >
+        {!isGroup && (
+            <button onClick={isModalOpen}>
                 <img src={team_request} alt="" />
             </button>
-        ) }
+        )}
     </div>
   )
 }

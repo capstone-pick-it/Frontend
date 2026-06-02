@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import { ChatRoomsProvider } from './context/ChatRoomsContext';
 import { getOnboardingStatus } from './api/auth';
 
 import './assets/sass/style.scss';
@@ -102,6 +103,7 @@ const PasswordResetRoute = () => {
 const App = () => {
   return (
     <BrowserRouter>
+      <ChatRoomsProvider>
       <Routes>
         {/* 로그인/회원가입 */}
         <Route path="/" element={<SplashRoute />} />
@@ -133,6 +135,7 @@ const App = () => {
         <Route path="/mypage/courses/:courseId/edit" element={<CourseEdit />} />
         <Route path="/mypage/project-history" element={<ProjectHistory />} />
       </Routes>
+      </ChatRoomsProvider>
     </BrowserRouter>
   );
 };

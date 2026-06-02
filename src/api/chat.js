@@ -1,4 +1,6 @@
+import axios from 'axios'
 import { request } from './client'
+import { getAccessToken } from './token'
 
 // 1:1 채팅방 생성/재입장
 export const createDirectChat = async (targetUserId) => {
@@ -84,4 +86,15 @@ export const acceptTeamRequest = async (chatRoomId, teamRequestId) => {
         data: { status: 'ACCEPTED' },
     })
     return response.result
+}
+
+// 채팅방 파일 업로드
+export const uploadFile = async (files) => {
+    const formData = new FormData()
+    files.forEach((file) => formData.append('files', file))
+    const token = getAccessToken()
+    const response = await axios.post('/api/chats/files', formData, {
+        headers: { Authorization: `Bearer ${token}` },
+    })
+    return response.data.result
 }

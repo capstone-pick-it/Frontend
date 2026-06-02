@@ -15,6 +15,8 @@ const ChatRoom = () => {
     const { roomId } = useParams()
     const { state } = useLocation()
     const opponent = state?.opponent
+    const isGroup = state?.chatType === 'GROUP'
+    const participantCount = state?.participantCount ?? 2
 
     const [isModal, setIsModal] = useState(false)
     const [toastStatus, setToastStatus] = useState(null)
@@ -24,40 +26,41 @@ const ChatRoom = () => {
     const myRoleRef = useRef(null)
     const teamRequestIdRef = useRef(null)
 
-    const { messages, sendMessage, teamRequestEvent } = useChatSocket(roomId)
+    const { messages, sendMessage, teamRequestEvent, clearMessages } = useChatSocket(roomId)
     const myUser = getSavedUser()
 
     const [courseList, setCourseList] = useState([])
 
+    const fetchMessages = async () => {
+        try {
+            const result = await getChatMessages(roomId)
+            const normalized = (result.messages ?? [])
+                .map((msg) => ({
+                    ...msg,
+                    senderId: msg.senderId ?? msg.sender?.userId,
+                    senderNickname: msg.senderNickname ?? msg.sender?.nickname,
+                }))
+                .reverse()
+            setPrevMessages(normalized)
+            const lastMsg = normalized[normalized.length - 1]
+            const lastMsgId = lastMsg?.messageId ?? lastMsg?.id ?? lastMsg?.chatMessageId
+            if (lastMsgId) {
+                markChatAsRead(roomId, lastMsgId).catch((e) => console.error('읽음 처리 실패', e))
+            } else if (lastMsg) {
+                console.warn('[markChatAsRead] 메시지 ID 필드를 찾을 수 없습니다:', lastMsg)
+            }
+        } catch (e) {
+            console.error('메시지 조회 실패', e)
+        }
+    }
+
     // 이전 메시지 조회
     useEffect(() => {
         if (!roomId) return
-        const fetchMessages = async () => {
-            try {
-                const result = await getChatMessages(roomId)
-                const normalized = (result.messages ?? [])
-                    .map((msg) => ({
-                        ...msg,
-                        senderId: msg.senderId ?? msg.sender?.userId,
-                        senderNickname: msg.senderNickname ?? msg.sender?.nickname,
-                    }))
-                    .reverse()
-                setPrevMessages(normalized)
-                const lastMsg = normalized[normalized.length - 1]
-                const lastMsgId = lastMsg?.messageId ?? lastMsg?.id ?? lastMsg?.chatMessageId
-                if (lastMsgId) {
-                    markChatAsRead(roomId, lastMsgId).catch((e) => console.error('읽음 처리 실패', e))
-                } else if (lastMsg) {
-                    console.warn('[markChatAsRead] 메시지 ID 필드를 찾을 수 없습니다:', lastMsg)
-                }
-            } catch (e) {
-                console.error('메시지 조회 실패', e)
-            }
-        }
         fetchMessages()
     }, [roomId])
 
-    // 실시간 메시지 수신 시 읽음 처리 (수신자/송신자 모두 읽음 처리하여 배지 제거)
+    // 실시간 메시지 수신 시 읽음 처리
     useEffect(() => {
         if (messages.length === 0) return
         const lastMsg = messages[messages.length - 1]
@@ -69,9 +72,9 @@ const ChatRoom = () => {
         }
     }, [messages])
 
-    //공통 과목 조회
+    //공통 과목 조회 (1:1만)
     useEffect(() => {
-        if (!roomId) return
+        if (!roomId || isGroup) return
         commonCourses(roomId)
             .then((data) => {
                 const list = data?.courses ?? []
@@ -79,11 +82,11 @@ const ChatRoom = () => {
                 if (list.length > 0) setSelectedCourse(list[0].courseName)
             })
             .catch((e) => console.error('공통과목 조회 실패', e))
-    }, [roomId])
+    }, [roomId, isGroup])
 
-    // 팀원 요청 최신 상태 초기화
+    // 팀원 요청 최신 상태 초기화 (1:1만)
     useEffect(() => {
-        if (!roomId) return
+        if (!roomId || isGroup) return
         getLatestTeamRequest(roomId)
             .then((result) => {
                 if (!result) return
@@ -100,9 +103,9 @@ const ChatRoom = () => {
             .catch((e) => console.error('[TeamRequest] 조회 실패:', e))
     }, [roomId])
 
-    // 팀원 요청 이벤트 수신
+    // 팀원 요청 이벤트 수신 (1:1만)
     useEffect(() => {
-        if (!teamRequestEvent) return
+        if (!teamRequestEvent || isGroup) return
         if (teamRequestEvent.type === 'TEAM_REQUEST_CREATED') {
             if (myRoleRef.current !== 'SENDER') {
                 myRoleRef.current = 'RECEIVER'
@@ -168,21 +171,28 @@ const ChatRoom = () => {
             <ChatRoomHeader
                 roomId={opponent?.nickname ?? roomId}
                 isModalOpen={() => setIsModal((prev) => !prev)}
-                total={2}
+                total={participantCount}
+                isGroup={isGroup}
             />
             <div id="ChatContent_Wrap" ref={chatContentRef}>
                 {allMessages.map((msg, i) => (
                     <ChatMessage
                         key={i}
                         text={msg.content}
+                        files={msg.files}
                         isMe={msg.senderId === myUser?.userId}
                         sender={msg.senderNickname}
+                        unreadCount={isGroup ? (msg.unreadMemberCount ?? 0) : 0}
                     />
                 ))}
             </div>
-            <ChatToast status={toastStatus} onAccept={handleAccept} />
-            <ChatRoomInput sendMessage={sendMessage} />
-            {isModal && (
+            {!isGroup && <ChatToast status={toastStatus} onAccept={handleAccept} />}
+            <ChatRoomInput
+                sendMessage={sendMessage}
+                isGroup={isGroup}
+                onFileSent={async () => { await fetchMessages(); clearMessages() }}
+            />
+            {isModal && !isGroup && (
                 <ConfirmModal
                     title="팀원 요청을 보내시겠습니까?"
                     description="팀원 요청을 보내고자 하는 과목명을 선택해주세요"

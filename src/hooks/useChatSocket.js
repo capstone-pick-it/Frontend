@@ -21,11 +21,8 @@ const useChatSocket = (chatRoomId) => {
         Authorization: `Bearer ${getAccessToken()}`,
       },
       onConnect: () => {
-        console.log('[WS] 연결 성공')
         client.subscribe(`/topic/chatrooms/${chatRoomId}`, (frame) => {
-          console.log('[WS] 이벤트 수신:', frame.body)
           const event = JSON.parse(frame.body)
-
           if (event.eventType === 'CHAT_MESSAGE_CREATED' && event.message) {
             const msg = {
               ...event.message,
@@ -42,7 +39,7 @@ const useChatSocket = (chatRoomId) => {
           }
         })
       },
-      onDisconnect: () => console.log('[WS] 연결 해제'),
+      onDisconnect: () => {},
       onStompError: (frame) => console.error('[WS] STOMP 에러:', frame.headers?.message, frame),
       onWebSocketError: (event) => console.error('[WS] WebSocket 에러:', event),
       onWebSocketClose: (event) => console.error('[WS] WebSocket 닫힘 - 코드:', event.code, '이유:', event.reason),
@@ -54,19 +51,20 @@ const useChatSocket = (chatRoomId) => {
     return () => client.deactivate()
   }, [chatRoomId])
 
-  const sendMessage = (content) => {
+  const sendMessage = (content, messageType = 'TEXT', files = []) => {
     if (!clientRef.current?.connected) {
-      console.error('[WS] 연결되지 않음 - 메시지 전송 불가')
+      console.error('[WS] 연결되지 않음 - 메시지 전송 불가 / chatRoomId:', chatRoomId)
       return
     }
-    console.log('[WS] 메시지 전송:', { chatRoomId: Number(chatRoomId), messageType: 'TEXT', content })
     clientRef.current.publish({
       destination: '/app/chat.send',
-      body: JSON.stringify({ chatRoomId: Number(chatRoomId), messageType: 'TEXT', content }),
+      body: JSON.stringify({ chatRoomId: Number(chatRoomId), messageType, content, files }),
     })
   }
 
-  return { messages, sendMessage, teamRequestEvent }
+  const clearMessages = () => setMessages([])
+
+  return { messages, sendMessage, teamRequestEvent, clearMessages }
 }
 
 export default useChatSocket

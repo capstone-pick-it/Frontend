@@ -192,9 +192,34 @@
         @include caption;
     }
 
+    .message_row{
+        display: flex;
+        align-items: flex-end;
+        gap: 4px;
+
+        .unread_count{
+            @include caption;
+            color: var(--primary-700);
+            line-height: 1;
+            flex-shrink: 0;
+        }
+    }
+
     .message{
         padding: 8px 16px;
         @include body3;
+
+        .message_file{
+            color: var(--primary-700);
+            text-decoration: underline;
+            word-break: break-all;
+        }
+
+        .message_image{
+            max-width: 200px;
+            border-radius: 8px;
+            display: block;
+        }
     }
     
     &.me{
@@ -335,6 +360,12 @@
         height: 26px;
         border-radius: 50%;
         background-color: var(--gray-200);
+
+        &.uploading,
+        &:disabled{
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
     }
 
     .send_btn{

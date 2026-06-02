@@ -1,23 +1,11 @@
-import { useEffect, useState } from 'react'
 import Nav from '../../components/Nav'
 import ChatList from '../../components/Chat/ChatList'
 import TopBar from '../../components/TopBar'
 import GroupChatList from '../../components/Chat/GroupChatList'
-import { getChatRooms } from '../../api/chat'
+import { useChatRooms } from '../../context/ChatRoomsContext'
 
 const Chat = () => {
-  const [directRooms, setDirectRooms] = useState([])
-  const [groupRooms, setGroupRooms] = useState([])
-
-  useEffect(() => {
-    getChatRooms()
-      .then((result) => {
-        const rooms = result.chatRooms ?? []
-        setDirectRooms(rooms.filter((r) => r.chatType === 'DIRECT'))
-        setGroupRooms(rooms.filter((r) => r.chatType !== 'DIRECT'))
-      })
-      .catch((e) => console.error('채팅 목록 조회 실패', e))
-  }, [])
+  const { directRooms, setDirectRooms, groupRooms, setGroupRooms, fetchRooms } = useChatRooms()
 
   return (
     <div id="Chat_Wrap" className="container">
