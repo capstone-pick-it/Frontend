@@ -1,5 +1,6 @@
 import { request } from './client'
 import { getRefreshToken } from './token'
+import { toApiSemester } from './mypage'
 import {
   createEmailSendRequestBody,
   createEmailVerifyRequestBody,
@@ -92,7 +93,7 @@ export const saveOnboardingProfile = ({ school, major, grade, semester, courses 
   return request('/api/users/onboarding/profile',{
     method: 'POST',
     requireAuth: true,
-     body: JSON.stringify({ school, major, grade, semester, courses }),
+     body: JSON.stringify({ school, major, grade, semester: toApiSemester(semester), courses }),
   })
 }
 
