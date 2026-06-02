@@ -34,6 +34,15 @@ const Signup = ({ onLoginClick }) => {
     : ''
   const signupActionMessage = errorMessage || passwordMatchMessage
   const isSignupActionMessageValid = !errorMessage && isPasswordMatched
+  const isEmailReady = Boolean(form.email.trim())
+  const isCodeReady = Boolean(form.code.trim())
+  const isSignupReady = Boolean(
+    form.email.trim()
+    && form.password
+    && form.passwordConfirm
+    && form.nickname.trim()
+    && isPasswordMatched
+  )
 
   const handleBack = () => {
     if (step > 1) {
@@ -136,7 +145,7 @@ const Signup = ({ onLoginClick }) => {
                   {errorMessage}
                 </p>
               )}
-              <AuthButton disabled={isSendingCode} onClick={handleSendEmailCode}>
+              <AuthButton disabled={isSendingCode || !isEmailReady} onClick={handleSendEmailCode}>
                 {isSendingCode ? '전송 중...' : '메일로 인증코드 받기'}
               </AuthButton>
             </div>
@@ -162,7 +171,7 @@ const Signup = ({ onLoginClick }) => {
                   {errorMessage}
                 </p>
               )}
-              <AuthButton disabled={isVerifyingCode} onClick={handleVerifyEmailCode}>
+              <AuthButton disabled={isVerifyingCode || !isCodeReady} onClick={handleVerifyEmailCode}>
                 {isVerifyingCode ? '인증 중...' : '인증하기'}
               </AuthButton>
             </div>
@@ -202,7 +211,7 @@ const Signup = ({ onLoginClick }) => {
                 {signupActionMessage}
               </p>
             )}
-            <AuthButton disabled={isSubmitting} onClick={handleSignup}>
+            <AuthButton disabled={isSubmitting || !isSignupReady} onClick={handleSignup}>
               {isSubmitting ? '회원가입 중...' : '회원가입 완료'}
             </AuthButton>
           </div>

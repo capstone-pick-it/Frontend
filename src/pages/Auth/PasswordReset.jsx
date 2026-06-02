@@ -35,6 +35,9 @@ const PasswordReset = ({ onLoginClick }) => {
     : ''
   const resetActionMessage = errorMessage || passwordMatchMessage
   const isResetActionMessageValid = !errorMessage && isPasswordMatched
+  const isEmailReady = Boolean(form.email.trim())
+  const isCodeReady = Boolean(form.code.trim())
+  const isResetPasswordReady = Boolean(form.password && form.passwordConfirm && isPasswordMatched)
 
   const handleBack = () => {
     if (step > 1) {
@@ -127,7 +130,7 @@ const PasswordReset = ({ onLoginClick }) => {
                   {errorMessage}
                 </p>
               )}
-              <AuthButton disabled={isLoading} onClick={handleSendEmailCode}>
+              <AuthButton disabled={isLoading || !isEmailReady} onClick={handleSendEmailCode}>
                 {isLoading ? '전송 중...' : '메일로 인증코드 받기'}
               </AuthButton>
             </div>
@@ -153,7 +156,7 @@ const PasswordReset = ({ onLoginClick }) => {
                   {errorMessage}
                 </p>
               )}
-              <AuthButton disabled={isLoading} onClick={handleVerify}>인증하기</AuthButton>
+              <AuthButton disabled={isLoading || !isCodeReady} onClick={handleVerify}>인증하기</AuthButton>
             </div>
           </div>
 
@@ -186,7 +189,7 @@ const PasswordReset = ({ onLoginClick }) => {
                   {resetActionMessage}
                 </p>
               )}
-              <AuthButton disabled={isLoading} onClick={handleResetPassword}>
+              <AuthButton disabled={isLoading || !isResetPasswordReady} onClick={handleResetPassword}>
                 {isLoading ? '변경 중...' : '비밀번호 변경 완료'}
               </AuthButton>
             </div>

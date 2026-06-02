@@ -95,8 +95,9 @@
   @include body2;
 
   &:disabled {
-    background-color: #9fb6e2;
-    color: rgba(252, 253, 255, 0.78);
+    background-color: var(--gray-200);
+    color: var(--gray-500);
+    cursor: default;
   }
 }
 
