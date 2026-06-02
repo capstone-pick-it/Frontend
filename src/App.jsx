@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
-import { ChatRoomsProvider } from './context/ChatRoomsContext';
+import { ChatRoomsProvider, useChatRooms } from './context/ChatRoomsContext';
 import { getOnboardingStatus } from './api/auth';
 
 import './assets/sass/style.scss';
@@ -59,6 +59,7 @@ const SplashRoute = () => {
 
 const LoginRoute = () => {
   const navigate = useNavigate();
+  const { fetchRooms } = useChatRooms();
 
   return (
     <AuthLayout>
@@ -69,9 +70,11 @@ const LoginRoute = () => {
           try {
             const { result } = await getOnboardingStatus()
             console.log('[온보딩 상태]', result)
+            fetchRooms()
             navigate(result?.isCompleted ? '/home' : '/onboarding')
           } catch (error) {
             console.log('[온보딩 상태 에러]', error.status, error.message)
+            fetchRooms()
             navigate('/onboarding')
           }
         }}

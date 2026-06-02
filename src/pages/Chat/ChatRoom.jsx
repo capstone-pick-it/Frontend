@@ -10,13 +10,31 @@ import useChatSocket from '../../hooks/useChatSocket'
 import ChatToast from '../../components/Chat/ChatToast'
 import { getSavedUser } from '../../api/token'
 import { getChatMessages, markChatAsRead, commonCourses, teamRequest, getLatestTeamRequest, acceptTeamRequest } from '../../api/chat'
+import { useChatRooms } from '../../context/ChatRoomsContext'
 
 const ChatRoom = () => {
     const { roomId } = useParams()
     const { state } = useLocation()
-    const opponent = state?.opponent
-    const isGroup = state?.chatType === 'GROUP'
-    const participantCount = state?.participantCount ?? 2
+    const { directRooms, groupRooms, fetchRooms } = useChatRooms()
+
+    const [recoveredRoom, setRecoveredRoom] = useState(null)
+
+    useEffect(() => {
+        if (state) return
+        const found = [...directRooms, ...groupRooms].find(
+            (r) => String(r.chatRoomId) === String(roomId)
+        )
+        if (found) {
+            setRecoveredRoom(found)
+        } else {
+            fetchRooms()
+        }
+    }, [roomId, directRooms, groupRooms, state])
+
+    const opponent = state?.opponent ?? recoveredRoom?.opponent
+    const isGroup = state ? state.chatType === 'GROUP' : recoveredRoom?.chatType !== 'DIRECT'
+    const participantCount = state?.participantCount ?? recoveredRoom?.participantCount ?? 2
+    const roomName = state?.roomName ?? recoveredRoom?.roomName
 
     const [isModal, setIsModal] = useState(false)
     const [toastStatus, setToastStatus] = useState(null)
@@ -169,7 +187,7 @@ const ChatRoom = () => {
     return (
         <div id="ChatRoom_Wrap" className="container">
             <ChatRoomHeader
-                roomId={opponent?.nickname ?? roomId}
+                roomId={isGroup ? (roomName ?? roomId) : (opponent?.nickname ?? roomId)}
                 isModalOpen={() => setIsModal((prev) => !prev)}
                 total={participantCount}
                 isGroup={isGroup}

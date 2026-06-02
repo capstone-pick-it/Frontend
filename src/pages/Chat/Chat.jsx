@@ -5,7 +5,7 @@ import GroupChatList from '../../components/Chat/GroupChatList'
 import { useChatRooms } from '../../context/ChatRoomsContext'
 
 const Chat = () => {
-  const { directRooms, setDirectRooms, groupRooms, setGroupRooms, fetchRooms } = useChatRooms()
+  const { directRooms, setDirectRooms, groupRooms, setGroupRooms } = useChatRooms()
 
   return (
     <div id="Chat_Wrap" className="container">
