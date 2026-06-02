@@ -116,11 +116,20 @@ export const toDisplayImportance = (importance) => {
 export const toDisplaySemester = (semester) => {
   if (!semester) return ''
 
-  const match = String(semester).match(/^(\d{4})-(1|2)$/)
+  const normalizedSemester = String(semester).trim()
+  const apiSemesterMatch = normalizedSemester.match(/^(\d{4})-(1|2)$/)
 
-  if (!match) return semester
+  if (apiSemesterMatch) {
+    return `${apiSemesterMatch[1]}년도 ${apiSemesterMatch[2]}학기`
+  }
 
-  return `${match[1]}년도 ${match[2]}학기`
+  const displaySemesterMatch = normalizedSemester.match(/^(\d{4})(?:년|년도)\s*(1|2)학기$/)
+
+  if (displaySemesterMatch) {
+    return `${displaySemesterMatch[1]}년도 ${displaySemesterMatch[2]}학기`
+  }
+
+  return normalizedSemester
 }
 
 export const toApiImportance = (importance) => {

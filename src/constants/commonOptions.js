@@ -3,11 +3,11 @@ export const MAJOR_OPTIONS = ['컴퓨터공학과', '서비스디자인공학과
 export const GRADE_OPTIONS = [1, 2, 3, 4]
 
 export const SEMESTER_OPTIONS = [
-  '2026년 1학기',
-  '2025년 2학기',
-  '2025년 1학기',
-  '2024년 2학기',
-  '2024년 1학기',
+  '2026년도 1학기',
+  '2025년도 2학기',
+  '2025년도 1학기',
+  '2024년도 2학기',
+  '2024년도 1학기',
 ]
 
 export const IMPORTANCE_OPTIONS = ['높음', '보통', '낮음']
