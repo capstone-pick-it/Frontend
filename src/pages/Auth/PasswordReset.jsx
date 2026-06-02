@@ -30,6 +30,12 @@ const PasswordReset = ({ onLoginClick }) => {
   }
 
   const isPasswordMatched = form.password && form.password === form.passwordConfirm
+  const passwordMatchMessage = form.passwordConfirm
+    ? (isPasswordMatched ? '비밀번호가 확인되었어요!' : '입력된 비밀번호가 같지 않아요')
+    : ''
+  const resetActionMessage = errorMessage || passwordMatchMessage
+  const isResetActionMessageValid = !errorMessage && isPasswordMatched
+
   const handleBack = () => {
     if (step > 1) {
       setStep((prevStep) => prevStep - 1)
@@ -115,10 +121,16 @@ const PasswordReset = ({ onLoginClick }) => {
               value={form.email}
               onChange={updateForm('email')}
             />
-            {errorMessage && <p className="auth-message">{errorMessage}</p>}
-            <AuthButton disabled={isLoading} onClick={handleSendEmailCode}>
-              {isLoading ? '전송 중...' : '메일로 인증코드 받기'}
-            </AuthButton>
+            <div className="auth-action-area">
+              {errorMessage && (
+                <p className="auth-message auth-action-message" aria-live="polite">
+                  {errorMessage}
+                </p>
+              )}
+              <AuthButton disabled={isLoading} onClick={handleSendEmailCode}>
+                {isLoading ? '전송 중...' : '메일로 인증코드 받기'}
+              </AuthButton>
+            </div>
           </div>
         </>
       )}
@@ -135,8 +147,14 @@ const PasswordReset = ({ onLoginClick }) => {
             <button className="auth-link-button signup__resend" type="button" onClick={handleSendEmailCode}>
               인증코드가 전송되지 않았나요?
             </button>
-            {errorMessage && <p className="auth-message">{errorMessage}</p>}
-            <AuthButton disabled={isLoading} onClick={handleVerify}>인증하기</AuthButton>
+            <div className="auth-action-area auth-action-area--after-link">
+              {errorMessage && (
+                <p className="auth-message auth-action-message" aria-live="polite">
+                  {errorMessage}
+                </p>
+              )}
+              <AuthButton disabled={isLoading} onClick={handleVerify}>인증하기</AuthButton>
+            </div>
           </div>
 
           {isLoading && <div className="reset-password__loader" />}
@@ -159,13 +177,15 @@ const PasswordReset = ({ onLoginClick }) => {
               value={form.passwordConfirm}
               onChange={updateForm('passwordConfirm')}
             />
-            {form.passwordConfirm && (
-              <p className={`auth-message ${isPasswordMatched ? 'is-valid' : ''}`}>
-                {isPasswordMatched ? '비밀번호가 확인되었어요!' : '입력된 비밀번호가 같지 않아요'}
-              </p>
-            )}
-            {errorMessage && <p className="auth-message">{errorMessage}</p>}
-            <div className="reset-password__complete">
+            <div className="reset-password__complete auth-action-area">
+              {resetActionMessage && (
+                <p
+                  className={`auth-message auth-action-message ${isResetActionMessageValid ? 'is-valid' : ''}`}
+                  aria-live="polite"
+                >
+                  {resetActionMessage}
+                </p>
+              )}
               <AuthButton disabled={isLoading} onClick={handleResetPassword}>
                 {isLoading ? '변경 중...' : '비밀번호 변경 완료'}
               </AuthButton>

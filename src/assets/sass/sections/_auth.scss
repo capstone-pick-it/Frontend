@@ -112,6 +112,23 @@
   color: var(--gray-700);
 }
 
+.auth-action-area {
+  position: relative;
+}
+
+.auth-action-message {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 8px);
+  margin-top: 0;
+  padding-left: 0;
+}
+
+.auth-action-area--after-link {
+  margin-top: 15px;
+}
+
 .auth-link-button {
   background-color: transparent;
   color: var(--gray-500);
