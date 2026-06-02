@@ -29,6 +29,21 @@ const Signup = ({ onLoginClick }) => {
   }
 
   const isPasswordMatched = form.password && form.password === form.passwordConfirm
+  const passwordMatchMessage = form.passwordConfirm
+    ? (isPasswordMatched ? '비밀번호가 확인되었어요!' : '입력된 비밀번호가 같지 않아요')
+    : ''
+  const signupActionMessage = errorMessage || passwordMatchMessage
+  const isSignupActionMessageValid = !errorMessage && isPasswordMatched
+  const isEmailReady = Boolean(form.email.trim())
+  const isCodeReady = Boolean(form.code.trim())
+  const isSignupReady = Boolean(
+    form.email.trim()
+    && form.password
+    && form.passwordConfirm
+    && form.nickname.trim()
+    && isPasswordMatched
+  )
+
   const handleBack = () => {
     if (step > 1) {
       setStep((prevStep) => prevStep - 1)
@@ -124,10 +139,16 @@ const Signup = ({ onLoginClick }) => {
               value={form.email}
               onChange={updateForm('email')}
             />
-            {errorMessage && <p className="auth-message">{errorMessage}</p>}
-            <AuthButton disabled={isSendingCode} onClick={handleSendEmailCode}>
-              {isSendingCode ? '전송 중...' : '메일로 인증코드 받기'}
-            </AuthButton>
+            <div className="auth-action-area">
+              {errorMessage && (
+                <p className="auth-message auth-action-message" aria-live="polite">
+                  {errorMessage}
+                </p>
+              )}
+              <AuthButton disabled={isSendingCode || !isEmailReady} onClick={handleSendEmailCode}>
+                {isSendingCode ? '전송 중...' : '메일로 인증코드 받기'}
+              </AuthButton>
+            </div>
           </div>
         </>
       )}
@@ -144,10 +165,16 @@ const Signup = ({ onLoginClick }) => {
             <button className="auth-link-button signup__resend" type="button">
               인증코드가 전송되지 않았나요?
             </button>
-            {errorMessage && <p className="auth-message">{errorMessage}</p>}
-            <AuthButton disabled={isVerifyingCode} onClick={handleVerifyEmailCode}>
-              {isVerifyingCode ? '인증 중...' : '인증하기'}
-            </AuthButton>
+            <div className="auth-action-area auth-action-area--after-link">
+              {errorMessage && (
+                <p className="auth-message auth-action-message" aria-live="polite">
+                  {errorMessage}
+                </p>
+              )}
+              <AuthButton disabled={isVerifyingCode || !isCodeReady} onClick={handleVerifyEmailCode}>
+                {isVerifyingCode ? '인증 중...' : '인증하기'}
+              </AuthButton>
+            </div>
           </div>
         </>
       )}
@@ -168,21 +195,23 @@ const Signup = ({ onLoginClick }) => {
               value={form.passwordConfirm}
               onChange={updateForm('passwordConfirm')}
             />
-            {form.passwordConfirm && (
-              <p className={`auth-message ${isPasswordMatched ? 'is-valid' : ''}`}>
-                {isPasswordMatched ? '비밀번호가 확인되었어요!' : '입력된 비밀번호가 같지 않아요'}
-              </p>
-            )}
           </div>
 
           <section className="signup__name">
             <h2>4. 이름</h2>
             <AuthField placeholder="이름" value={form.nickname} onChange={updateForm('nickname')} />
-            {errorMessage && <p className="auth-message">{errorMessage}</p>}
           </section>
 
-          <div className="signup__bottom-button">
-            <AuthButton disabled={isSubmitting} onClick={handleSignup}>
+          <div className="signup__bottom-button auth-action-area">
+            {signupActionMessage && (
+              <p
+                className={`auth-message auth-action-message ${isSignupActionMessageValid ? 'is-valid' : ''}`}
+                aria-live="polite"
+              >
+                {signupActionMessage}
+              </p>
+            )}
+            <AuthButton disabled={isSubmitting || !isSignupReady} onClick={handleSignup}>
               {isSubmitting ? '회원가입 중...' : '회원가입 완료'}
             </AuthButton>
           </div>

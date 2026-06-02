@@ -21,6 +21,8 @@ const Login = ({ onSignupClick, onResetPasswordClick, onLoginSuccess }) => {
     setErrorMessage('')
   }
 
+  const isLoginReady = Boolean(form.email.trim() && form.password)
+
   const handleLogin = async (event) => {
     event.preventDefault()
 
@@ -70,7 +72,7 @@ const Login = ({ onSignupClick, onResetPasswordClick, onLoginSuccess }) => {
               {errorMessage}
             </p>
           )}
-          <AuthButton type="submit" disabled={isSubmitting}>
+          <AuthButton type="submit" disabled={isSubmitting || !isLoginReady}>
             {isSubmitting ? '로그인 중...' : '로그인'}
           </AuthButton>
         </div>

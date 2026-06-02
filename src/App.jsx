@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
 import { ChatRoomsProvider, useChatRooms } from './context/ChatRoomsContext';
 import { getOnboardingStatus } from './api/auth';
+import { clearAuthTokens, getAccessToken } from './api/token';
 
 import './assets/sass/style.scss';
 
@@ -39,15 +40,81 @@ const AuthLayout = ({ children }) => {
   return <div className="container auth-container">{children}</div>;
 };
 
+const ProtectedLayout = () => {
+  const [authStatus, setAuthStatus] = useState(() => (
+    getAccessToken() ? 'checking' : 'unauthenticated'
+  ));
+
+  useEffect(() => {
+    let isActive = true;
+
+    const verifyAuth = async () => {
+      if (!getAccessToken()) {
+        setAuthStatus('unauthenticated');
+        return;
+      }
+
+      try {
+        await getOnboardingStatus();
+        if (isActive) {
+          setAuthStatus('authenticated');
+        }
+      } catch (error) {
+        clearAuthTokens();
+        if (isActive) {
+          console.log('[보호 라우트 인증 확인 실패]', error.status, error.message);
+          setAuthStatus('unauthenticated');
+        }
+      }
+    };
+
+    verifyAuth();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  if (authStatus === 'checking') {
+    return null;
+  }
+
+  if (authStatus === 'unauthenticated') {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Outlet />;
+};
+
 const SplashRoute = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      navigate('/login');
+    let isActive = true;
+
+    const timer = window.setTimeout(async () => {
+      if (!getAccessToken()) {
+        navigate('/login', { replace: true });
+        return;
+      }
+
+      try {
+        const { result } = await getOnboardingStatus();
+        if (!isActive) return;
+
+        navigate(result?.isCompleted ? '/home' : '/onboarding', { replace: true });
+      } catch (error) {
+        if (!isActive) return;
+
+        console.log('[스플래시 온보딩 상태 에러]', error.status, error.message);
+        navigate('/login', { replace: true });
+      }
     }, 900);
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      isActive = false;
+      window.clearTimeout(timer);
+    };
   }, [navigate]);
 
   return (
@@ -68,14 +135,14 @@ const LoginRoute = () => {
         onResetPasswordClick={() => navigate('/reset-password')}
         onLoginSuccess={async () => {
           try {
-            const { result } = await getOnboardingStatus()
-            console.log('[온보딩 상태]', result)
-            fetchRooms()
-            navigate(result?.isCompleted ? '/home' : '/onboarding')
+            const { result } = await getOnboardingStatus();
+            console.log('[온보딩 상태]', result);
+            fetchRooms();
+            navigate(result?.isCompleted ? '/home' : '/onboarding');
           } catch (error) {
-            console.log('[온보딩 상태 에러]', error.status, error.message)
-            fetchRooms()
-            navigate('/onboarding')
+            console.log('[온보딩 상태 에러]', error.status, error.message);
+            fetchRooms();
+            navigate('/onboarding');
           }
         }}
       />
@@ -107,37 +174,39 @@ const App = () => {
   return (
     <BrowserRouter>
       <ChatRoomsProvider>
-      <Routes>
-        {/* 로그인/회원가입 */}
-        <Route path="/" element={<SplashRoute />} />
-        <Route path="/login" element={<LoginRoute />} />
-        <Route path="/signup" element={<SignupRoute />} />
-        <Route path="/reset-password" element={<PasswordResetRoute />} />
+        <Routes>
+          {/* 로그인/회원가입 */}
+          <Route path="/" element={<SplashRoute />} />
+          <Route path="/login" element={<LoginRoute />} />
+          <Route path="/signup" element={<SignupRoute />} />
+          <Route path="/reset-password" element={<PasswordResetRoute />} />
 
-        {/* 홈 */}
-        <Route path="/home/*" element={<Home />} />
+          <Route element={<ProtectedLayout />}>
+            {/* 홈 */}
+            <Route path="/home/*" element={<Home />} />
 
-        {/* 온보딩 */}
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/onboardinginfo" element={<OnboardingInfo />} />
-        <Route path="/onboardingstep" element={<OnboardingStep />} />
-        <Route path="/onboardingresult" element={<OnboardingResult />} />
+            {/* 온보딩 */}
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/onboardinginfo" element={<OnboardingInfo />} />
+            <Route path="/onboardingstep" element={<OnboardingStep />} />
+            <Route path="/onboardingresult" element={<OnboardingResult />} />
 
-        {/* 모집 */}
-        <Route path="/recruit" element={<Recruit />} />
+            {/* 모집 */}
+            <Route path="/recruit" element={<Recruit />} />
 
-        {/* 채팅 */}
-        <Route path="/chat" element={<Chat />} />
-        <Route path="/chatroom/:roomId" element={<ChatRoom />} />
+            {/* 채팅 */}
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/chatroom/:roomId" element={<ChatRoom />} />
 
-        {/* 마이페이지 */}
-        <Route path="/mypage" element={<MyPage />} />
-        <Route path="/mypage/traits/edit" element={<TraitsEdit />} />
-        <Route path="/mypage/courses" element={<CourseList />} />
-        <Route path="/mypage/courses/new" element={<CourseAdd />} />
-        <Route path="/mypage/courses/:courseId/edit" element={<CourseEdit />} />
-        <Route path="/mypage/project-history" element={<ProjectHistory />} />
-      </Routes>
+            {/* 마이페이지 */}
+            <Route path="/mypage" element={<MyPage />} />
+            <Route path="/mypage/traits/edit" element={<TraitsEdit />} />
+            <Route path="/mypage/courses" element={<CourseList />} />
+            <Route path="/mypage/courses/new" element={<CourseAdd />} />
+            <Route path="/mypage/courses/:courseId/edit" element={<CourseEdit />} />
+            <Route path="/mypage/project-history" element={<ProjectHistory />} />
+          </Route>
+        </Routes>
       </ChatRoomsProvider>
     </BrowserRouter>
   );

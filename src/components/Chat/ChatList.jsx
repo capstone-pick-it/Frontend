@@ -7,6 +7,19 @@ import { createDirectChat, leaveChatRoom } from '../../api/chat'
 
 const SWIPE_THRESHOLD = 50
 const SWIPE_WIDTH = 80
+const UNKNOWN_OPPONENT_NAME = '알 수 없는 사용자'
+
+const getSafeOpponent = (opponent, fallback = {}) => {
+    const userId = opponent?.userId ?? fallback.userId
+    const nickname = opponent?.nickname || fallback.nickname || UNKNOWN_OPPONENT_NAME
+
+    return {
+        ...fallback,
+        ...opponent,
+        userId,
+        nickname,
+    }
+}
 
 const ChatList = ({ rooms, setRooms }) => {
     const navigate = useNavigate()
@@ -65,16 +78,28 @@ const ChatList = ({ rooms, setRooms }) => {
         }
     }
 
-    const handleClick = async (targetUserId, opponent, chatRoomId) => {
+    const handleClick = async (room) => {
         if (hasSwiped.current) return
         if (swipedRoomId) { setSwipedRoom(null); return }
+
+        const chatRoomId = room.chatRoomId
+        const opponent = getSafeOpponent(room.opponent)
+
         setRooms((prev) =>
             prev.map((r) => r.chatRoomId === chatRoomId ? { ...r, unreadCount: 0 } : r)
         )
+
+        if (!opponent.userId) {
+            navigate(`/chatroom/${chatRoomId}`, {
+                state: { opponent },
+            })
+            return
+        }
+
         try {
-            const result = await createDirectChat(targetUserId)
-            navigate(`/chatroom/${result.chatRoomId}`, {
-                state: { opponent: result.opponent ?? opponent },
+            const result = await createDirectChat(opponent.userId)
+            navigate(`/chatroom/${result.chatRoomId ?? chatRoomId}`, {
+                state: { opponent: getSafeOpponent(result.opponent, opponent) },
             })
         } catch (e) {
             console.error('채팅방 입장 실패', e)
@@ -96,34 +121,38 @@ const ChatList = ({ rooms, setRooms }) => {
 
     return (
         <div className="ChatContainer_Wrap">
-            {rooms?.map((room) => (
-                <div key={room.chatRoomId} className="ChatList_Slide_Wrap">
-                    <div
-                        ref={(el) => (itemRefs.current[room.chatRoomId] = el)}
-                        className={`ChatList_Wrap${swipedRoomId === room.chatRoomId ? ' swiped' : ''}`}
-                        onPointerDown={handlePointerDown}
-                        onPointerMove={(e) => handlePointerMove(e, room.chatRoomId)}
-                        onPointerUp={(e) => handlePointerUp(e, room.chatRoomId)}
-                        onClick={() => handleClick(room.opponent.userId, room.opponent, room.chatRoomId)}
-                    >
-                        <img src={profile} alt="" />
-                        <div className="text_container">
-                            <h1>{room.opponent.nickname}</h1>
-                            <p>{room.lastMessage ?? ''}</p>
+            {rooms?.map((room) => {
+                const opponent = getSafeOpponent(room.opponent)
+
+                return (
+                    <div key={room.chatRoomId} className="ChatList_Slide_Wrap">
+                        <div
+                            ref={(el) => (itemRefs.current[room.chatRoomId] = el)}
+                            className={`ChatList_Wrap${swipedRoomId === room.chatRoomId ? ' swiped' : ''}`}
+                            onPointerDown={handlePointerDown}
+                            onPointerMove={(e) => handlePointerMove(e, room.chatRoomId)}
+                            onPointerUp={(e) => handlePointerUp(e, room.chatRoomId)}
+                            onClick={() => handleClick(room)}
+                        >
+                            <img src={profile} alt="" />
+                            <div className="text_container">
+                                <h1>{opponent.nickname}</h1>
+                                <p>{room.lastMessage ?? ''}</p>
+                            </div>
+                            <ChatBadge
+                                count={room.unreadCount}
+                                teamRequest={room.badgeType === 'TEAM_REQUEST'}
+                            />
                         </div>
-                        <ChatBadge
-                            count={room.unreadCount}
-                            teamRequest={room.badgeType === 'TEAM_REQUEST'}
-                        />
+                        <button
+                            className="leave-btn"
+                            onClick={() => setConfirmRoomId(room.chatRoomId)}
+                        >
+                            나가기
+                        </button>
                     </div>
-                    <button
-                        className="leave-btn"
-                        onClick={() => setConfirmRoomId(room.chatRoomId)}
-                    >
-                        나가기
-                    </button>
-                </div>
-            ))}
+                )
+            })}
             {confirmRoomId && (
                 <ConfirmModal
                     title="채팅방을 나가시겠습니까?"
