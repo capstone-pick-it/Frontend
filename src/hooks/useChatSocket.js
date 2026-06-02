@@ -9,6 +9,7 @@ const WS_URL = import.meta.env.DEV
 const useChatSocket = (chatRoomId) => {
   const [messages, setMessages] = useState([])
   const [teamRequestEvent, setTeamRequestEvent] = useState(null)
+  const [readEvent, setReadEvent] = useState(null)
   const clientRef = useRef(null)
 
   useEffect(() => {
@@ -30,6 +31,16 @@ const useChatSocket = (chatRoomId) => {
               senderNickname: event.message.sender.nickname,
             }
             setMessages((prev) => [...prev, msg])
+          } else if (event.eventType === 'CHAT_READ') {
+            const lastReadId = event.lastReadMessageId
+            setMessages((prev) => prev.map((msg) => {
+              const msgId = msg.messageId ?? msg.id ?? msg.chatMessageId
+              if (msgId <= lastReadId && (msg.unreadMemberCount ?? 0) > 0) {
+                return { ...msg, unreadMemberCount: msg.unreadMemberCount - 1 }
+              }
+              return msg
+            }))
+            setReadEvent(event)
           } else if (
             event.eventType === 'TEAM_REQUEST_CREATED' ||
             event.eventType === 'TEAM_REQUEST_ACCEPTED' ||
@@ -64,7 +75,7 @@ const useChatSocket = (chatRoomId) => {
 
   const clearMessages = () => setMessages([])
 
-  return { messages, sendMessage, teamRequestEvent, clearMessages }
+  return { messages, sendMessage, teamRequestEvent, clearMessages, readEvent }
 }
 
 export default useChatSocket
