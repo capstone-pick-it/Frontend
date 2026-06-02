@@ -31,8 +31,8 @@ const useChatSocket = (chatRoomId) => {
               senderNickname: event.message.sender.nickname,
             }
             setMessages((prev) => [...prev, msg])
-          } else if (event.eventType === 'CHAT_READ') {
-            const lastReadId = event.lastReadMessageId
+          } else if (event.eventType === 'CHAT_MESSAGE_READ') {
+            const lastReadId = event.messageRead.lastReadMessageId
             setMessages((prev) => prev.map((msg) => {
               const msgId = msg.messageId ?? msg.id ?? msg.chatMessageId
               if (msgId <= lastReadId && (msg.unreadMemberCount ?? 0) > 0) {
