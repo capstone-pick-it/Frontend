@@ -10,31 +10,45 @@
 
 .auth-step-header {
   position: relative;
-  padding-top: 78px;
+  margin: 0 -16px;
+  padding: 47px 16px 0;
 
   h1 {
     @include heading1;
     color: var(--black);
-    margin-bottom: 20px;
+    margin: 0;
   }
 
   h2 {
-    @include heading1;
+    @include heading2;
     color: var(--black);
-    margin-top: 22px;
+    margin: 22px 0 0;
   }
 }
 
+.auth-step-header__top {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  height: 66px;
+}
+
 .auth-step-header__back {
-  position: absolute;
-  top: 31px;
-  left: 0;
-  width: 32px;
-  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  padding: 0;
   background-color: transparent;
-  color: var(--black);
-  text-align: left;
-  @include heading1;
+
+  img {
+    width: 30px;
+    height: 30px;
+  }
 }
 
 .auth-step-header__bars {
