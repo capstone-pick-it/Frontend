@@ -16,13 +16,16 @@
         margin-bottom: 0;
     }
 
-    .section-logout {
+    .section-account-actions {
         display: flex;
+        flex-direction: column;
+        align-items: center;
         justify-content: center;
+        gap: 12px;
         margin-top: 40px;
     }
 
-    .mypage-logout-button {
+    .mypage-account-button {
         padding: 0;
 
         border: 0;
@@ -36,6 +39,15 @@
         line-height: 1.3;
         text-decoration-line: underline;
         text-underline-offset: 2px;
+
+        &--danger {
+            color: var(--error-dark);
+        }
+    }
+
+    .mypage-account-modal-error {
+        margin-top: 8px;
+        color: var(--error-dark);
     }
 
     .mypage-loading {
