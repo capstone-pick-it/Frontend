@@ -152,7 +152,7 @@ const normalizeProjectMember = (member, fallbackMember = {}) => ({
   name: member.nickname || fallbackMember.name || '팀원',
   school: member.major || fallbackMember.school || '',
   major: member.major || fallbackMember.major || fallbackMember.school || '',
-  year: member.grade ?? fallbackMember.year,
+  year: member.grade ?? member.year ?? fallbackMember.year,
   role: member.role ?? fallbackMember.role,
   activeMember: member.activeMember ?? fallbackMember.activeMember,
   tags: getDisplayTraits(member.traits || member.defaultTraits, fallbackMember.tags || []),
