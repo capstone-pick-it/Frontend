@@ -169,7 +169,9 @@ const normalizeProjectDetail = (detail, fallbackProject) => {
   return {
     ...fallbackProject,
     id: detail.projectTeamId ?? fallbackProject.id,
-    title: detail.courseName || fallbackProject.title,
+    projectName: detail.projectName || fallbackProject.projectName || fallbackProject.title,
+    title: detail.projectName || fallbackProject.projectName || fallbackProject.title,
+    courseName: detail.courseName || fallbackProject.courseName,
     status: detail.status === 'DONE' ? '진행 완료' : fallbackProject.status,
     progress: Math.round(detail.progressRate ?? fallbackProject.progress ?? 0),
   }
@@ -178,10 +180,14 @@ const normalizeProjectDetail = (detail, fallbackProject) => {
 const normalizeProjectSummary = (project, fallbackStatus) => {
   const status = project.projectStatus || project.status || fallbackStatus
   const memberNames = project.memberNames || project.members || []
-  const title = project.projectName || project.courseName || project.title || '프로젝트'
+  const projectName = project.projectName || project.title
+  const courseName = project.courseName
+  const title = projectName || courseName || '프로젝트'
 
   return {
     id: project.projectTeamId ?? project.projectId ?? project.id,
+    projectName: projectName || title,
+    courseName,
     title,
     members: Array.isArray(memberNames) ? memberNames.join(' ') : memberNames,
     status: projectStatusLabel[status] || project.status || projectStatusLabel[fallbackStatus] || '진행 중',
