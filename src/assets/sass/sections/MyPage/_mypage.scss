@@ -8,9 +8,34 @@
 
     .section-profile,
     .section-default-traits,
-    .section-course-card,
-    .section-project-history-summary {
+    .section-course-card {
         margin-bottom: 16px;
+    }
+
+    .section-project-history-summary {
+        margin-bottom: 0;
+    }
+
+    .section-logout {
+        display: flex;
+        justify-content: center;
+        margin-top: 40px;
+    }
+
+    .mypage-logout-button {
+        padding: 0;
+
+        border: 0;
+        background: none;
+        color: var(--gray-500);
+        cursor: pointer;
+
+        font-family: inherit;
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 1.3;
+        text-decoration-line: underline;
+        text-underline-offset: 2px;
     }
 
     .mypage-loading {

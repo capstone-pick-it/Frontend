@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import Nav from '../../components/Nav';
 import TopBar from '../../components/TopBar';
 import ProfileCard from '../../components/ProfileCard';
+import Modal from '../../components/Modal';
 import DefaultTraits from '../../components/MyPage/DefaultTraits';
 import CourseCard from '../../components/MyPage/CourseCard';
 import ProjectHistorySummary from '../../components/MyPage/ProjectHistorySummary';
 
-import { getSavedUser } from '../../api/token';
+import { logoutUser } from '../../api/auth';
+import { clearAuthTokens, getSavedUser } from '../../api/token';
 import {
   getCourseCards,
   getDefaultTraits,
@@ -50,6 +52,8 @@ const MyPage = () => {
   const [courses, setCourses] = useState([]);
   const [projectHistorySummary, setProjectHistorySummary] = useState(INITIAL_PROJECT_HISTORY_SUMMARY);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -140,6 +144,23 @@ const MyPage = () => {
     };
   }, []);
 
+  const handleConfirmLogout = async () => {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+
+    try {
+      await logoutUser();
+    } catch (error) {
+      console.log('[로그아웃 실패]', error.message);
+    } finally {
+      clearAuthTokens();
+      setIsLogoutModalOpen(false);
+      setIsLoggingOut(false);
+      navigate('/login', { replace: true });
+    }
+  };
+
   return (
     <div className="container has-topbar mypage-container">
       {/* 페이지 타이틀 */}
@@ -184,9 +205,33 @@ const MyPage = () => {
                 onDetail={() => navigate('/mypage/project-history')}
               />
             </div>
+
+            <div className="section-logout">
+              <button
+                type="button"
+                className="mypage-logout-button"
+                onClick={() => setIsLogoutModalOpen(true)}
+              >
+                로그아웃
+              </button>
+            </div>
           </>
         )}
       </div>
+
+      {isLogoutModalOpen && (
+        <Modal
+          variant="confirm"
+          title="로그아웃"
+          titleColor="black"
+          description="로그아웃하시겠습니까?"
+          confirmText={isLoggingOut ? '로그아웃 중' : '확인'}
+          cancelText="취소"
+          onClose={() => setIsLogoutModalOpen(false)}
+          onCancel={() => setIsLogoutModalOpen(false)}
+          onConfirm={handleConfirmLogout}
+        />
+      )}
 
       {/* 하단 네비게이션 바 */}
       <Nav />
