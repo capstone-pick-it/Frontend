@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import Nav from '../../components/Nav';
 import TopBar from '../../components/TopBar';
 import ProfileCard from '../../components/ProfileCard';
+import Modal from '../../components/Modal';
 import DefaultTraits from '../../components/MyPage/DefaultTraits';
 import CourseCard from '../../components/MyPage/CourseCard';
 import ProjectHistorySummary from '../../components/MyPage/ProjectHistorySummary';
 
-import { getSavedUser } from '../../api/token';
+import { deleteUser, logoutUser } from '../../api/auth';
+import { clearAuthTokens, getSavedUser } from '../../api/token';
 import {
   getCourseCards,
   getDefaultTraits,
@@ -50,6 +52,11 @@ const MyPage = () => {
   const [courses, setCourses] = useState([]);
   const [projectHistorySummary, setProjectHistorySummary] = useState(INITIAL_PROJECT_HISTORY_SUMMARY);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [deleteErrorMessage, setDeleteErrorMessage] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -140,6 +147,54 @@ const MyPage = () => {
     };
   }, []);
 
+  const handleConfirmLogout = async () => {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+
+    try {
+      await logoutUser();
+    } catch (error) {
+      console.log('[로그아웃 실패]', error.message);
+    } finally {
+      clearAuthTokens();
+      setIsLogoutModalOpen(false);
+      setIsLoggingOut(false);
+      navigate('/login', { replace: true });
+    }
+  };
+
+  const handleOpenDeleteModal = () => {
+    setDeleteErrorMessage('');
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    if (isDeletingAccount) return;
+
+    setIsDeleteModalOpen(false);
+    setDeleteErrorMessage('');
+  };
+
+  const handleConfirmDeleteAccount = async () => {
+    if (isDeletingAccount) return;
+
+    setIsDeletingAccount(true);
+    setDeleteErrorMessage('');
+
+    try {
+      await deleteUser();
+      clearAuthTokens();
+      setIsDeleteModalOpen(false);
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.log('[회원 탈퇴 실패]', error.message);
+      setDeleteErrorMessage('회원 탈퇴에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
+
   return (
     <div className="container has-topbar mypage-container">
       {/* 페이지 타이틀 */}
@@ -184,9 +239,65 @@ const MyPage = () => {
                 onDetail={() => navigate('/mypage/project-history')}
               />
             </div>
+
+            <div className="section-account-actions">
+              <button
+                type="button"
+                className="mypage-account-button"
+                onClick={() => setIsLogoutModalOpen(true)}
+              >
+                로그아웃
+              </button>
+
+              <button
+                type="button"
+                className="mypage-account-button mypage-account-button--danger"
+                onClick={handleOpenDeleteModal}
+              >
+                탈퇴하기
+              </button>
+            </div>
           </>
         )}
       </div>
+
+      {isLogoutModalOpen && (
+        <Modal
+          variant="confirm"
+          title="로그아웃"
+          titleColor="black"
+          description="로그아웃하시겠습니까?"
+          confirmText={isLoggingOut ? '로그아웃 중' : '확인'}
+          cancelText="취소"
+          onClose={() => setIsLogoutModalOpen(false)}
+          onCancel={() => setIsLogoutModalOpen(false)}
+          onConfirm={handleConfirmLogout}
+        />
+      )}
+
+      {isDeleteModalOpen && (
+        <Modal
+          type="error"
+          variant="confirm"
+          title="회원 탈퇴"
+          description="정말 탈퇴하시겠습니까? 탈퇴 후 계정 이용이 제한됩니다."
+          confirmText={isDeletingAccount ? '탈퇴 중' : '탈퇴하기'}
+          cancelText="취소"
+          onClose={handleCloseDeleteModal}
+          onCancel={handleCloseDeleteModal}
+          onConfirm={handleConfirmDeleteAccount}
+        >
+          <p className="modal__description">
+            정말 탈퇴하시겠습니까? 탈퇴 후 계정 이용이 제한됩니다.
+          </p>
+
+          {deleteErrorMessage && (
+            <p className="modal__description mypage-account-modal-error">
+              {deleteErrorMessage}
+            </p>
+          )}
+        </Modal>
+      )}
 
       {/* 하단 네비게이션 바 */}
       <Nav />

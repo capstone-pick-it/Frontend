@@ -8,9 +8,46 @@
 
     .section-profile,
     .section-default-traits,
-    .section-course-card,
-    .section-project-history-summary {
+    .section-course-card {
         margin-bottom: 16px;
+    }
+
+    .section-project-history-summary {
+        margin-bottom: 0;
+    }
+
+    .section-account-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 40px;
+    }
+
+    .mypage-account-button {
+        padding: 0;
+
+        border: 0;
+        background: none;
+        color: var(--gray-500);
+        cursor: pointer;
+
+        font-family: inherit;
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 1.3;
+        text-decoration-line: underline;
+        text-underline-offset: 2px;
+
+        &--danger {
+            color: var(--error-dark);
+        }
+    }
+
+    .mypage-account-modal-error {
+        margin-top: 8px;
+        color: var(--error-dark);
     }
 
     .mypage-loading {

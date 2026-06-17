@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import Nav from '../../components/Nav'
 import ChatList from '../../components/Chat/ChatList'
 import TopBar from '../../components/TopBar'
@@ -5,7 +6,11 @@ import GroupChatList from '../../components/Chat/GroupChatList'
 import { useChatRooms } from '../../context/ChatRoomsContext'
 
 const Chat = () => {
-  const { directRooms, setDirectRooms, groupRooms, setGroupRooms } = useChatRooms()
+  const { directRooms, setDirectRooms, groupRooms, setGroupRooms, fetchRooms } = useChatRooms()
+
+  useEffect(() => {
+    fetchRooms()
+  }, [])
 
   return (
     <div id="Chat_Wrap" className="container">
