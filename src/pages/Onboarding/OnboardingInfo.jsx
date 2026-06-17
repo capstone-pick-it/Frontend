@@ -4,7 +4,7 @@ import Dropdown from '../../components/Dropdown'
 import Button from '../../components/Button'
 import { useState } from 'react'
 import delete_img from '../../assets/images/Onboarding/delete.svg'
-import { USER_INFO } from '../../data/mockData'
+import { getUser } from '../../api/token'
 import { useNavigate } from 'react-router-dom'
 import { saveOnboardingProfile } from '../../api/auth'
 import {
@@ -13,7 +13,9 @@ import {
   SEMESTER_OPTIONS,
 } from '../../constants/commonOptions'
 
+
 const OnboardingInfo = () => {
+  const user = getUser()
   const navigate = useNavigate();
   const [lectureList, SetLectureList] = useState([])
   const [input, SetInput] = useState("")
@@ -54,7 +56,7 @@ const OnboardingInfo = () => {
 
   return (
     <div id="OnboardingInfo_Wrap" className="container">
-        <h1>{USER_INFO.name} 님에 대해 알려주세요!</h1>
+        <h1>{user?.nickname} 님에 대해 알려주세요!</h1>
          <Input title={"학교"} value={school} onChange={(e) => setSchool(e.target.value)}/>
         <div className="dropdown_container">
           <Dropdown title={"전공"} list={MAJOR_OPTIONS} value={major} onChange={(value)=>setMajor(value)}/>
